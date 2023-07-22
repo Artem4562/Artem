@@ -3,6 +3,6 @@
 
 
 int main(){
-    printf("хай!");
+    printf("Hello, world!");
     getch();
 }
