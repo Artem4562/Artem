@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "main.c", "-o", "main.exe" 
+                "main.cpp", "-o", "main.exe" 
             ],
             "group":{
                 "kind": "build",
