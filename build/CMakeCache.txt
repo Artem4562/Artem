@@ -243,6 +243,15 @@ CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Value Computed by CMake
+oke2_BINARY_DIR:STATIC=C:/Users/mrsic/Documents/GitHub/Artem/build
+
+//Value Computed by CMake
+oke2_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+oke2_SOURCE_DIR:STATIC=C:/Users/mrsic/Documents/GitHub/Artem
+
+//Value Computed by CMake
 oke_BINARY_DIR:STATIC=C:/Users/mrsic/Documents/GitHub/Artem/build
 
 //Value Computed by CMake
