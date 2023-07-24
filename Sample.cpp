@@ -44,8 +44,7 @@
 
 #define LINE_LEN 16
 
-int main(int argc, char **argv)
-{   
+int main (int argc, char **argv) {   
 pcap_if_t *alldevs, *d;
 pcap_t *fp;
 u_int inum, i=0;
@@ -89,6 +88,7 @@ const u_char *pkt_data;
         }
         
         printf("Enter the interface number (1-%d):",i);
+        //inum = 1;
         scanf_s("%d", &inum);
         
         if (inum < 1 || inum > i)
