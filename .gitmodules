@@ -1,3 +1,0 @@
-[submodule "npcap"]
-	path = npcap
-	url = https://github.com/nmap/npcap
