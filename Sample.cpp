@@ -31,7 +31,7 @@
  *
  */
 
-
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -88,8 +88,8 @@ const u_char *pkt_data;
         }
         
         printf("Enter the interface number (1-%d):",i);
-        inum = 1;
-        //scanf_s("%d", &inum);
+        //inum = 1;
+        scanf("%d", &inum);
         
         if (inum < 1 || inum > i)
         {
