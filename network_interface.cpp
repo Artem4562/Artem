@@ -11,25 +11,6 @@ using namespace std;
 #define MAX_PRINT 80
 #define MAX_LINE 16
 
-#ifdef _WIN32
-#include <tchar.h>
-BOOL LoadNpcapDlls()
-{
-	_TCHAR npcap_dir[512];
-	UINT len;
-	len = GetSystemDirectory(npcap_dir, 480);
-	if (!len) {
-		fprintf(stderr, "Error in GetSystemDirectory: %x", GetLastError());
-		return FALSE;
-	}
-	_tcscat_s(npcap_dir, 512, _T("\\Npcap"));
-	if (SetDllDirectory(npcap_dir) == 0) {
-		fprintf(stderr, "Error in SetDllDirectory: %x", GetLastError());
-		return FALSE;
-	}
-	return TRUE;
-}
-#endif
 
 
 void usage();
@@ -69,14 +50,7 @@ int main(int argc, char **argv){
 	struct pcap_pkthdr *header;
 	const u_char *pkt_data;
 	
-#ifdef _WIN32
-	/* Load Npcap and its functions. */
-	if (!LoadNpcapDlls())
-	{
-		fprintf(stderr, "Couldn't load Npcap\n");
-		exit(1);
-	}
-#endif
+
 
 	if (argc == 1)
 	{
