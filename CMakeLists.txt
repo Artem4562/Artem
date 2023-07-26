@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(oke)
-add_executable(${PROJECT_NAME} Sample.cpp)
+add_executable(${PROJECT_NAME} network_interface.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Include") 
 target_link_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(${PROJECT_NAME} "wpcap.lib")
