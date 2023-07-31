@@ -1,6 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake
-/npcap-sdk-1.13
+/npcap-sdk
 ### C++ ###
 # Prerequisites
 *.d

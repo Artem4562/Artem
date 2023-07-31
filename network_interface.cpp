@@ -1,9 +1,13 @@
-#include <pcap.h>  
+#include <pcap.h>
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <fstream>
 #include <stdio.h>
 #include <conio.h>
+#include <stdlib.h>
+#include <cstring>
+
+
 
 using namespace std;
 
@@ -12,15 +16,13 @@ using namespace std;
 #define MAX_LINE 16
 
 
-
 void usage();
-
-
 
 
 int main(int argc, char **argv){
 	string path ="../name.txt";
 	ifstream fin;
+	usage();
 	fin.open(path);
 	if (!fin.is_open()){
 		cout<< "FATAL ERROR"<< endl;
@@ -35,6 +37,7 @@ int main(int argc, char **argv){
 	}
 	fin.close();
     getch();
+
 
 
 	pcap_t *fp;
@@ -82,35 +85,23 @@ int main(int argc, char **argv){
 			break;
 		}
 	}
+	fprintf(stderr,"\nUsage:\npf -s %s -o %s [-f %s]\n\n",source,ofilename,filter);
 	
 	// open a capture from the network
 	if (source != NULL)
 	{
-		fp = pcap_create(source, errbuf);
-		if (fp == NULL) {
-			fprintf(stderr, "pcap_create error: %s\n", errbuf);
-			return -2;
-		}
-		res = pcap_set_snaplen(fp, 65536);
-		if (res < 0) {
-			fprintf(stderr, "pcap_set_snaplen error: %s\n", pcap_statustostr(res));
-			return -2;
-		}
-		res = pcap_set_promisc(fp, 1);
-		if (res < 0) {
-			fprintf(stderr, "pcap_set_promisc error: %s\n", pcap_statustostr(res));
-			return -2;
-		}
-		res = pcap_set_timeout(fp, 1000);
-		if (res < 0) {
-			fprintf(stderr, "pcap_set_timeout error: %s\n", pcap_statustostr(res));
-			return -2;
-		}
-		res = pcap_activate(fp);
-		if (res < 0) {
-			fprintf(stderr, "pcap_activate error: %s\n", pcap_statustostr(res));
-			return -2;
-		}
+		if ( (fp= pcap_open(source,
+                            100 /*snaplen*/,
+                            PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
+                            20 /*read timeout*/,
+                            NULL /* remote authentication */,
+                            errbuf)
+                            ) == NULL)
+        {
+            fprintf(stderr,"\nError opening adapter: %s\n",errbuf);
+            return -1;
+        }
+		
 	}
 	else usage();
 
@@ -125,7 +116,7 @@ int main(int argc, char **argv){
 		//compile the filter
 		if((res = pcap_compile(fp, &fcode, filter, 1, NetMask)) < 0)
 		{
-			fprintf(stderr,"\nError compiling filter: %s\n", pcap_statustostr(res));
+			fprintf(stderr,"\nError compiling filter: %s\n", (res));
 
 			pcap_close(fp);
 			return -3;
@@ -134,14 +125,13 @@ int main(int argc, char **argv){
 		//set the filter
 		if((res = pcap_setfilter(fp, &fcode))<0)
 		{
-			fprintf(stderr,"\nError setting the filter: %s\n", pcap_statustostr(res));
+			fprintf(stderr,"\nError setting the filter: %s\n", (res));
 
 			pcap_close(fp);
 			return -4;
 		}
 
 	}
-
 	//open the dump file
 	if (ofilename != NULL)
 	{
@@ -181,6 +171,6 @@ void usage()
 {
 
 	printf("\npf - Generic Packet Filter.\n");
-	printf("\nUsage:\npf -s source -o output_file_name [-f filter_string]\n\n");
+	printf("\nUsage:\npf -s sourse -o output_file_name [-f filter_string]\n\n");
 	exit(0);
 }
