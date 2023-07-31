@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/reader.exe",
-            "args": ["-s","rpcap://\\Device\\NPF_{842E623A-E21E-410E-9EF9-DDC6B1610A7C}","-f","wgsgsgwf"],
+            "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
