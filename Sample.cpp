@@ -47,23 +47,51 @@
 
 #define LINE_LEN 16
 
-int main (int argc, char **argv) {   
-pcap_if_t *alldevs, *d;
-pcap_t *fp;
-u_int inum, i=0;
-char errbuf[PCAP_ERRBUF_SIZE];
-int res;
-struct pcap_pkthdr *header;
-const u_char *pkt_data;
-setlocale(LC_ALL, "");
+int main (int argc, char **argv) {  
+    char *source = NULL;
+	char *ofilename = NULL;
+	char *filter = NULL; 
+    pcap_if_t *alldevs, *d;
+    pcap_t *fp;
+    u_int inum, i=0, arc;
+    char errbuf[PCAP_ERRBUF_SIZE];
+    int res;
+    struct pcap_pkthdr *header;
+    const u_char *pkt_data;
+    setlocale(LC_ALL, "");
+    for(i=1,arc=0;i < argc; i+= 2)
+	{
+		switch (argv[i] [1])
+		{
+			case 's':
+			{
+				source=argv[i+1];
+                arc++;
+			};
+			break;
+			
+			case 'o':
+			{
+				ofilename=argv[i+1];
+                arc++;
+			};
+			break;
 
+			case 'f':
+			{
+				filter=argv[i+1];
+                arc++;
+			};
+			break;
+		}
+	}
     printf("pktdump_ex: prints the packets of the network using WinPcap.\n");
     printf("   Usage: pktdump_ex [-s source]\n\n"
            "   Examples:\n"
            "      pktdump_ex -s file://c:/temp/file.acp\n"
            "      pktdump_ex -s rpcap://\\Device\\NPF_{C8736017-F3C3-4373-94AC-9A34B7DAD998}\n\n");
 
-    if(argc < 3)
+    if(arc > 1)
     {
 
         printf("\nNo adapter selected: printing the device list:\n");
@@ -92,8 +120,8 @@ setlocale(LC_ALL, "");
         }
         
         printf("Enter the interface number (1-%d):",i);
-        //inum = 1;
-        scanf("%d", &inum);
+        inum = 4;
+        //scanf("%d", &inum);
         
         if (inum < 1 || inum > i)
         {
@@ -109,7 +137,7 @@ setlocale(LC_ALL, "");
              std::cout<<d->name<<'\n';
              //давайте так тогда
              // там вот такой формат rpcap://\Device\NPF_{C8736017-F3C3-4373-94AC-9A34B7DAD998}
-             if (d->name == "\\Device\\NPF_{C8736017-F3C3-4373-94AC-9A34B7DAD998}") {
+             if (d->name == source) {
                  if ( (fp= pcap_open(d->name,
                             100 /*snaplen*/,
                             PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
