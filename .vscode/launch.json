@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/reader.exe",
+            "program": "${workspaceFolder}/build/network.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

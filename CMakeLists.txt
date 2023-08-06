@@ -13,6 +13,10 @@ target_include_directories(reader PUBLIC "./npcap-sdk/Include")
 target_link_directories(reader PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(reader wpcap.lib)
 
+add_executable(network New_York.cpp )
+target_include_directories(network PUBLIC "./npcap-sdk/Include") 
+target_link_directories(network PUBLIC "./npcap-sdk/Lib")
+target_link_libraries(network wpcap.lib)
 
 
 #Sample.cpp network_interface.cpp
