@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake
 /npcap-sdk
+/.vscode
 ### C++ ###
 # Prerequisites
 *.d
@@ -54,3 +55,5 @@ _deps
 *-prefix/
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,cmake
+.vscode/settings.json
+name.txt
