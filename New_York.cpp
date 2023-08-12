@@ -36,12 +36,13 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
-	string path ="C:\\Users\\User\\Documents\\GitHub\\Artem\\name.txt";
+	string path ="C:\\Users\\mrsic\\Documents\\GitHub\\Artem\\name.txt";
 	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
 	fin.open(path);
 	if (!fin.is_open()){
 		cout<< "FATAL ERROR"<< endl;
+		getch();
 	}
 	else {
         cout<< "file is open!"<<endl;
@@ -49,7 +50,7 @@ int main(int argc, char **argv){
         cout<<endl;
 		
     
-		//fin.close();
+		fin.close();
 	
 
 		pcap_t *fp;  //дескриптор (радиостанция)
