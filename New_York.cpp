@@ -36,8 +36,8 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
-	string path ="C:\\Users\\mrsic\\Documents\\GitHub\\Artem\\name.txt";
-	ifstream fin;
+	string path ="C:\\Users\\User\\Documents\\GitHub\\Artem\\name.txt";
+	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
 	fin.open(path);
 	if (!fin.is_open()){
@@ -49,22 +49,21 @@ int main(int argc, char **argv){
         cout<<endl;
 		
     
-		fin.close();
+		//fin.close();
 	
 
-		pcap_t *fp;
+		pcap_t *fp;  //дескриптор (радиостанция)
 		char errbuf[PCAP_ERRBUF_SIZE] = {0};
-		int i;
-		struct bpf_program fcode;
-		int res;
+		struct bpf_program fcode;     //переменная для записи фильтра
+		int res;  //переменная под ошибки 
 		bpf_u_int32 mask;   /* Сетевая маска устройства */
 		bpf_u_int32 net;	/* IP устройства */
 
 		
 
 		if ( (fp= pcap_open_live(str,
-								BUFSIZ /*snaplen*/,
-								1 /*flags*/,
+								65535 /*snaplen*/,
+								1 /*flags*/,   //в каком режиме это слушаем
 								1000 /*read timeout*/,
 								errbuf)
 								) == NULL)
@@ -75,8 +74,8 @@ int main(int argc, char **argv){
 			}
 		else // open ok
 		{	
-			pcap_lookupnet(str, &net, &mask, errbuf);
-			if((res = pcap_compile(fp, &fcode, "apa", 1, mask)) < 0)
+			pcap_lookupnet(str, &net, &mask, errbuf);     // записывает в mask и net маску адаптера и ip адаптера 
+			if((res = pcap_compile(fp, &fcode, "tcp", 1, mask)) < 0) //составление фльтра 
 				{
 					cout<<"\nError compiling filter: "<< res <<'\n';
 					getch();
@@ -85,7 +84,7 @@ int main(int argc, char **argv){
 				}
 
 				//set the filter
-			if((res = pcap_setfilter(fp, &fcode))<0)
+			if((res = pcap_setfilter(fp, &fcode))<0)   //применение фильтра 
 				{
 					cout<<"\nError setting the filter: "<< res <<'\n';
 					getch();
@@ -94,7 +93,7 @@ int main(int argc, char **argv){
 				}
 
 			cout<<"Recieved Packet Size:   ";
-			while(pcap_dispatch(fp,-1,callback,NULL)>=0){
+			while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
 				cout<<string ( to_string(count).length(),'\b'); 
 				cout<<count;
 				count=0;
@@ -103,5 +102,6 @@ int main(int argc, char **argv){
 		}	 	
 		getch();
 	}
+	fin.close();
 }
 
