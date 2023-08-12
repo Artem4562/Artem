@@ -36,7 +36,7 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
-	string path ="C:\\Users\\mrsic\\Documents\\GitHub\\Artem\\name.txt";
+	string path ="C:\\Users\\KirichenkoPV\\Documents\\GitHub\\Artem\\name.txt";
 	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
 	fin.open(path);
@@ -51,8 +51,9 @@ int main(int argc, char **argv){
 		
     
 		fin.close();
-	
-
+		
+		const u_char* pkt_data;
+		struct pcap_pkthdr *header;
 		pcap_t *fp;  //дескриптор (радиостанция)
 		char errbuf[PCAP_ERRBUF_SIZE] = {0};
 		struct bpf_program fcode;     //переменная для записи фильтра
@@ -94,12 +95,26 @@ int main(int argc, char **argv){
 				}
 
 			cout<<"Recieved Packet Size:   ";
-			while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
+			/*while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
 				cout<<string ( to_string(count).length(),'\b'); 
 				cout<<count;
 				count=0;
+			}*/
+			while(true)
+			{ 	
+				while((res = pcap_next_ex( fp, &header, &pkt_data)) >= 0)
+            	{
+                	if(res == 0)
+                	/* Timeout elapsed */
+                	continue;
+           		}
+				if (header->ts - time_end >= 1)
+				cout<<count;
+				count=0;
+				time_start= 
+			
 			}
-
+			
 		}	 	
 		getch();
 	}
