@@ -100,7 +100,7 @@ int main(int argc, char **argv){
 					return -4;
 				}
 
-			cout<<"Recieved Packet Size:                                          ";
+			cout<<"Recieved Packet Size:   ";
 			/*while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
 				cout<<string ( to_string(count).length(),'\b'); 
 				cout<<count;
@@ -119,10 +119,11 @@ int main(int argc, char **argv){
 					
 
            		}
-				cout<<string ( to_string(count).length() + 33,'\b');
+				
 				cout<<count;
 				time_start = time(0);
 				printf(" Local Time: %.20s",ctime(&time_start));
+				cout<<string ( to_string(count).length() + 33,'\b');
 				count=0;
 				flag= true;
 				
