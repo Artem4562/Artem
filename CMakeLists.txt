@@ -18,5 +18,10 @@ target_include_directories(network PUBLIC "./npcap-sdk/Include")
 target_link_directories(network PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(network wpcap.lib)
 
+add_executable(lol struct.cpp )
+target_include_directories(lol PUBLIC "./npcap-sdk/Include") 
+target_link_directories(lol PUBLIC "./npcap-sdk/Lib")
+target_link_libraries(lol wpcap.lib)
+
 
 #Sample.cpp network_interface.cpp

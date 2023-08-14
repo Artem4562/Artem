@@ -4,6 +4,9 @@
 #include <pcap.h>
 #include <fstream>
 #include <conio.h>
+#include <ctime>
+#include <iomanip>
+
 
 
 using namespace std;
@@ -36,12 +39,13 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
-	string path ="C:\\Users\\User\\Documents\\GitHub\\Artem\\name.txt";
+	string path ="C:\\Users\\KirichenkoPV\\Documents\\GitHub\\Artem\\name.txt";
 	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
 	fin.open(path);
 	if (!fin.is_open()){
 		cout<< "FATAL ERROR"<< endl;
+		getch();
 	}
 	else {
         cout<< "file is open!"<<endl;
@@ -50,15 +54,19 @@ int main(int argc, char **argv){
 		
     
 		//fin.close();
-	
-
+		
+		const u_char* pkt_data;
+		struct pcap_pkthdr *header;
 		pcap_t *fp;  //дескриптор (радиостанция)
 		char errbuf[PCAP_ERRBUF_SIZE] = {0};
 		struct bpf_program fcode;     //переменная для записи фильтра
 		int res;  //переменная под ошибки 
 		bpf_u_int32 mask;   /* Сетевая маска устройства */
 		bpf_u_int32 net;	/* IP устройства */
-
+		bool flag = true;
+		time_t time_start;
+		double razn;
+		
 		
 
 		if ( (fp= pcap_open_live(str,
@@ -75,7 +83,7 @@ int main(int argc, char **argv){
 		else // open ok
 		{	
 			pcap_lookupnet(str, &net, &mask, errbuf);     // записывает в mask и net маску адаптера и ip адаптера 
-			if((res = pcap_compile(fp, &fcode, "tcp", 1, mask)) < 0) //составление фльтра 
+			if((res = pcap_compile(fp, &fcode, "ip and tcp and port 443", 1, mask)) < 0) //составление фльтра 
 				{
 					cout<<"\nError compiling filter: "<< res <<'\n';
 					getch();
@@ -93,12 +101,35 @@ int main(int argc, char **argv){
 				}
 
 			cout<<"Recieved Packet Size:   ";
-			while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
+			/*while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
 				cout<<string ( to_string(count).length(),'\b'); 
 				cout<<count;
 				count=0;
-			}
+			}*/
+			
+			while(true)
+			{ 	
+				time_start= time(0);
+				while((razn=time(0)-time_start)<1 && (res = pcap_next_ex( fp, &header, &pkt_data)) >= 0   )
+            	{
+                	if(res == 0)
+                	/* Timeout elapsed */
+                	continue;
+					count++;
+					
 
+           		}
+				
+				cout<<count;
+				time_start = time(0);
+				printf(" Local Time: %.20s",ctime(&time_start));
+				cout<<string ( to_string(count).length() + 33,'\b');
+				count=0;
+				flag= true;
+				
+			
+			}
+			
 		}	 	
 		getch();
 	}
