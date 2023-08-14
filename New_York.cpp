@@ -39,7 +39,7 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
-	string path ="C:\\Users\\mrsic\\Documents\\GitHub\\Artem\\name.txt";
+	string path ="C:\\Users\\KirichenkoPV\\Documents\\GitHub\\Artem\\name.txt";
 	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
 	fin.open(path);
@@ -53,7 +53,7 @@ int main(int argc, char **argv){
         cout<<endl;
 		
     
-		fin.close();
+		//fin.close();
 		
 		const u_char* pkt_data;
 		struct pcap_pkthdr *header;
