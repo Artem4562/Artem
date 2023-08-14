@@ -23,5 +23,9 @@ target_include_directories(lol PUBLIC "./npcap-sdk/Include")
 target_link_directories(lol PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(lol wpcap.lib)
 
+add_executable(exefile1 readerfile.cpp )
+target_include_directories(exefile1 PUBLIC "./npcap-sdk/Include") 
+target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib")
+target_link_libraries(exefile1 wpcap.lib)
 
 #Sample.cpp network_interface.cpp
