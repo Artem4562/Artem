@@ -115,6 +115,7 @@ int main(int argc, char **argv){
                 	if(res == 0)
                 	/* Timeout elapsed */
                 	continue;
+					SV_Protocol Proc{pkt_data};
 					count++;
 					
 
