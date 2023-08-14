@@ -8,7 +8,12 @@ using namespace std;
 
 struct SV_Protocol 
 {
+    int i;
     short Destinatinion[7];
+    for(i=0;i<7;i++ )//думаю, как-то так оно должно работать 
+    {
+        pkt_data[i].Destinatinion;
+    }
     short Source[7];
     short *Type;
     short *AppID;
