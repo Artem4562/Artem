@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
-project(oke)
-set(CMAKE_BUILD_TYPE Debug)
+project(oke VERSION 0.9.1)
+
 
 add_executable(${PROJECT_NAME} network_interface.cpp )
 target_include_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Include") 
@@ -18,17 +18,17 @@ target_include_directories(network PUBLIC "./npcap-sdk/Include")
 target_link_directories(network PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(network wpcap.lib)
 
-add_executable(lol struct.cpp )
-target_include_directories(lol PUBLIC "./npcap-sdk/Include") 
-target_link_directories(lol PUBLIC "./npcap-sdk/Lib")
-target_link_libraries(lol wpcap.lib)
+add_executable(lol main.cpp )
+add_subdirectory(libraries)
+target_sources(lol
+    PRIVATE
+        main.cpp
+)
+target_link_libraries(lol PRIVATE parsestream)
 
 add_executable(exefile1 readerfile.cpp )
 target_include_directories(exefile1 PUBLIC "./npcap-sdk/Include") 
 target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(exefile1 wpcap.lib)
 
-#Sample.cpp network_interface.cpp
-# код для библиотеки
-add_library(${PROJECT_NAME}_lib STATIC 
-            lib src )
+

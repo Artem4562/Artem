@@ -57,3 +57,8 @@ _deps
 # End of https://www.toptal.com/developers/gitignore/api/c++,cmake
 .vscode/settings.json
 name.txt
+build/libraries/parse_stream/parsestreamConfig.cmake
+build/libraries/parse_stream/parsestreamConfigVersion.cmake
+build/libraries/parse_stream/cmake/parsestreamTargets.cmake
+libraries/parse_stream/Config.cmake.in
+libraries/parse_stream/cmake/Installing.cmake
