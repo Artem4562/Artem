@@ -29,3 +29,6 @@ target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(exefile1 wpcap.lib)
 
 #Sample.cpp network_interface.cpp
+# код для библиотеки
+add_library(${PROJECT_NAME}_lib STATIC 
+            lib src )
