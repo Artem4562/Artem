@@ -4,26 +4,7 @@
 
 #define LINE_LEN 16
 
-//#ifdef _WIN32
-#include <tchar.h>
-/*BOOL LoadNpcapDlls()
-{
-	_TCHAR npcap_dir[512];
-	UINT len;
-	len = GetSystemDirectory(npcap_dir, 480);
-	if (!len) {
-		fprintf(stderr, "Error in GetSystemDirectory: %x", GetLastError());
-		return FALSE;
-	}
-	_tcscat_s(npcap_dir, 512, _T("\\Npcap"));
-	if (SetDllDirectory(npcap_dir) == 0) {
-		fprintf(stderr, "Error in SetDllDirectory: %x", GetLastError());
-		return FALSE;
-	}
-	return TRUE;
-}
-#endif
-*/
+
 int main(int argc, char **argv)
 {
 	pcap_t *fp;
@@ -33,24 +14,9 @@ int main(int argc, char **argv)
 	u_int i=0;
 	int res;
 
-#ifdef _WIN32
-	/* Load Npcap and its functions. 
-	if (!LoadNpcapDlls())
-	{
-		fprintf(stderr, "Couldn't load Npcap\n");
-		exit(1);
-	}*/
-#endif
-    
-	/*if(argc != 2)
-	{	
-		printf("usage: %s filename", argv[0]);
-		return -1;
 
-	}
-	getch();*/
 	/* Open the capture file */
-	if ((fp = pcap_open_offline(argv[1],			// name of the device
+	if ((fp = pcap_open_offline("../sv.pcap",			// name of the device
 						 errbuf					// error buffer
 						 )) == NULL)
 	{
