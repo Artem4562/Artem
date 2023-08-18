@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/exefile1.exe",
+            "program": "${workspaceFolder}/build/lol.exe",
             "args": ["C:/Users/galat/Documents/GitHub/Artem/sv.pcap"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
