@@ -10,7 +10,7 @@ endif()
 
 
 
-add_library(${PROJECT_NAME} SHARED)
+add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
@@ -33,7 +33,7 @@ target_include_directories(${PROJECT_NAME}
 
 # without it public headers won't get installed
 set(public_headers
-    include/hell.h
+    include/hell.hpp
 )
 
 # where to find our CMake modules

@@ -39,7 +39,7 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
-	string path ="C:\\Users\\KirichenkoPV\\Documents\\GitHub\\Artem\\name.txt";
+	string path ="../name.txt";
 	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
 	fin.open(path);
@@ -115,7 +115,7 @@ int main(int argc, char **argv){
                 	if(res == 0)
                 	/* Timeout elapsed */
                 	continue;
-					SV_Protocol Proc{pkt_data};
+					//SV_Protocol Proc{pkt_data};
 					count++;
 					
 
