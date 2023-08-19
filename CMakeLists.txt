@@ -28,4 +28,4 @@ target_include_directories(exefile1 PUBLIC "./npcap-sdk/Include")
 target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(exefile1 wpcap.lib)
 
-
+message(STATUS "./npcap-sdk/Lib")
