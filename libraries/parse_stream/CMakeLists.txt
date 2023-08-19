@@ -11,6 +11,9 @@ endif()
 
 
 add_library(${PROJECT_NAME} STATIC)
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/npcap-sdk/Include") 
+target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/npcap-sdk/Lib")
+target_link_libraries(${PROJECT_NAME} wpcap.lib)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
@@ -40,6 +43,7 @@ set(public_headers
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 #message(STATUS "CMake module path: ${CMAKE_MODULE_PATH}")
 include(Installing)
+
 
 
 

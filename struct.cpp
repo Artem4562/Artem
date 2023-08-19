@@ -1,6 +1,5 @@
 #include <iostream>
-#include <conio.h>
-using namespace std;
+
 
 
 
@@ -8,11 +7,11 @@ using namespace std;
 
 struct SV_Protocol 
 {
-    int i;
+    int i = 0;
     short Destinatinion[7];
-    for(i=0;i<7;i++ )//думаю, как-то так оно должно работать 
+    for(i;i<7;i++ )//думаю, как-то так оно должно работать 
     {
-        pkt_data[i].Destinatinion;
+        Destinatinion[i]=pkt_data[i];
     }
     short Source[7];
     short *Type;

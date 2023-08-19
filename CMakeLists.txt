@@ -20,10 +20,7 @@ target_link_libraries(network wpcap.lib)
 
 add_executable(lol main.cpp )
 add_subdirectory(libraries)
-target_sources(lol
-    PRIVATE
-        main.cpp
-)
+target_sources(lol PRIVATE main.cpp)
 target_link_libraries(lol PRIVATE parsestream)
 
 add_executable(exefile1 readerfile.cpp )
