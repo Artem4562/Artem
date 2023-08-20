@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <conio.h>
 #include <iostream>
-#include <hell.hpp>
+
 
 
 int main(){
@@ -14,7 +14,7 @@ int main(){
     std::cout<<i<<std::endl;
     unsigned int *p= (unsigned int*)((a<<8) | (b));
     printf("Hello, world!");
-    sm::lbr::printSomething();
+    //sm::lbr::printSomething();
     printf("%d, %c ",c,c);
     std::cout<<i<<"  "<<&i<<"  "<<p;
     getch();

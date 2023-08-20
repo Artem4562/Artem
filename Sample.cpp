@@ -113,7 +113,7 @@ int main (int argc, char **argv) {
              }
              if (flg == 1) {
                  if ( (fp= pcap_open(d->name,
-                            100 /*snaplen*/,
+                            0xffff /*snaplen*/,
                             PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
                             20 /*read timeout*/,
                             NULL /* remote authentication */,
@@ -195,7 +195,7 @@ int main (int argc, char **argv) {
             i++;
         }
         if ( (fp= pcap_open(d->name,
-                            100 /*snaplen*/,
+                            0xffff /*snaplen*/,
                             PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
                             20 /*read timeout*/,
                             NULL /* remote authentication */,
