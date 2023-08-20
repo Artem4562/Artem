@@ -12,12 +12,29 @@
 using namespace std;
 #define LINE_LEN 16
 
+typedef struct {
+	long count_for_timestamp = 0;
+	long current_time = 0;
+	long counter = 0;
+} counter;
+
+static counter c;
+
 static int count=0;
 
 void callback(u_char *arg, const struct pcap_pkthdr* pkthdr, 
 	const u_char* packet) 
 {  
+	c.current_time = time(0);
+	if (c.current_time-c.count_for_timestamp>1){
+		cout<<string ( to_string(c.counter).length() + 3 + to_string(count).length(),'\b'); 
+		cout<<c.counter<<"   "<<count;
+		c.counter = 0;
+		c.count_for_timestamp = c.current_time;
+	}
+	c.counter++;
 	count++;
+	
 	/*
 	int i=0; 
 	static int count=0; 
@@ -39,6 +56,8 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 
 
 int main(int argc, char **argv){
+
+
 	string path ="../name.txt";
 	ifstream fin;     //определяю новый поток ввода/вывода потока данных
     char *str = new char;
@@ -83,8 +102,9 @@ int main(int argc, char **argv){
 		else // open ok
 		{	
 			pcap_lookupnet(str, &net, &mask, errbuf);     // записывает в mask и net маску адаптера и ip адаптера 
-			if((res = pcap_compile(fp, &fcode, "ip and tcp and port 443", 1, mask)) < 0) //составление фльтра 
-				{
+			if((res = pcap_compile(fp, &fcode, "ether dst 01:0c:cd:04:00:10", 1, mask)) < 0) //составление фльтра 
+				{	//1.12.205.4.0.16
+					//0.80.194.79.148.59
 					cout<<"\nError compiling filter: "<< res <<'\n';
 					getch();
 					pcap_close(fp);
@@ -100,20 +120,20 @@ int main(int argc, char **argv){
 					return -4;
 				}
 
-			cout<<"Recieved Packet Size:   ";
-			/*while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
-				cout<<string ( to_string(count).length(),'\b'); 
-				cout<<count;
-				count=0;
-			}*/
+			cout<<"Recieved Packet Size:           ";
+			while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
+				// cout<<string ( to_string(c.counter).length(),'\b'); 
+				// cout<<c.counter;
+				//c.counter=0;
+			}
 			
-			while(true)
+			/*while(true)
 			{ 	
 				time_start= time(0);
-				while((razn=time(0)-time_start)<1 && (res = pcap_next_ex( fp, &header, &pkt_data)) >= 0   )
+				while((time(0)-time_start)<1 && (res = pcap_next_ex( fp, &header, &pkt_data)) >= 0   )
             	{
                 	if(res == 0)
-                	/* Timeout elapsed */
+                	
                 	continue;
 					//SV_Protocol Proc{pkt_data};
 					count++;
@@ -129,7 +149,7 @@ int main(int argc, char **argv){
 				flag= true;
 				
 			
-			}
+			}*/
 			
 		}	 	
 		getch();

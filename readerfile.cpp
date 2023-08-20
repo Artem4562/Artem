@@ -1,11 +1,12 @@
-#include <stdio.h>
 #include <pcap.h>
 #include <conio.h>
 #include <hell.hpp>
 #include <iostream>
+#include <iomanip>
+#include <fstream>
 #define LINE_LEN 16
 
-
+using namespace std;
 int main(int argc, char **argv)
 {
 	pcap_t *fp;
@@ -40,9 +41,62 @@ int main(int argc, char **argv)
 	printf("\n\n");		
 	
 	SV_PROT prot;
-	fprintf(stderr,"che-to sdelalos ");
 	WildFox(pkt_data,header,&prot);
-	std::cout<<"che-to sdelalos "<< prot.svID;
+	fprintf(stderr,"che-to sdelalos \n");
+	std::cout<<"Dest (";
+	for(int i=0;i<6;i++){
+		printf("%.2x:",int(prot.Destinatinion[i]));
+	}
+	std::cout<<string (1,'\b')<<")\n";
+	std::cout<<"Source (";
+	for(int i=0;i<6;i++){
+		printf("%.2x:",int(prot.Source[i]));
+	}
+	std::cout<<string (1,'\b')<<")\n";
+	std::cout<<"Type (";
+	printf("%.2x",int(prot.Type));
+	std::cout<<")\n";
+	std::cout<<"AppID (";
+	printf("%.2x",int(prot.AppID));
+	std::cout<<")\n";
+	std::cout<<"Lenght (";
+	printf("%.d",int(prot.Lenght));
+	std::cout<<")\n";
+	std::cout<<"Res1 (";
+	printf("%.2x",int(prot.Res1));
+	std::cout<<")\n";
+	std::cout<<"Res2 (";
+	printf("%.2x",int(prot.Res2));
+	std::cout<<")\n";
+	std::cout<<"noAsdu (";
+	printf("%d",int(prot.noAsdu));
+	std::cout<<")\n";
+	std::cout<<"svID (";
+	for(int i=0;i<10;i++){
+		printf("%.c",int(prot.svID[i]));
+	}
+	std::cout<<")\n";
+	std::cout<<"smpCnt (";
+	printf("%d",int(prot.smpCnt));
+	std::cout<<")\n";
+	std::cout<<"confRef (";
+	printf("%d",int(prot.confRef));
+	std::cout<<")\n";
+	std::cout<<"smpSynch (";
+	printf("%d",int(prot.smpSynch));
+	std::cout<<")\n";
+	std::cout<<"Data (\n";
+	for(int i=1;i<65;i++){
+		printf("%.2x ",int(prot.Data[i-1]));
+		if ( (i % LINE_LEN) == 0 ) printf("\n");
+	}
+	std::cout<<")\n";
+
+
+
+
+
+
     getch();
 	pcap_close(fp);
 	return 0;
