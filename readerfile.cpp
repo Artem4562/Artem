@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <pcap.h>
 #include <conio.h>
-
+#include <hell.hpp>
+#include <iostream>
 #define LINE_LEN 16
 
 
@@ -16,7 +17,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline(argv[1],			// name of the device
+	if ((fp = pcap_open_offline("C:\\Users\\galat\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
 						 errbuf					// error buffer
 						 )) == NULL)
 	{
@@ -24,26 +25,24 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	/* Retrieve the packets from the file */
-	while((res = pcap_next_ex(fp, &header, &pkt_data)) >= 0)
+	res = pcap_next_ex(fp, &header, &pkt_data);
+	
+	/* print pkt timestamp and pkt len */
+	printf("%ld:%ld (%ld)\n", header->ts.tv_sec, header->ts.tv_usec, header->len);			
+	
+	/* Print the packet */
+	for (i=1; (i < header->caplen + 1 ) ; i++)
 	{
-		/* print pkt timestamp and pkt len */
-		printf("%ld:%ld (%ld)\n", header->ts.tv_sec, header->ts.tv_usec, header->len);			
-		
-		/* Print the packet */
-		for (i=1; (i < header->caplen + 1 ) ; i++)
-		{
-			printf("%.2x ", pkt_data[i-1]);
-			if ( (i % LINE_LEN) == 0) printf("\n");
-		}
-		
-		printf("\n\n");		
+		printf("%.2x ", pkt_data[i-1]);
+		if ( (i % LINE_LEN) == 0) printf("\n");
 	}
 	
+	printf("\n\n");		
 	
-	if (res == -1)
-	{
-		printf("Error reading the packets: %s\n", pcap_geterr(fp));
-	}
+	SV_PROT prot;
+	fprintf(stderr,"che-to sdelalos ");
+	WildFox(pkt_data,header,&prot);
+	std::cout<<"che-to sdelalos "<< prot.svID;
     getch();
 	pcap_close(fp);
 	return 0;
