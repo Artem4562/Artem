@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline("C:\\Users\\galat\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
+	if ((fp = pcap_open_offline("C:\\Users\\User\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
 						 errbuf					// error buffer
 						 )) == NULL)
 	{
@@ -43,54 +43,54 @@ int main(int argc, char **argv)
 	SV_PROT prot;
 	WildFox(pkt_data,header,&prot);
 	fprintf(stderr,"che-to sdelalos \n");
-	std::cout<<"Dest (";
+	cout<<"Dest (";
 	for(int i=0;i<6;i++){
-		printf("%.2x:",int(prot.Destinatinion[i]));
+		printf("%.2x:",int(prot.Destination[i]));
 	}
-	std::cout<<string (1,'\b')<<")\n";
-	std::cout<<"Source (";
+	cout<<string (1,'\b')<<")\n";
+	cout<<"Source (";
 	for(int i=0;i<6;i++){
 		printf("%.2x:",int(prot.Source[i]));
 	}
-	std::cout<<string (1,'\b')<<")\n";
-	std::cout<<"Type (";
+	cout<<string (1,'\b')<<")\n";
+	cout<<"Type (";
 	printf("%.2x",int(prot.Type));
-	std::cout<<")\n";
-	std::cout<<"AppID (";
+	cout<<")\n";
+	cout<<"AppID (";
 	printf("%.2x",int(prot.AppID));
-	std::cout<<")\n";
-	std::cout<<"Lenght (";
+	cout<<")\n";
+	cout<<"Lenght (";
 	printf("%.d",int(prot.Lenght));
-	std::cout<<")\n";
-	std::cout<<"Res1 (";
+	cout<<")\n";
+	cout<<"Res1 (";
 	printf("%.2x",int(prot.Res1));
-	std::cout<<")\n";
-	std::cout<<"Res2 (";
+	cout<<")\n";
+	cout<<"Res2 (";
 	printf("%.2x",int(prot.Res2));
-	std::cout<<")\n";
-	std::cout<<"noAsdu (";
+	cout<<")\n";
+	cout<<"noAsdu (";
 	printf("%d",int(prot.noAsdu));
-	std::cout<<")\n";
-	std::cout<<"svID (";
+	cout<<")\n";
+	cout<<"svID (";
 	for(int i=0;i<10;i++){
 		printf("%.c",int(prot.svID[i]));
 	}
-	std::cout<<")\n";
-	std::cout<<"smpCnt (";
+	cout<<")\n";
+	cout<<"smpCnt (";
 	printf("%d",int(prot.smpCnt));
-	std::cout<<")\n";
-	std::cout<<"confRef (";
+	cout<<")\n";
+	cout<<"confRef (";
 	printf("%d",int(prot.confRef));
-	std::cout<<")\n";
-	std::cout<<"smpSynch (";
+	cout<<")\n";
+	cout<<"smpSynch (";
 	printf("%d",int(prot.smpSynch));
-	std::cout<<")\n";
-	std::cout<<"Data (\n";
+	cout<<")\n";
+	cout<<"Data (\n";
 	for(int i=1;i<65;i++){
 		printf("%.2x ",int(prot.Data[i-1]));
 		if ( (i % LINE_LEN) == 0 ) printf("\n");
 	}
-	std::cout<<")\n";
+	cout<<")\n";
 
 
 

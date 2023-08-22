@@ -3,7 +3,7 @@
 #include <pcap.h>
 
 typedef struct {
-    unsigned char *Destinatinion = new unsigned char[6];
+    unsigned char *Destination = new unsigned char[6];
     unsigned char *Source = new unsigned char[6];
     unsigned short Type; 
     unsigned short AppID; 

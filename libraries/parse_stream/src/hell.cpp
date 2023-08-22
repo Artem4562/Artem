@@ -15,9 +15,9 @@
 void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
     int len_triplet = pc[i];
     if( !(pc[i-1] & CATALOG) ){
-        switch (pc[i-1])
+        switch (pc[i-1])  //если () = чему-то после case
 		{
-			case NO_ASDU_OR_SVID:
+			case NO_ASDU_OR_SVID:  //в случае чего если
 			{
 				if(package->noAsdu){
                     for(int j = i+1; j-i<=len_triplet; j++){
@@ -68,7 +68,7 @@ void WildFox(const u_char *pkt_data, pcap_pkthdr *header, SV_PROT *package){
     int len;
     for(i = 1; i <= LEN_ETHERNET_ADDR*2 ;i++){
         if(i <= LEN_ETHERNET_ADDR){
-            package->Destinatinion[i-1] = pkt_data[i-1];
+            package->Destination[i-1] = pkt_data[i-1];
         }
         else if(LEN_ETHERNET_ADDR < i && i <= LEN_ETHERNET_ADDR*2){
             package->Source[i-LEN_ETHERNET_ADDR-1] = pkt_data[i-1];
