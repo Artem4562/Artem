@@ -25,98 +25,99 @@ int main(int argc, char **argv)
 		fprintf(stderr,"\nUnable to open the file %s.\n", argv[1]);
 		return -1;
 	}
+
+	int k = 0;
+	SV_PROT prot;
+	while(k < 51){
+	k++;
 	/* Retrieve the packets from the file */
 	res = pcap_next_ex(fp, &header, &pkt_data);
-	
+
 	/* print pkt timestamp and pkt len */
-	printf("%ld:%ld (%ld)\n", header->ts.tv_sec, header->ts.tv_usec, header->len);			
+	// printf("%ld:%ld (%ld)\n", header->ts.tv_sec, header->ts.tv_usec, header->len);			
 	
-	/* Print the packet */
-	for (i=1; (i < header->caplen + 1 ) ; i++)
-	{
-		printf("%.2x ", pkt_data[i-1]);
-		if ( (i % LINE_LEN) == 0) printf("\n");
-	}
+	// /* Print the packet */
+	// for (i=1; (i < header->caplen + 1 ) ; i++)
+	// {
+	// 	printf("%.2x ", pkt_data[i-1]);
+	// 	if ( (i % LINE_LEN) == 0) printf("\n");
+	// }
 	
-	printf("\n\n");		
+	// printf("\n\n");		
 
-	SV_PROT prot;
+	
 	WildFox(pkt_data,header,&prot);
-	fprintf(stderr,"che-to sdelalos \n");
-	cout<<"Dest (";
-	for(int i=0;i<6;i++){
-		printf("%.2x:",int(prot.Destination[i]));
-	}
-	cout<<string (1,'\b')<<")\n";
-	cout<<"Source (";
-	for(int i=0;i<6;i++){
-		printf("%.2x:",int(prot.Source[i]));
-	}
-	cout<<string (1,'\b')<<")\n";
-	cout<<"Type (";
-	printf("%.2x",int(prot.Type));
-	cout<<")\n";
-	cout<<"AppID (";
-	printf("%.2x",int(prot.AppID));
-	cout<<")\n";
-	cout<<"Lenght (";
-	printf("%.d",int(prot.Lenght));
-	cout<<")\n";
-	cout<<"Res1 (";
-	printf("%.2x",int(prot.Res1));
-	cout<<")\n";
-	cout<<"Res2 (";
-	printf("%.2x",int(prot.Res2));
-	cout<<")\n";
-	cout<<"noAsdu (";
-	printf("%d",int(prot.noAsdu));
-	cout<<")\n";
-	cout<<"svID (";
-	for(int i=0;i<10;i++){
-		printf("%.c",int(prot.svID[i]));
-	}
-	cout<<")\n";
-	cout<<"smpCnt (";
-	printf("%d",int(prot.smpCnt));
-	cout<<")\n";
-	cout<<"confRef (";
-	printf("%d",int(prot.confRef));
-	cout<<")\n";
-	cout<<"smpSynch (";
-	printf("%d",int(prot.smpSynch));
-	cout<<")\n";
-	// cout<<"Data (\n";
-	// //for(int i=1;i<65;i++){
-	// printf("%.2x ",prot.Ia);
-	// 	//if ( (i % LINE_LEN) == 0 ) printf("\n");
-	// //}
+	// fprintf(stderr,"che-to sdelalos \n");
+	// cout<<"Dest (";
+	// for(int i=0;i<6;i++){
+	// 	printf("%.2x:",int(prot.Destination[i]));
+	// }
+	// cout<<string (1,'\b')<<")\n";
+	// cout<<"Source (";
+	// for(int i=0;i<6;i++){
+	// 	printf("%.2x:",int(prot.Source[i]));
+	// }
+	// cout<<string (1,'\b')<<")\n";
+	// cout<<"Type (";
+	// printf("%.2x",int(prot.Type));
 	// cout<<")\n";
-	cout<<"Ia (";
+	// cout<<"AppID (";
+	// printf("%.2x",int(prot.AppID));
+	// cout<<")\n";
+	// cout<<"Lenght (";
+	// printf("%.d",int(prot.Lenght));
+	// cout<<")\n";
+	// cout<<"Res1 (";
+	// printf("%.2x",int(prot.Res1));
+	// cout<<")\n";
+	// cout<<"Res2 (";
+	// printf("%.2x",int(prot.Res2));
+	// cout<<")\n";
+	// cout<<"noAsdu (";
+	// printf("%d",int(prot.noAsdu));
+	// cout<<")\n";
+	// cout<<"svID (";
+	// for(int i=0;i<10;i++){
+	// 	printf("%.c",int(prot.svID[i]));
+	// }
+	// cout<<")\n";
+	// cout<<"smpCnt (";
+	// printf("%d",int(prot.smpCnt));
+	// cout<<")\n";
+	// cout<<"confRef (";
+	// printf("%d",int(prot.confRef));
+	// cout<<")\n";
+	// cout<<"smpSynch (";
+	// printf("%d",int(prot.smpSynch));
+	// cout<<")\n";
+	// cout<<"Ia (";
+	// printf("%d",int(prot.Ia));
+	// cout<<")\n";
+	// cout<<"Ib (";
+	// printf("%d",int(prot.Ib));
+	// cout<<")\n";
+	// cout<<"Ic (";
+	// printf("%d",int(prot.Ic));
+	// cout<<")\n";
+	// cout<<"In (";
+	// printf("%d",int(prot.In));
+	// cout<<")\n";
+	// cout<<"Ua (";
+	// printf("%d",int(prot.Ua));
+	// cout<<")\n";
+	// cout<<"Ub (";
+	// printf("%d",int(prot.Ub));
+	// cout<<")\n";
+	// cout<<"Uc (";
+	// printf("%d",int(prot.Uc));
+	// cout<<")\n";
+	// cout<<"cucumber";
+	// cout<<"Un (";
+	// printf("%d",int(prot.Un));
+	// cout<<")\n";
 	printf("%d",int(prot.Ia));
-	cout<<")\n";
-	cout<<"Ib (";
-	printf("%d",int(prot.Ib));
-	cout<<")\n";
-	cout<<"Ic (";
-	printf("%d",int(prot.Ic));
-	cout<<")\n";
-	cout<<"In (";
-	printf("%d",int(prot.In));
-	cout<<")\n";
-	cout<<"Ua (";
-	printf("%d",int(prot.Ua));
-	cout<<")\n";
-	cout<<"Ub (";
-	printf("%d",int(prot.Ub));
-	cout<<")\n";
-	cout<<"Uc (";
-	printf("%d",int(prot.Uc));
-	cout<<")\n";
-	cout<<"cucumber";
-	cout<<"Un (";
-	printf("%d",int(prot.Un));
-	cout<<")\n";
-
+	cout<<"\n";
+	}
 
     getch();
 	pcap_close(fp);
