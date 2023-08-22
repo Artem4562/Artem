@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	}
 	
 	printf("\n\n");		
-	
+
 	SV_PROT prot;
 	WildFox(pkt_data,header,&prot);
 	fprintf(stderr,"che-to sdelalos \n");
@@ -85,16 +85,37 @@ int main(int argc, char **argv)
 	cout<<"smpSynch (";
 	printf("%d",int(prot.smpSynch));
 	cout<<")\n";
-	cout<<"Data (\n";
-	for(int i=1;i<65;i++){
-		printf("%.2x ",int(prot.Data[i-1]));
-		if ( (i % LINE_LEN) == 0 ) printf("\n");
-	}
+	// cout<<"Data (\n";
+	// //for(int i=1;i<65;i++){
+	// printf("%.2x ",prot.Ia);
+	// 	//if ( (i % LINE_LEN) == 0 ) printf("\n");
+	// //}
+	// cout<<")\n";
+	cout<<"Ia (";
+	printf("%d",int(prot.Ia));
 	cout<<")\n";
-
-
-
-
+	cout<<"Ib (";
+	printf("%d",int(prot.Ib));
+	cout<<")\n";
+	cout<<"Ic (";
+	printf("%d",int(prot.Ic));
+	cout<<")\n";
+	cout<<"In (";
+	printf("%d",int(prot.In));
+	cout<<")\n";
+	cout<<"Ua (";
+	printf("%d",int(prot.Ua));
+	cout<<")\n";
+	cout<<"Ub (";
+	printf("%d",int(prot.Ub));
+	cout<<")\n";
+	cout<<"Uc (";
+	printf("%d",int(prot.Uc));
+	cout<<")\n";
+	cout<<"cucumber";
+	cout<<"Un (";
+	printf("%d",int(prot.Un));
+	cout<<")\n";
 
 
     getch();

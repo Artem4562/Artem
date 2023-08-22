@@ -17,6 +17,7 @@ int main(){
     //sm::lbr::printSomething();
     printf("%d, %c ",c,c);
     std::cout<<i<<"  "<<&i<<"  "<<p;
+    printf("%d",0b11111111111111011000000010010000);
     getch();
     return 0;
 }

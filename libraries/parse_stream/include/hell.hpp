@@ -15,7 +15,15 @@ typedef struct {
     unsigned short smpCnt;
     unsigned long confRef;
     unsigned char smpSynch;
-    unsigned char Data[64];
+    // unsigned char Data[64];
+    int Ia;
+    int Ib;
+    int Ic;
+    int In;
+    int Ua;
+    int Ub;
+    int Uc;
+    int Un;
 }SV_PROT;
 
 void func_rasb(char*  , int  , int , SV_PROT *);
