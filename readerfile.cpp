@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline("C:\\Users\\User\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
+	if ((fp = pcap_open_offline("C:\\Users\\mrsic\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
 						 errbuf					// error buffer
 						 )) == NULL)
 	{
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
 	int k = 0;
 	SV_PROT prot;
-	while(k < 51){
+	while(k < 200){
 	k++;
 	/* Retrieve the packets from the file */
 	res = pcap_next_ex(fp, &header, &pkt_data);
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 	// cout<<"Un (";
 	// printf("%d",int(prot.Un));
 	// cout<<")\n";
-	printf("%d",int(prot.Ia));
+	printf("%d",int(prot.Ib));
 	cout<<"\n";
 	}
 

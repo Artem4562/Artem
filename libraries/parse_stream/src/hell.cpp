@@ -21,7 +21,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 			case NO_ASDU_OR_SVID:  //в случае чего если
 			{
 				if(package->noAsdu){
-                    package->svID=new unsigned char;
+                    //package->svID=new unsigned char;
                     for(int j = i+1; j-i<=len_triplet; j++){
                         package->svID[j-i-1] = pc[j];
                     } 
