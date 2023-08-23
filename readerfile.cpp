@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline("C:\\Users\\mrsic\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
+	if ((fp = pcap_open_offline("C:\\Users\\galat\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
 						 errbuf					// error buffer
 						 )) == NULL)
 	{
@@ -68,10 +68,10 @@ int main(int argc, char **argv)
 	// printf("%.d",int(prot.Lenght));
 	// cout<<")\n";
 	// cout<<"Res1 (";
-	// printf("%.2x",int(prot.Res1));
+	// printf("%.4x",int(prot.Res1));
 	// cout<<")\n";
 	// cout<<"Res2 (";
-	// printf("%.2x",int(prot.Res2));
+	// printf("%.4x",int(prot.Res2));
 	// cout<<")\n";
 	// cout<<"noAsdu (";
 	// printf("%d",int(prot.noAsdu));
@@ -111,13 +111,12 @@ int main(int argc, char **argv)
 	// cout<<"Uc (";
 	// printf("%d",int(prot.Uc));
 	// cout<<")\n";
-	// cout<<"cucumber";
 	// cout<<"Un (";
 	// printf("%d",int(prot.Un));
 	// cout<<")\n";
-	printf("%d",int(prot.Ib));
-	cout<<"\n";
-	}
+	// printf("%d",int(prot.Ia));
+	// cout<<"\n";
+	// }
 
     getch();
 	pcap_close(fp);

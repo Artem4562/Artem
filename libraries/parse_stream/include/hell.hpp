@@ -11,7 +11,7 @@ typedef struct {
     unsigned short Res1; 
     unsigned short Res2; 
     unsigned char noAsdu = 0;
-    unsigned char svID[10];
+    unsigned char *svID = new unsigned char;
     unsigned short smpCnt;
     unsigned long confRef;
     unsigned char smpSynch;

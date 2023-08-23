@@ -21,7 +21,8 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 			case NO_ASDU_OR_SVID:  //в случае чего если
 			{
 				if(package->noAsdu){
-                    //package->svID=new unsigned char;
+                    delete package->svID;
+                    package->svID = new unsigned char[len_triplet];
                     for(int j = i+1; j-i<=len_triplet; j++){
                         package->svID[j-i-1] = pc[j];
                     } 
@@ -49,25 +50,28 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 			break;
 
             case SEQ_OF_DATA:  //i=57
-			{
-                //for(int j = i + LENGHT_SHIFT; j-i<=len_triplet; j++){
-                    //package->Data[j-i-1] = pc[j]
-                int j = i;
-                package->Ia = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->Ib = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->Ic = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->In = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->Ua = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->Ub = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->Uc = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                j=j+8;
-                package->Un = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+			{   
+                int *MAS[8] = {&package->Ia,&package->Ib,&package->Ic,&package->In,&package->Ua,&package->Ub,&package->Uc,&package->Un}; 
+                //int k = i+1;
+                for(int j = 0 , k = i + 1; k < len_pc; k+=8, j++){
+                    *(MAS[j]) = (int)((pc[k]<<24)|(pc[k+1]<<16)|(pc[k+2]<<8)|(pc[k+3]));
+                }
+                // int j = i;
+                // package->Ia = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->Ib = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->Ic = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->In = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->Ua = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->Ub = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->Uc = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
+                // j=j+8;
+                // package->Un = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
                // }
 				// for(int j = i + LENGHT_SHIFT; j-i<=len_triplet; j++){
                 //     package->Data[j-i-1] = pc[j];
