@@ -114,8 +114,8 @@ int main(int argc, char **argv)
 	// cout<<"Un (";
 	// printf("%d",int(prot.Un));
 	// cout<<")\n";
-	// printf("%d",int(prot.Ia));
-	// cout<<"\n";
+	 printf("%d",int(prot.Ia));
+	 cout<<"\n";
 	}
 
     getch();
