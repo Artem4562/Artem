@@ -11,11 +11,10 @@ typedef struct {
     unsigned short Res1; 
     unsigned short Res2; 
     unsigned char noAsdu = 0;
-    unsigned char *svID = new unsigned char;
+    unsigned char *svID = new unsigned char[8];
     unsigned short smpCnt;
     unsigned long confRef;
     unsigned char smpSynch;
-    // unsigned char Data[64];
     int Ia;
     int Ib;
     int Ic;
@@ -26,16 +25,8 @@ typedef struct {
     int Un;
 }SV_PROT;
 
-void func_rasb(char*  , int  , int , SV_PROT *);
 
 void WildFox(const u_char * , pcap_pkthdr * , SV_PROT *);
 
-namespace sm
-{
-    namespace lbr
-    {
-        void printSomething();
-    }
-}
 
 #endif // HELL_H

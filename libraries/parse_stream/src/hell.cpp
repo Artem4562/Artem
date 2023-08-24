@@ -3,6 +3,7 @@
 #include "hell.hpp"
 
 #define  LEN_ETHERNET_ADDR  6           //lenght of MAC adress
+#define  LEN_NON_TRIP       22          //lenght of none-triplet data
 #define  NO_ASDU_OR_SVID    0x80        //standart IEC 61850-8-1
 #define  SMP_CNT            0x82        //standart IEC 61850-8-1
 #define  CONF_REV           0x83        //standart IEC 61850-8-1
@@ -16,15 +17,15 @@
 void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
     int len_triplet = pc[i];
     if( !(pc[i-1] & CATALOG) ){
-        switch (pc[i-1])  //если () = чему-то после case
+        switch (pc[i-1]) 
 		{
-			case NO_ASDU_OR_SVID:  //в случае чего если
+			case NO_ASDU_OR_SVID:  
 			{
 				if(package->noAsdu){
                     delete package->svID;
                     package->svID = new unsigned char[len_triplet];
-                    for(int j = i+1; j-i<=len_triplet; j++){
-                        package->svID[j-i-1] = pc[j];
+                    for(int j = i; j-i<len_triplet; j++){
+                        package->svID[j-i] = pc[j+1];
                     } 
                 }
                 else package->noAsdu = pc[i+1];
@@ -49,34 +50,13 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 			};
 			break;
 
-            case SEQ_OF_DATA:  //i=57
+            case SEQ_OF_DATA: 
 			{   
                 int *MAS[8] = {&package->Ia,&package->Ib,&package->Ic,&package->In,&package->Ua,&package->Ub,&package->Uc,&package->Un}; 
-                //int k = i+1;
+
                 for(int j = 0 , k = i + 1; k < len_pc; k+=8, j++){
                     *(MAS[j]) = (int)((pc[k]<<24)|(pc[k+1]<<16)|(pc[k+2]<<8)|(pc[k+3]));
                 }
-                // int j = i;
-                // package->Ia = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->Ib = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->Ic = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->In = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->Ua = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->Ub = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->Uc = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-                // j=j+8;
-                // package->Un = (int)((pc[j+1]<<24)|(pc[j+2]<<16)|(pc[j+3]<<8)|(pc[j+4]));
-               // }
-				// for(int j = i + LENGHT_SHIFT; j-i<=len_triplet; j++){
-                //     package->Data[j-i-1] = pc[j];
-                // }
-
 			};
 			break;
 
@@ -93,6 +73,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 void WildFox(const u_char *pkt_data, pcap_pkthdr *header, SV_PROT *package){
     int i;
     int len;
+
     for(i = 1; i <= LEN_ETHERNET_ADDR*2 ;i++){
         if(i <= LEN_ETHERNET_ADDR){
             package->Destination[i-1] = pkt_data[i-1];
@@ -102,40 +83,12 @@ void WildFox(const u_char *pkt_data, pcap_pkthdr *header, SV_PROT *package){
         }
     }
 
-    for(;i<22;i+=2){
-        switch(i)
-        {
-            case 13:
-                {
-                    package->Type=(unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
-                };
-			break;
+    unsigned short *MAS[5] = {&package->Type,&package->AppID,&package->Lenght,&package->Res1,&package->Res2};
 
-            case 15:
-                {
-                    package->AppID=(unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
-                };
-			break;
-
-            case 17:
-                {
-                    package->Lenght=(unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
-                };
-			break;
-
-            case 19:
-                {
-                    package->Res1=(unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
-                };
-			break;
-
-            case 21:
-                {
-                    package->Res2=(unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
-                };
-			break;
-        }        
+    for(int j = 0; i < LEN_NON_TRIP; i+=2, j++){
+        *(MAS[j]) = (unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
     }
+
     func_rasb(pkt_data,i++,header->len,package);
 }
 
