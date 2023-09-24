@@ -62,3 +62,7 @@ build/libraries/parse_stream/parsestreamConfigVersion.cmake
 build/libraries/parse_stream/cmake/parsestreamTargets.cmake
 libraries/parse_stream/Config.cmake.in
 libraries/parse_stream/cmake/Installing.cmake
+
+
+*.pcap
+*.pcapng
