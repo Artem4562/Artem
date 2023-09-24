@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline("C:\\Users\\galat\\Documents\\GitHub\\Artem\\sv.pcap",			// name of the device
+	if ((fp = pcap_open_offline(".//sv.pcap",			// name of the device
 						 errbuf					// error buffer
 						 )) == NULL)
 	{
