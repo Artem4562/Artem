@@ -1,9 +1,9 @@
 #define GLAD_GL_IMPLEMENTATION
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "external/glfw/deps/glad/gl.h"
-#include "implot.h"
-#include "implot_internal.h"
+#include "libraries/glfw/deps/glad/gl.h"
+#include <implot.h>
+#include <implot_internal.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <imgui.h>
