@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline("C:\\Users\\galat\\Documents\\GitHub\\Artem\\SVLong.pcapng",			// name of the device
+	if ((fp = pcap_open_offline("../SVLong.pcapng",			// name of the device
 						 errbuf							// error buffer
 						 )) == NULL)
 	{
@@ -29,8 +29,8 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	pcap_lookupnet("C:\\Users\\galat\\Documents\\GitHub\\Artem\\SVLong.pcapng", &net, &mask, errbuf);     // записывает в mask и net маску адаптера и ip адаптера 
-		if((res = pcap_compile(fp, &fcode, "not udp", 1, mask)) < 0) //составление фльтра 
+
+		if((res = pcap_compile(fp, &fcode, "not udp", 1, 0)) < 0) //составление фльтра 
 			{	
 				cout<<"\nError compiling filter: "<< res <<'\n';
 				getch();

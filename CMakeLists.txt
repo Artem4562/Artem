@@ -4,15 +4,15 @@ include(CTest)
 
 
 
-add_executable(lol main.cpp )
+add_executable(Testmisc Testmisc.cpp )
 add_subdirectory(libraries)
 
 
-add_executable(exefile1 readerfile.cpp )
-target_include_directories(exefile1 PUBLIC "./npcap-sdk/Include") 
-target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib/x64")
-target_link_libraries(exefile1 wpcap.lib)
-target_link_libraries(exefile1 parsestream)
+add_executable(Testbigfile Testbigfile.cpp )
+target_include_directories(Testbigfile PUBLIC "./npcap-sdk/Include") 
+target_link_directories(Testbigfile PUBLIC "./npcap-sdk/Lib/x64")
+target_link_libraries(Testbigfile wpcap.lib)
+target_link_libraries(Testbigfile parsestream)
 
-add_test(NAME TestInstantiator
-         COMMAND exefile1.exe)
+add_test(NAME Testbigfile
+         COMMAND Testbigfile.exe)
