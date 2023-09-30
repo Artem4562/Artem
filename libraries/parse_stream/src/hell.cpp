@@ -89,7 +89,7 @@ void WildFox(const u_char *pkt_data, pcap_pkthdr *header, SV_PROT *package){
         *(MAS[j]) = (unsigned short)((pkt_data[i-1]<<8)|(pkt_data[i]));
     }
 
-    if (package->Type == 0x86ba) (pkt_data,i++,header->len,package);
+    if (package->Type == 0x88ba) func_rasb(pkt_data,i++,header->len,package);
 }
 
 

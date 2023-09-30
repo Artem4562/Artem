@@ -59,10 +59,9 @@ int main(int argc, char **argv)
 		
 		WildFox(pkt_data,header,&prot);
 
-		printf("%d,%d",int(prot.Ia),k);
 		cout<<"\n";
 	}
-
+	cout<<k;
 	pcap_close(fp);
 	return 0;
 }
