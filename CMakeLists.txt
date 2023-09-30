@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 project(oke VERSION 0.9.1)
 include(CTest)
-
+set (CMAKE_CXX_STANDARD 17)
 
 
 add_executable(Testmisc Testmisc.cpp )
@@ -16,3 +16,18 @@ target_link_libraries(Testbigfile parsestream)
 
 add_test(NAME Testbigfile
          COMMAND Testbigfile.exe)
+
+         
+
+
+add_executable(gui 
+    lol.cpp
+)
+
+
+add_subdirectory(libraries/glfw)
+add_subdirectory(libraries/imgui-w)
+add_subdirectory(libraries/implot-w)
+
+target_link_libraries(gui PRIVATE imgui)
+target_link_libraries(gui PRIVATE implot)
