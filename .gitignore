@@ -48,7 +48,8 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-.cmake
+*.cmake
+*.in
 
 ### CMake Patch ###
 # External projects
