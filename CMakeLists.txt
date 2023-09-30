@@ -2,21 +2,6 @@ cmake_minimum_required(VERSION 3.27)
 project(oke VERSION 0.9.1)
 include(CTest)
 
-add_executable(${PROJECT_NAME} network_interface.cpp )
-target_include_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Include") 
-target_link_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Lib/x64")
-target_link_libraries(${PROJECT_NAME} wpcap.lib)
-
-
-add_executable(reader Sample.cpp )
-target_include_directories(reader PUBLIC "./npcap-sdk/Include") 
-target_link_directories(reader PUBLIC "./npcap-sdk/Lib/x64")
-target_link_libraries(reader wpcap.lib)
-
-add_executable(network New_York.cpp )
-target_include_directories(network PUBLIC "./npcap-sdk/Include") 
-target_link_directories(network PUBLIC "./npcap-sdk/Lib/x64")
-target_link_libraries(network wpcap.lib)
 
 
 add_executable(lol main.cpp )
