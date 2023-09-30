@@ -21,7 +21,7 @@ add_test(NAME Testbigfile
 
 
 add_executable(gui 
-    lol.cpp
+    hhh.cpp
 )
 
 
