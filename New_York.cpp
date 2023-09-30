@@ -34,23 +34,6 @@ void callback(u_char *arg, const struct pcap_pkthdr* pkthdr,
 	}
 	c.counter++;
 	count++;
-	
-	/*
-	int i=0; 
-	static int count=0; 
-
-	printf("Packet Count: %d\n", ++count);             
-	printf("Recieved Packet Size: %d\n", pkthdr->len); 
-	printf("Payload:\n");                              
-	for(i=0;i<pkthdr->len;i++) { 
-		if(isprint(packet[i]))            
-			printf("%c ",packet[i]);       
-		else 
-			printf(" . ",packet[i]);       
-		if((i%16==0 && i!=0) || i==pkthdr->len-1) 
-			printf("\n"); 
-	}
-	*/
 }
 
 
@@ -71,8 +54,6 @@ int main(int argc, char **argv){
         fin.getline(str, 256,'\n');
         cout<<endl;
 		
-    
-		//fin.close();
 		
 		const u_char* pkt_data;
 		struct pcap_pkthdr *header;
@@ -103,8 +84,7 @@ int main(int argc, char **argv){
 		{	
 			pcap_lookupnet(str, &net, &mask, errbuf);     // записывает в mask и net маску адаптера и ip адаптера 
 			if((res = pcap_compile(fp, &fcode, "ether dst 01:0c:cd:04:00:10", 1, mask)) < 0) //составление фльтра 
-				{	//1.12.205.4.0.16
-					//0.80.194.79.148.59
+				{	
 					cout<<"\nError compiling filter: "<< res <<'\n';
 					getch();
 					pcap_close(fp);
@@ -122,34 +102,9 @@ int main(int argc, char **argv){
 
 			cout<<"Recieved Packet Size:           ";
 			while(pcap_dispatch(fp,-1,callback,NULL)>=0){      //при ловле пакета срабатывает ф-ция callback
-				// cout<<string ( to_string(c.counter).length(),'\b'); 
-				// cout<<c.counter;
-				//c.counter=0;
 			}
 			
-			/*while(true)
-			{ 	
-				time_start= time(0);
-				while((time(0)-time_start)<1 && (res = pcap_next_ex( fp, &header, &pkt_data)) >= 0   )
-            	{
-                	if(res == 0)
-                	
-                	continue;
-					//SV_Protocol Proc{pkt_data};
-					count++;
-					
-
-           		}
-				
-				cout<<count;
-				time_start = time(0);
-				printf(" Local Time: %.20s",ctime(&time_start));
-				cout<<string ( to_string(count).length() + 33,'\b');
-				count=0;
-				flag= true;
-				
 			
-			}*/
 			
 		}	 	
 		getch();

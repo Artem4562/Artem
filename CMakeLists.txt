@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(oke VERSION 0.9.1)
-
+include(CTest)
 
 add_executable(${PROJECT_NAME} network_interface.cpp )
 target_include_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Include") 
@@ -29,4 +29,5 @@ target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib/x64")
 target_link_libraries(exefile1 wpcap.lib)
 target_link_libraries(exefile1 parsestream)
 
-
+add_test(NAME TestInstantiator
+         COMMAND exefile1.exe)
