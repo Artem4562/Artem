@@ -1,6 +1,9 @@
-[submodule "libraries/glfw"]
-	path = libraries/glfw
-	url = https://github.com/glfw/glfw.git
 [submodule "libraries/imgui-w/imgui"]
 	path = libraries/imgui-w/imgui
-	url = https://github.com/ocornut/imgui.git
+	url = https://github.com/ocornut/imgui
+[submodule "libraries/implot-w/implot"]
+	path = libraries/implot-w/implot
+	url = https://github.com/epezent/implot
+[submodule "libraries/glfw"]
+	path = libraries/glfw
+	url = https://github.com/glfw/glfw
