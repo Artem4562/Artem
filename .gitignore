@@ -68,3 +68,4 @@ build
 *.pcap
 *.pcapng
 /build
+*.ini
