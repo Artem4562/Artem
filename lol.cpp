@@ -2,13 +2,13 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "libraries/glfw/deps/glad/gl.h"
-#include <implot.h>
-#include <implot_internal.h>
-#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <imgui.h>
+#define GLFW_INCLUDE_NONE
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui.h>
+#include <implot.h>
+#include <implot_internal.h>
 #include <iostream>
 
 
@@ -28,8 +28,9 @@ void DrawVectorDiagram(){
 
             delete[] xs;
             delete[] ys;
+            ImPlot::EndPlot();
         }
-        ImPlot::EndPlot();
+        
     ImGui::End();
 } 
 
@@ -57,8 +58,9 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
 
         delete[] xs;
         delete[] ys;
+        ImPlot::EndPlot();
     }
-    ImPlot::EndPlot();
+    
     if (ImPlot::BeginPlot("Graph Ua, Ub, Uc, Un", ImVec2(1300,200),  ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
@@ -72,8 +74,9 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
 
         delete[] xs;
         delete[] ys;
+        ImPlot::EndPlot();
     }
-    ImPlot::EndPlot();
+    
     if (ImPlot::BeginPlot("Graph valid values Ua, Ub, Uc, Un", ImVec2(1300,200),  ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
@@ -87,8 +90,9 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
 
         delete[] xs;
         delete[] ys;
+        ImPlot::EndPlot(); 
     }
-    ImPlot::EndPlot(); 
+    
     if (ImPlot::BeginPlot("Graph valid values Ia, Ib, Ic, In", ImVec2(1300,200),  ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
@@ -102,8 +106,9 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
 
         delete[] xs;
         delete[] ys;
+        ImPlot::EndPlot(); 
     }
-    ImPlot::EndPlot(); 
+    
 
     ImGui::End();
 }
@@ -115,7 +120,7 @@ int main(int, char**) {
         return EXIT_FAILURE;
     }
     //Создаю окно 
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "My window", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "My window", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;

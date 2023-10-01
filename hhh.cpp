@@ -6,6 +6,30 @@
 #include <GLFW/glfw3.h>
 #define GLAD_GL_IMPLEMENTATION
 #include "libraries/glfw/deps/glad/gl.h"
+#include <implot.h>
+#include <implot_internal.h>
+
+void DrawVectorDiagram(){
+
+    ImGui::Begin("Protocol data");
+        if (ImPlot::BeginPlot("Graph Ia, Ib, Ic, In", ImVec2(1300,200))) {
+            int n = 100; // количество точек на графике
+            float* xs = new float[n];
+            float* ys = new float[n];
+            float step = 2 * M_PI/ n;
+            for (int i = 0; i < n; i++) {
+                xs[i] = i * step;
+                ys[i] = std::sin(xs[i]);
+            }
+            ImPlot::PlotLine("sin(x)", xs, ys, n);
+
+            delete[] xs;
+            delete[] ys;
+        }
+        ImPlot::EndPlot();
+    ImGui::End();
+} 
+
 
 int main(int, char**) {
     //Инициализация библиотеки GLFW
@@ -42,6 +66,7 @@ int main(int, char**) {
         ImGui::NewFrame();
 
         ImGui::Begin("Protocol data");
+        DrawVectorDiagram();
         ImGui::End();
 
         ImGui::Render();
