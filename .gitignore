@@ -67,4 +67,4 @@ build
 
 *.pcap
 *.pcapng
-build
+/build
