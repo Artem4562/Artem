@@ -24,6 +24,7 @@ add_executable(gui
     lol.cpp
 )
 
+set(CMAKE_CREATE_WIN32_EXE "/SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
 
 add_subdirectory(libraries/glfw)
 add_subdirectory(libraries/imgui-w)
