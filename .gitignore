@@ -69,3 +69,4 @@ build
 *.pcapng
 /build
 *.ini
+*.tcl
