@@ -13,39 +13,30 @@
 
 
 void DrawVectorDiagram(){
+    ImGui::SetNextWindowSize(ImVec2(800,400));
+    ImGui::Begin("Monitor");
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::CalcTextSize("Справа выровненный текст").x);
+    ImGui::Text("Справа выровненный текст");
 
-    ImGui::Begin("Protocol data");
-        if (ImPlot::BeginPlot("Graph Ia, Ib, Ic, In", ImVec2(1300,200))) {
-            int n = 100; // количество точек на графике
-            float* xs = new float[n];
-            float* ys = new float[n];
-            float step = 2 * M_PI/ n;
-            for (int i = 0; i < n; i++) {
-                xs[i] = i * step;
-                ys[i] = std::sin(xs[i]);
-            }
-            ImPlot::PlotLine("sin(x)", xs, ys, n);
-
-            delete[] xs;
-            delete[] ys;
-            ImPlot::EndPlot();
-        }
-        
+    ImGui::SetCursorPosX(0);
+    ImGui::Text("Слева выровненный текст");
     ImGui::End();
 } 
 
-void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
+void WindowFullInformation() {
+    ImVec2 SizeGraph (800,300);
     const char* PackageName = "C++";
     const char* Stream = "Potok";
     const char* MACdst = "01:0c:cd:01:00:10";
     const char* MACsrc = "00:50:c2:4f:94:3b";
     const char* svID = "0000MU0001";
     const char* Skippackets = "tut chto-to napisano";    
-    ImGui::SetWindowSize(customWindowSize);
+    ImGui::SetNextWindowSize(ImVec2(800,400));
     ImGui::Begin("Protocol data",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
-    ImGui::Text("Package Name: %s;  Stream: %s;  MAC dst: %s;  MAC src: %s;  svID: %s;  Number of packets to skip: %s;", PackageName, Stream, MACdst, MACsrc, svID, Skippackets );
-    
-    if (ImPlot::BeginPlot("Graph Ia, Ib, Ic, In", ImVec2(1300,200), ImPlotFlags_NoInputs)) {
+    ImGui::Text("Package Name: %s;  Stream: %s;  MAC dst: %s;  MAC src: %s;", PackageName, Stream, MACdst, MACsrc );
+    ImGui::Text("svID: %s;  Skipped package: %s;",svID, Skippackets);
+
+    if (ImPlot::BeginPlot("Graph Ia, Ib, Ic, In", SizeGraph, ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
         float* ys = new float[n];
@@ -61,7 +52,7 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
         ImPlot::EndPlot();
     }
     
-    if (ImPlot::BeginPlot("Graph Ua, Ub, Uc, Un", ImVec2(1300,200),  ImPlotFlags_NoInputs)) {
+    if (ImPlot::BeginPlot("Graph Ua, Ub, Uc, Un", SizeGraph,  ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
         float* ys = new float[n];
@@ -77,7 +68,7 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
         ImPlot::EndPlot();
     }
     
-    if (ImPlot::BeginPlot("Graph valid values Ua, Ub, Uc, Un", ImVec2(1300,200),  ImPlotFlags_NoInputs)) {
+    if (ImPlot::BeginPlot("Graph valid values Ua, Ub, Uc, Un", SizeGraph,  ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
         float* ys = new float[n];
@@ -93,7 +84,7 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
         ImPlot::EndPlot(); 
     }
     
-    if (ImPlot::BeginPlot("Graph valid values Ia, Ib, Ic, In", ImVec2(1300,200),  ImPlotFlags_NoInputs)) {
+    if (ImPlot::BeginPlot("Graph valid values Ia, Ib, Ic, In", SizeGraph,  ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
         float* ys = new float[n];
@@ -113,6 +104,30 @@ void WindowBriefInformation(ImVec2 customWindowSize, GLFWwindow* window) {
     ImGui::End();
 }
 
+void Monitor() {
+    const char* Stream = "Potok";
+    const char* MACdst = "01:0c:cd:01:00:10";
+    const char* MACsrc = "00:50:c2:4f:94:3b";
+    const char* svID = "0000MU0001";
+    const char* Ia = "4678";
+    const char* Ib = "2023";
+    const char* Ic = "7698";
+    const char* In = "2288";
+    const char* Ua = "1520";
+    const char* Ub = "1337";
+    const char* Uc = "3654";
+    const char* Un = "5436";
+    ImGui::SetNextWindowSize(ImVec2(400,140));
+    ImGui::Begin("Monitor",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Text("Stream: %s;  MAC dst: %s; ", Stream, MACdst);
+    ImGui::Text("MAC src: %s;  svID: %s;", MACsrc,svID);
+    ImGui::Text("Ia= %s;  Ua= %s;",Ia,Ua);
+    ImGui::Text("Ib= %s;  Ub= %s;",Ib,Ub);
+    ImGui::Text("Ic= %s;  Uc= %s;",Ic,Uc);
+    ImGui::Text("In= %s;  Un= %s;",In,Un);
+    ImGui::End();
+}
+
 int main(int, char**) {
     //Инициализация библиотеки GLFW
     if (!glfwInit()) {
@@ -120,7 +135,7 @@ int main(int, char**) {
         return EXIT_FAILURE;
     }
     //Создаю окно 
-    GLFWwindow* window = glfwCreateWindow(600, 600, "My window", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 400, "My window", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -149,13 +164,13 @@ int main(int, char**) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
-        ImVec2 customWindowSize(1920, 1080);
         // Вызывает функцию
-        WindowBriefInformation(customWindowSize,window);
+        // WindowFullInformation();
+        // DrawVectorDiagram();
+        Monitor();
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();
-
 
         //Очищает буфер кадра, обычно для подготовки его к отрисовке нового кадра.
         glClear(GL_COLOR_BUFFER_BIT);
@@ -170,6 +185,5 @@ int main(int, char**) {
     ImPlot::DestroyContext();
     glfwTerminate();
     
-
     return 0;
 }

@@ -4,14 +4,14 @@
 
 
 # Configuration directories and files
-SourceDirectory: C:/Users/galat/Documents/GitHub/Artem
-BuildDirectory: C:/Users/galat/Documents/GitHub/Artem/build
+SourceDirectory: D:/GitHub/Artem
+BuildDirectory: D:/GitHub/Artem/build
 
 # Where to place the cost data store
 CostDataFile: 
 
 # Site is something like machine.domain, i.e. pragmatic.crd
-Site: MishaS
+Site: DESKTOP-FH3GDS5
 
 # Build name is osname-revision-compiler, i.e. Linux-2.4.2-2smp-c++
 BuildName: Win32-mingw32-make
@@ -27,7 +27,7 @@ SubmitInactivityTimeout:
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "C:/Program Files/CMake/bin/cmake.exe" "C:/Users/galat/Documents/GitHub/Artem"
+ConfigureCommand: "C:/Program Files/CMake/bin/cmake.exe" "D:/GitHub/Artem"
 MakeCommand: C:/Program\ Files/CMake/bin/cmake.exe --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 
@@ -63,7 +63,7 @@ UpdateOptions:
 UpdateType: git
 
 # Compiler info
-Compiler: C:/mingw64/bin/g++.exe
+Compiler: D:/MinGW64/bin/g++.exe
 CompilerVersion: 8.1.0
 
 # Dynamic analysis (MemCheck)
@@ -81,7 +81,7 @@ MemoryCheckCommandOptions:
 MemoryCheckSuppressionFile: 
 
 # Coverage
-CoverageCommand: C:/mingw64/bin/gcov.exe
+CoverageCommand: D:/MinGW64/bin/gcov.exe
 CoverageExtraFlags: -l
 
 # Testing options
