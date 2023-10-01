@@ -10,6 +10,7 @@
 #include <implot.h>
 #include <implot_internal.h>
 #include <iostream>
+#include <Windows.h>
 
 
 void DrawVectorDiagram(){
@@ -129,6 +130,7 @@ void Monitor() {
 }
 
 int main(int, char**) {
+    FreeConsole();
     //Инициализация библиотеки GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";

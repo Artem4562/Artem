@@ -24,7 +24,6 @@ add_executable(gui
     lol.cpp
 )
 
-
 add_subdirectory(libraries/glfw)
 add_subdirectory(libraries/imgui-w)
 add_subdirectory(libraries/implot-w)
