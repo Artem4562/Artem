@@ -70,3 +70,4 @@ build
 /build
 *.ini
 *.tcl
+/.vscode
