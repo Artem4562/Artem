@@ -25,6 +25,24 @@ typedef struct {
     int Un;
 }SV_PROT;
 
+typedef struct {
+    unsigned short smpCnt;
+    int Iay;
+    int Iby;
+    int Icy;
+    int Iny;
+    int Uay;
+    int Uby;
+    int Ucy;
+    int Uny;
+    double Timex;
+    float Uad;
+    float Ubd;
+    float Ucd;
+    float Und;
+}SV_PROT_F_I;
+
+
 
 void WildFox(const u_char * , pcap_pkthdr * , SV_PROT *);
 

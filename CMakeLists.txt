@@ -32,3 +32,8 @@ add_subdirectory(libraries/parse_stream)
 target_link_libraries(gui PRIVATE imgui)
 target_link_libraries(gui PRIVATE implot)
 target_link_libraries(gui PRIVATE glfw)
+target_link_libraries(gui PRIVATE parsestream)
+target_link_libraries(gui PRIVATE wpcap.lib)
+
+target_include_directories(gui PUBLIC "./npcap-sdk/Include") 
+target_link_directories(gui PUBLIC "./npcap-sdk/Lib/x64")
