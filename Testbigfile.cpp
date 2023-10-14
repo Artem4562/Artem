@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		
 		WildFox(pkt_data,header,&prot);
 
-		cout<<"\n";
+		cout<<prot.Ia<<"\n";
 	}
 	cout<<k;
 	pcap_close(fp);

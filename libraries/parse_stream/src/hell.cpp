@@ -54,7 +54,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 			{   
                 int *MAS[8] = {&package->Ia,&package->Ib,&package->Ic,&package->In,&package->Ua,&package->Ub,&package->Uc,&package->Un}; 
 
-                for(int j = 0 , k = i + 1; k < len_pc; k+=8, j++){
+                for(int j = 0 , k = i + 1; k < len_pc-6; k+=8, j++){
                     *(MAS[j]) = (int)((pc[k]<<24)|(pc[k+1]<<16)|(pc[k+2]<<8)|(pc[k+3]));
                 }
 			};
@@ -65,7 +65,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 
     else func_rasb( pc , i + TRIPLET_SHIFT, len_pc ,package );
         
-    if(len_pc - len_triplet - i - LENGHT_SHIFT  != 0)  func_rasb( pc , i + len_triplet + TRIPLET_SHIFT , len_pc , package );
+    if(len_pc - len_triplet - i - LENGHT_SHIFT - 6 != 0)  func_rasb( pc , i + len_triplet + TRIPLET_SHIFT , len_pc , package );
     
 }
 
