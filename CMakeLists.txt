@@ -21,7 +21,11 @@ add_test(NAME Testbigfile
 
 
 add_executable(gui 
-    lol.cpp
+        lol.cpp
+)
+
+add_executable(graph 
+        GraphicalInterface.cpp
 )
 
 add_subdirectory(libraries/glfw)
@@ -34,6 +38,11 @@ target_link_libraries(gui PRIVATE implot)
 target_link_libraries(gui PRIVATE glfw)
 target_link_libraries(gui PRIVATE parsestream)
 target_link_libraries(gui PRIVATE wpcap.lib)
+target_link_libraries(graph PRIVATE imgui)
+target_link_libraries(graph PRIVATE implot)
+target_link_libraries(graph PRIVATE glfw)
 
 target_include_directories(gui PUBLIC "./npcap-sdk/Include") 
 target_link_directories(gui PUBLIC "./npcap-sdk/Lib/x64")
+
+
