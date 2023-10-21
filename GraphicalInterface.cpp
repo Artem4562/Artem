@@ -12,24 +12,23 @@
 #include <iostream>
 #include <winsock2.h>
 
-bool flag = false; // флаг окно с расширенной информацией закрыто 
+bool *flag = new bool; // флаг окно с расширенной информацией закрыто 
 
 
-
-void WindowFullInformation() {
+void WindowFullInformation(int id,char* svID, bool *flag) {
     ImVec2 SizeGraph (770,300);
     const char* PackageName = "C++";
     const char* Stream = "Potok";
     const char* MACdst = "01:0c:cd:01:00:10";
     const char* MACsrc = "00:50:c2:4f:94:3b";
-    const char* svID = "0000MU0001";
+    // const char* svID = "0000MU0001";
     const char* Skippackets = "tut chto-to napisano";
     ImGui::SetNextWindowPos(ImVec2(0, 0));    
     ImGui::SetNextWindowSize(ImVec2(800,400));
-    ImGui::Begin("Protocol data",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Protocol Data",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
     ImGui::Text("Package Name: %s;  Stream: %s;  MAC dst: %s;  MAC src: %s;", PackageName, Stream, MACdst, MACsrc );
     ImGui::Text("svID: %s;  Skipped package: %s;",svID, Skippackets);
-    if (ImGui::Button("Close")) flag = false;
+    if (ImGui::Button("Close")) flag[id] = false;
     if (ImPlot::BeginPlot("Graph Ia, Ib, Ic, In", SizeGraph, ImPlotFlags_NoInputs)) {
         int n = 100; // количество точек на графике
         float* xs = new float[n];
@@ -96,11 +95,12 @@ void WindowFullInformation() {
     ImGui::End();
 }
 
-void Monitor(){
+void Monitor(int id,char svID,int a, int b ,bool *flag){
+    
     const char* Stream = "Potok";
     const char* MACdst = "01:0c:cd:01:00:10";
     const char* MACsrc = "00:50:c2:4f:94:3b";
-    const char* svID = "0000MU0001";
+    // const char* svID = "0000MU0001";
     const char* Ia = "4678";
     const char* Ib = "2023";
     const char* Ic = "7698";
@@ -109,21 +109,21 @@ void Monitor(){
     const char* Ub = "1337";
     const char* Uc = "3654";
     const char* Un = "5436";
-    ImGui::SetNextWindowPos(ImVec2(0, 0)); // Указывает конкретную область, в которой должно появиться окно
+    ImGui::SetNextWindowPos(ImVec2(a, b)); // Указывает конкретную область, в которой должно появиться окно
     ImGui::SetNextWindowSize(ImVec2(400,165));
-    ImGui::Begin("Monitor",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Begin(&svID,  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
     ImGui::Text("Stream: %s;  MAC dst: %s; ", Stream, MACdst);
-    ImGui::Text("MAC src: %s;  svID: %s;", MACsrc,svID);
+    ImGui::Text("MAC src: %s;  svID: %s;", MACsrc,&svID);
     ImGui::Text("Ia= %s;  Ua= %s;",Ia,Ua);
     ImGui::Text("Ib= %s;  Ub= %s;",Ib,Ub);
     ImGui::Text("Ic= %s;  Uc= %s;",Ic,Uc);
     ImGui::Text("In= %s;  Un= %s;",In,Un);
-    if (ImGui::Button("Open")) flag = true;
-    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
-        flag = true;
-    }
-    if(flag){
-        WindowFullInformation();
+    if (ImGui::Button("Open")) flag[id] = true;
+    // if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
+    //     flag = true;
+    // }
+    if(flag[id]){
+        WindowFullInformation(id,&svID, flag);
     }
     ImGui::End();   
     
@@ -131,6 +131,12 @@ void Monitor(){
 
 int main(int, char**) {
     FreeConsole();
+    flag[0]=0;
+    flag[1]=0;
+    flag[2]=0;
+    flag[3]=0;
+    flag[4]=0;
+    flag[5]=0;
     //Инициализация библиотеки GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
@@ -143,7 +149,7 @@ int main(int, char**) {
         return -1;
     }
 
-    // DrawVectorDiagram() окно на экране компьютера будет в левом верхнеи углу 
+    const char svID[8] = {'1','2','3','4','5','6','7','8'};
 
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
@@ -159,7 +165,7 @@ int main(int, char**) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     //Инициализация ImGui для работы с OpenGL версии 3.3
     ImGui_ImplOpenGL3_Init("#version 130");
-
+    //bool flag = false; // флаг окно с расширенной информацией закрыто 
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
 
@@ -170,7 +176,15 @@ int main(int, char**) {
         
         // Вызывает функцию
         // WindowFullInformation(&IAMY,&TIMEX);
-        Monitor();
+        
+        Monitor(0,'1',0, 0,flag);
+        Monitor(1,'2',400, 0,flag);
+        Monitor(2,'3',0, 200,flag);
+        Monitor(3,'4',400, 200,flag);
+        Monitor(4,'5',0, 400,flag);
+        Monitor(5,'6',400, 400,flag);
+
+        // Monitor();
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();
