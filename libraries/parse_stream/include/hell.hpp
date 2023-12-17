@@ -2,6 +2,8 @@
 #define HELL_H
 #include <pcap.h>
 
+#define  LEN_ETHERNET_ADDR  6           //lenght of MAC adress
+
 typedef struct {
     unsigned char Destination[6];
     unsigned char Source[6];
@@ -26,20 +28,18 @@ typedef struct {
 }SV_PROT;
 
 typedef struct {
-    unsigned short smpCnt;
-    int Iay;
-    int Iby;
-    int Icy;
-    int Iny;
-    int Uay;
-    int Uby;
-    int Ucy;
-    int Uny;
-    double Timex;
-    float Uad;
-    float Ubd;
-    float Ucd;
-    float Und;
+    unsigned char Destination[6];
+    unsigned char Source[6];
+    unsigned short AppID;
+    unsigned char *svID = new unsigned char[8];
+    unsigned char id;
+}SV_PROT_NF_I;
+
+typedef struct {
+    unsigned char Destination[6];
+    unsigned char Source[6];
+    unsigned short AppID;
+    unsigned char *svID = new unsigned char[8];
 }SV_PROT_F_I;
 
 
