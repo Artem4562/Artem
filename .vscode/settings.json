@@ -47,7 +47,9 @@
         "typeinfo": "cpp",
         "ctime": "cpp",
         "tchar.h": "c",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "*.ipp": "cpp",
+        "thread": "cpp"
     },
     "codetogether.virtualCursorJoin": "ownVirtualCursor",
     "C_Cpp.errorSquiggles": "disabled"
