@@ -48,7 +48,8 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-.cmake
+*.cmake
+*.in
 
 ### CMake Patch ###
 # External projects
@@ -62,4 +63,11 @@ build/libraries/parse_stream/parsestreamConfigVersion.cmake
 build/libraries/parse_stream/cmake/parsestreamTargets.cmake
 libraries/parse_stream/Config.cmake.in
 libraries/parse_stream/cmake/Installing.cmake
-.vscode/settings.json
+build
+
+*.pcap
+*.pcapng
+/build
+*.ini
+*.tcl
+/.vscode

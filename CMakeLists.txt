@@ -1,33 +1,49 @@
 cmake_minimum_required(VERSION 3.27)
-project(oke VERSION 0.9.1)
+project(oke VERSION 0.9.1 LANGUAGES C CXX)
+include(CTest)
+set (CMAKE_CXX_STANDARD 17)
 
 
-add_executable(${PROJECT_NAME} network_interface.cpp )
-target_include_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Include") 
-target_link_directories(${PROJECT_NAME} PUBLIC "./npcap-sdk/Lib")
-target_link_libraries(${PROJECT_NAME} wpcap.lib)
+add_executable(Testmisc Testmisc.cpp )
 
 
-add_executable(reader Sample.cpp )
-target_include_directories(reader PUBLIC "./npcap-sdk/Include") 
-target_link_directories(reader PUBLIC "./npcap-sdk/Lib")
-target_link_libraries(reader wpcap.lib)
 
-add_executable(network New_York.cpp )
-target_include_directories(network PUBLIC "./npcap-sdk/Include") 
-target_link_directories(network PUBLIC "./npcap-sdk/Lib")
-target_link_libraries(network wpcap.lib)
+add_executable(Testbigfile Testbigfile.cpp )
+target_include_directories(Testbigfile PUBLIC "./npcap-sdk/Include") 
+target_link_directories(Testbigfile PUBLIC "./npcap-sdk/Lib/x64")
+target_link_libraries(Testbigfile wpcap.lib)
+target_link_libraries(Testbigfile parsestream)
 
+add_test(NAME Testbigfile
+         COMMAND Testbigfile.exe)
 
-add_executable(lol main.cpp )
-add_subdirectory(libraries)
+         
 
 
-add_executable(exefile1 readerfile.cpp )
-target_include_directories(exefile1 PUBLIC "./npcap-sdk/Include") 
-target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib")
-target_link_libraries(exefile1 wpcap.lib)
-target_link_libraries(exefile1 parsestream)
+add_executable(gui 
+        lol.cpp
+)
+
+add_executable(graph 
+        GraphicalInterface.cpp
+)
+
+add_subdirectory(libraries/glfw)
+add_subdirectory(libraries/imgui-w)
+add_subdirectory(libraries/implot-w)
+add_subdirectory(libraries/parse_stream)
+
+target_link_libraries(gui PRIVATE imgui)
+target_link_libraries(gui PRIVATE implot)
+target_link_libraries(gui PRIVATE glfw)
+target_link_libraries(gui PRIVATE parsestream)
+target_link_libraries(gui PRIVATE wpcap.lib)
+target_link_libraries(graph PRIVATE imgui)
+target_link_libraries(graph PRIVATE implot)
+target_link_libraries(graph PRIVATE glfw)
+
+target_include_directories(gui PUBLIC "./npcap-sdk/Include") 
+target_link_directories(gui PUBLIC "./npcap-sdk/Lib/x64")
 
 add_executable(potok onvpotoke.cpp)
 
