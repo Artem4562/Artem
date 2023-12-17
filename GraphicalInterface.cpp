@@ -65,43 +65,46 @@ void WindowFullInformation(int id,char* svID, bool *flag) {
 }
 
 
-void Streams_SV(bool *flag, const char data){
+void Streams_SV(bool *flag){
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin(" ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove| ImGuiWindowFlags_NoInputs);
+    ImGui::Begin("Streams SV",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove| ImGuiWindowFlags_NoInputs);
     ImVec2 sizewindow = ImGui::GetWindowSize();
     ImVec2 sizetext = ImGui::CalcTextSize("X streams detected");
     float posX = (sizewindow.x - sizetext.x) * 0.5f;
     ImGui::SetCursorPosX(posX);
     ImGui::SetWindowFontScale(1.5f);
-    ImGui::Text("Streams SV");
-    ImGui::Text("X streams detected");
+    ImGui::Text("X streams detected ");
     ImGui::SetWindowFontScale(1.0f);
     ImGui::SetCursorPosX(0.0f);
-
-    ImGui::Begin(" ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
-    ImGui::Text("Package number: %d", 1);
-    ImGui::Text("SV_ID: %s",data[0]);
-    ImGui::Text("APP_ID: %s",data[1]);
-    ImGui::Text("MAC: %s", data[2]);
-
-    // int i =1;
-    // while (flag[0]){
-    //     ImGui::Begin(" ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove)
-    //     ImGui::Text("Package number: %d", i);
-    //     ImGui::Text("SV_ID: %s", data[0]);
-    //     ImGui::Text("APP_ID: %s", data[1]);
-    //     ImGui::Text("MAC: %s", data[2]);
-    //     if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) 
-    //         flag[id] = true;
-    //     if (flag[id])  
-    //         WindowFullInformation(int id,char* svID, bool *flag);
-    //     ImGui::End();
-    //     i+=1;
-    // }
-
-    if (ImGui::Button("Return to the main menu")) flag[0] = false;
+    if (ImGui::Button("Return to the main menu", ImVec2(200, 50))) flag[0] = false;
     ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(0,130));
+    ImGui::SetNextWindowSize(ImVec2(480,200));
+    ImGui::Begin("Package number: ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Text("hfdshjfhsdhfjsdhjfhjsdhjfds");
+    ImGui::End();
+    // // ImGui::Text("SV_ID: %s",data[0]);
+    // // ImGui::Text("APP_ID: %s",data[1]);
+    // // ImGui::Text("MAC: %s", data[2]);
+
+    // // int i =1;
+    // // while (flag[0]){
+    // //     ImGui::Begin(" ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove)
+    // //     ImGui::Text("Package number: %d", i);
+    // //     ImGui::Text("SV_ID: %s", data[0]);
+    // //     ImGui::Text("APP_ID: %s", data[1]);
+    // //     ImGui::Text("MAC: %s", data[2]);
+    // //     if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) 
+    // //         flag[id] = true;
+    // //     if (flag[id])  
+    // //         WindowFullInformation(int id,char* svID, bool *flag);
+    // //     ImGui::End();
+    // //     i+=1;
+    // // }
+
+    // ImGui::End();
 }
 
 void Main_Menu(bool *flag){
@@ -116,10 +119,13 @@ void Main_Menu(bool *flag){
     ImGui::SetWindowFontScale(1.5f);
     ImGui::Text("Main Menu");
     if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true;
-    if (flag[0]) Streams_SV(flag, data);
-    if (ImGui::Button("Streams GOOSE", ImVec2(480, 100)))
-    if (ImGui::Button("Generator SV", ImVec2(480, 100)))
-    if (ImGui::Button("Generator GOOSE", ImVec2(480, 100)))
+    if (flag[0]) Streams_SV(flag);
+    if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
+    // if (flag[1]) Streams_GOOSE(flag);
+    if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
+    // if (flag[2]) Generator_SV(flag);
+    if (ImGui::Button("Generator GOOSE", ImVec2(480, 100))) flag[3] = true;
+    // if (flag[3]) Generator_GOOSE(flag);
     ImGui::SetWindowFontScale(1.0f);
 
     ImGui::End();
@@ -139,6 +145,9 @@ int main() {
 // data[9]= "Ic";
 // data[10]= "In";
 flag[0]=false;
+flag[1]=false;
+flag[2]=false;
+flag[3]=false;
 
     FreeConsole();
 
