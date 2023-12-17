@@ -70,4 +70,4 @@ build
 /build
 *.ini
 *.tcl
-.vscode/settings.json
+/.vscode/settings.json
