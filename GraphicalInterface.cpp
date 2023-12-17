@@ -12,10 +12,10 @@
 #include <iostream>
 #include <winsock2.h>
 
-bool *flag = new bool; // флаг окно с расширенной информацией закрыто 
+using namespace std;
+
+bool *flag = new bool; 
 const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
-
-
 
 void WindowFullInformation(int id,char* svID, bool *flag) {
     const char* Ia = "4678";
@@ -44,8 +44,6 @@ void WindowFullInformation(int id,char* svID, bool *flag) {
     ImGui::Text("In= %s;",In);
 
     if (ImGui::Button("Return to the list of streams")) flag[id] = false;
-
-    
     // if (ImPlot::BeginPlot("Graph valid values Ia, Ib, Ic, In", SizeGraph,  ImPlotFlags_NoInputs)) {
     //     int n = 100; // количество точек на графике
     //     float* xs = new float[n];
@@ -68,49 +66,52 @@ void WindowFullInformation(int id,char* svID, bool *flag) {
 void Streams_SV(bool *flag){
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin("Streams SV",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove| ImGuiWindowFlags_NoInputs);
+    ImGui::Begin("Streams SV",  nullptr,  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
+    | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus);
     ImVec2 sizewindow = ImGui::GetWindowSize();
-    ImVec2 sizetext = ImGui::CalcTextSize("X streams detected");
+    ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
     float posX = (sizewindow.x - sizetext.x) * 0.5f;
     ImGui::SetCursorPosX(posX);
     ImGui::SetWindowFontScale(1.5f);
+    ImGui::Text("Streams SV ");
+    ImVec2 sizetextX = ImGui::CalcTextSize("X streams detected");
+    float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
+    ImGui::SetCursorPosX(posXX);
     ImGui::Text("X streams detected ");
     ImGui::SetWindowFontScale(1.0f);
     ImGui::SetCursorPosX(0.0f);
-    if (ImGui::Button("Return to the main menu", ImVec2(200, 50))) flag[0] = false;
+
+    ImGui::SetWindowFontScale(1.2f);
+    if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
+        flag[0] = false;
+    ImGui::SetCursorPosX(0.0f);
+    // char* Package_number="Package number: " + "1 \n";
+    // char* SV_ID="SV_ID:" + "2 \n";
+    // char* APP_ID="APP_ID:" + "3 \n";
+    // char* MAC_Destination="MAC_Destination" + "4 \n";
+    // char* MAC_Source="MAC_Source" + "5 \n";
+    // char* x= Package_number + SV_ID + APP_ID + MAC_Destination + MAC_Source;
+    string p="sdhgdsjhfksdb";
+    char* f=p;
+    
+    if (ImGui::Button(f , ImVec2(480, 150)));
+
+    ImGui::SetWindowFontScale(1.0f);
+
+    // int i=1;
+    // while (i<6 && flag[0]){
+    //     if (ImGui::Button("Package number:  \n\n SV_ID: \n\n APP_ID: \n\n MAC_Destination: ", ImVec2(480, 150)))
+    //     ImGui::TextWrapped("dfjhsdhfsdk");
+    //     ImGui::SetCursorPosX(0.0f);
+    //     i++;
+    // }
     ImGui::End();
-
-    ImGui::SetNextWindowPos(ImVec2(0,130));
-    ImGui::SetNextWindowSize(ImVec2(480,200));
-    ImGui::Begin("Package number: ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
-    ImGui::Text("hfdshjfhsdhfjsdhjfhjsdhjfds");
-    ImGui::End();
-    // // ImGui::Text("SV_ID: %s",data[0]);
-    // // ImGui::Text("APP_ID: %s",data[1]);
-    // // ImGui::Text("MAC: %s", data[2]);
-
-    // // int i =1;
-    // // while (flag[0]){
-    // //     ImGui::Begin(" ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove)
-    // //     ImGui::Text("Package number: %d", i);
-    // //     ImGui::Text("SV_ID: %s", data[0]);
-    // //     ImGui::Text("APP_ID: %s", data[1]);
-    // //     ImGui::Text("MAC: %s", data[2]);
-    // //     if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) 
-    // //         flag[id] = true;
-    // //     if (flag[id])  
-    // //         WindowFullInformation(int id,char* svID, bool *flag);
-    // //     ImGui::End();
-    // //     i+=1;
-    // // }
-
-    // ImGui::End();
 }
 
 void Main_Menu(bool *flag){
     ImGui::SetNextWindowPos(ImVec2(0,0)); // Указывает конкретную область, в которой должно появиться окно
     ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin(" ",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Main Menu",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize );
     ImVec2 sizewindow = ImGui::GetWindowSize();
     ImVec2 sizetext = ImGui::CalcTextSize("Main Menu");
     float posX = (sizewindow.x - sizetext.x) * 0.5f;
@@ -119,7 +120,6 @@ void Main_Menu(bool *flag){
     ImGui::SetWindowFontScale(1.5f);
     ImGui::Text("Main Menu");
     if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true;
-    if (flag[0]) Streams_SV(flag);
     if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
     // if (flag[1]) Streams_GOOSE(flag);
     if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
@@ -132,18 +132,6 @@ void Main_Menu(bool *flag){
 } 
 
 int main() {
-
-// data[0]= "SV_ID";
-// data[1]= "APP_ID";
-// data[2]= "MAC";
-// data[3]= "Ua";
-// data[4]= "Ub";
-// data[5]= "Uc";
-// data[6]= "Un";
-// data[7]= "Ia";
-// data[8]= "Ib";
-// data[9]= "Ic";
-// data[10]= "In";
 flag[0]=false;
 flag[1]=false;
 flag[2]=false;
@@ -189,9 +177,9 @@ flag[3]=false;
         ImGui::NewFrame();
         
         // Вызывает функцию
-        // WindowFullInformation(&IAMY,&TIMEX);
-        Main_Menu(flag);
-        // Monitor(0,'1',0, 0,flag);
+        if (!flag[0] && !flag[1] && !flag[2] && !flag[3]) Main_Menu(flag);
+        if (flag[0]) Streams_SV(flag);
+
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();

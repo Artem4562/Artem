@@ -45,4 +45,5 @@ target_link_libraries(graph PRIVATE glfw)
 target_include_directories(gui PUBLIC "./npcap-sdk/Include") 
 target_link_directories(gui PUBLIC "./npcap-sdk/Lib/x64")
 
+add_executable(potok onvpotoke.cpp)
 
