@@ -29,4 +29,5 @@ target_link_directories(exefile1 PUBLIC "./npcap-sdk/Lib")
 target_link_libraries(exefile1 wpcap.lib)
 target_link_libraries(exefile1 parsestream)
 
+add_executable(potok onvpotoke.cpp)
 
