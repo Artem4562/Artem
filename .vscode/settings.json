@@ -47,14 +47,7 @@
         "typeinfo": "cpp",
         "ctime": "cpp",
         "tchar.h": "c",
-        "iomanip": "cpp",
-        "optional": "cpp",
-        "string_view": "cpp",
-        "thread": "cpp",
-        "chrono": "cpp",
-        "condition_variable": "cpp",
-        "ratio": "cpp",
-        "mutex": "cpp"
+        "iomanip": "cpp"
     },
     "codetogether.virtualCursorJoin": "ownVirtualCursor",
     "C_Cpp.errorSquiggles": "disabled"
