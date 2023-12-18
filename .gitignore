@@ -71,3 +71,4 @@ build
 *.ini
 *.tcl
 /.vscode/settings.json
+/libraries/boost_1_84_0

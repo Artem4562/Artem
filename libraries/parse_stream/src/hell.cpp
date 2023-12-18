@@ -22,10 +22,9 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 			case NO_ASDU_OR_SVID:  
 			{
 				if(package->noAsdu){
-                    delete package->svID;
-                    package->svID = new unsigned char[len_triplet];
+                    package->svID.clear();
                     for(int j = i; j-i<len_triplet; j++){
-                        package->svID[j-i] = pc[j+1];
+                        package->svID.push_back( pc[j+1]);
                     } 
                 }
                 else package->noAsdu = pc[i+1];

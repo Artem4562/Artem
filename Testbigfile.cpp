@@ -56,10 +56,10 @@ int main(int argc, char **argv)
 			}
 
 	int k = 0;
-	SV_PROT prot;
-	SV_PROT_NF_I data;
+	
 	int id =0;
 	bool flg;
+	SV_PROT prot;
 	while(k < 540000){
 		k++;
 		/* Retrieve the packets from the file */
@@ -71,14 +71,23 @@ int main(int argc, char **argv)
 			if(prot.AppID==DataKrat[j].AppID ) flg=true;
 			j++;
 		}
+		j=0;
 		if(!DataKrat.size() || !flg){
+			SV_PROT_NF_I data;
 			data.AppID = prot.AppID;
-			copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
-			copy_n(prot.Source, sizeof(prot.Source), data.Source);
-			copy_n(prot.svID, sizeof(prot.svID), data.svID);
+			data.Destination.insert(data.Destination.end(), &prot.Destination[0], &prot.Destination[LEN_ETHERNET_ADDR]);
+			data.Source.insert(data.Source.end(), &prot.Source[0], &prot.Source[LEN_ETHERNET_ADDR]);
+			data.svID.insert(data.svID.end(), &prot.svID[0], &prot.svID[prot.svID.size()]);
 			data.id = id++;
 			DataKrat.push_back(data);
 		}
+		while(j<id){
+			if (DataKrat[j].opened){
+				
+			}
+			j++;
+		}
+
 
 		//cout<<prot.Ia<<"\n";
 	}
