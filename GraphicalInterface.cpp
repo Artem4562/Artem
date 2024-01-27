@@ -16,11 +16,12 @@ using namespace std;
 
 bool *flag = new bool; 
 const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
+static int k=0;
 
 const char* SVinfo(int Package_number,char* SV_ID, char* APP_ID, char* MAC)
 {   
-    std::string info;
-    info = "Package_number: "+ std::to_string(Package_number) + "\n" + "SV_ID: " + SV_ID+ "\n"+ "APP_ID: " + APP_ID + + "\n" + "MAC: " + MAC + "\n" ;
+    string info;
+    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID+ "\n"+ "APP_ID: " + APP_ID + + "\n" + "MAC: " + MAC + "\n" ;
     return info.c_str();
 };
 
@@ -90,7 +91,7 @@ void Streams_SV(bool *flag){
     ImGui::SetWindowFontScale(1.5f);
     if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
         flag[0] = false;
-    ImGui::SetCursorPosX(0.0f);
+
     ImGui::SetWindowFontScale(1.0f);
 
     int Package_number = 1;
@@ -98,13 +99,46 @@ void Streams_SV(bool *flag){
     char* APP_ID = "APP_ID";
     char* MAC = "MAC";
 
-    ImGui::SetWindowFontScale(1.5f);
-    if (ImGui::Button(SVinfo(Package_number,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
-    if (ImGui::Button(SVinfo(Package_number +1,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
-    if (ImGui::Button(SVinfo(Package_number +2,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
-    if (ImGui::Button(SVinfo(Package_number +3,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
-    if (ImGui::Button(SVinfo(Package_number +4,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
-    ImGui::SetWindowFontScale(1.0f);
+    int id =7;
+    if (5*k<id){
+        ImGui::SetCursorPosX(0.0f);
+        ImGui::SetWindowFontScale(1.5f);
+        if (ImGui::Button(SVinfo(Package_number + 5*k,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    }
+    if (5*k+1<id){
+        ImGui::SetCursorPosX(0.0f);
+        ImGui::SetWindowFontScale(1.5f);
+        if (ImGui::Button(SVinfo(Package_number +5*k+1,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    }
+    if (5*k+2<id){
+        ImGui::SetCursorPosX(0.0f);
+        ImGui::SetWindowFontScale(1.5f);
+        if (ImGui::Button(SVinfo(Package_number +5*k+2,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    }
+    if (5*k+3<id){
+        ImGui::SetCursorPosX(0.0f);
+        ImGui::SetWindowFontScale(1.5f);
+        if (ImGui::Button(SVinfo(Package_number +5*k+3,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    }
+    if (5*k+4<id){
+        ImGui::SetCursorPosX(0.0f);
+        ImGui::SetWindowFontScale(1.5f);
+        if (ImGui::Button(SVinfo(Package_number +5*k+4,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    }
+    
+    if (k>0){
+        ImGui::SetWindowFontScale(2.5f);    
+        ImGui::SetCursorPos(ImVec2(0, 630));
+        if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
+        ImGui::SetWindowFontScale(1.0f);
+    }
+    if (5*k<id-5){
+        ImGui::SetWindowFontScale(2.5f);
+        ImGui::SetCursorPos(ImVec2(240, 630));
+        if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
+        ImGui::SetWindowFontScale(1.0f);
+    }
+
 
     ImGui::End();
 }
@@ -133,6 +167,7 @@ void Main_Menu(bool *flag){
 } 
 
 int main() {
+
 flag[0]=false;
 flag[1]=false;
 flag[2]=false;
