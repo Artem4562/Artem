@@ -47,7 +47,7 @@ static int k=0;
 const char* SVinfo(int Package_number,unsigned char* SV_ID, unsigned short APP_ID, unsigned char* MAC)
 {   
     string info;
-    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + /*SV_ID*/ "\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + MAC + "\n" ;
+    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + string(reinterpret_cast<char*>(SV_ID)) +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + string(reinterpret_cast<char*>(MAC)) + "\n" ;
     return info.c_str();
 };
 
@@ -163,7 +163,7 @@ void Streams_SV(bool *flag){
         if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
         ImGui::SetWindowFontScale(1.0f);
     }
-    if (5*k<id-5){
+    if (5*k<(sizeof(a)/sizeof(*a))-5){
         ImGui::SetWindowFontScale(2.5f);
         ImGui::SetCursorPos(ImVec2(240, 630));
         if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
