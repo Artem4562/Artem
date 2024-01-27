@@ -1,6 +1,7 @@
 #ifndef HELL_H
 #define HELL_H
 #include <pcap.h>
+#include <vector>
 
 #define  LEN_ETHERNET_ADDR  6           //lenght of MAC adress
 
@@ -13,7 +14,7 @@ typedef struct {
     unsigned short Res1; 
     unsigned short Res2; 
     unsigned char noAsdu = 0;
-    unsigned char *svID = new unsigned char[8];
+    std::vector<char> svID;
     unsigned short smpCnt;
     unsigned long confRef;
     unsigned char smpSynch;
@@ -31,7 +32,7 @@ typedef struct {
     unsigned char Destination[6];
     unsigned char Source[6];
     unsigned short AppID;
-    unsigned char *svID = new unsigned char[8];
+    std::vector<char>svID;
     unsigned char id;
 }SV_PROT_NF_I;
 
@@ -39,7 +40,7 @@ typedef struct {
     unsigned char Destination[6];
     unsigned char Source[6];
     unsigned short AppID;
-    unsigned char *svID = new unsigned char[8];
+    std::vector<char> svID;
 }SV_PROT_F_I;
 
 
