@@ -14,9 +14,7 @@
 #include <vector>
 #include <hell.hpp>
 #include <pcap.h>
-
 using namespace std;
-
 
 vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
 	vector<SV_PROT_NF_I> DK = {
@@ -40,9 +38,7 @@ vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
     
 SV_PROT_NF_I* a = &DK[0];
 
-
 bool *flag = new bool; 
-const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
 static int k=0;
 
 const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
@@ -56,7 +52,7 @@ const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsig
     
     info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + D + "\n" ;
     return info.c_str();
-};
+}
 
 void WindowFullInformation(int id,char* svID, bool *flag) {
     const char* Ia = "4678";
@@ -124,45 +120,13 @@ void Streams_SV(bool *flag){
     ImGui::SetWindowFontScale(1.5f);
     if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
         flag[0] = false;
-
     ImGui::SetWindowFontScale(1.0f);
 
-    // int Package_number = 1;
-    // char* SV_ID = "SV_ID";
-    // char* APP_ID = "APP_ID";
-    // char* MAC = "MAC";
-
-    // int id =7;
     for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
         if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100)));
     }
-    // if (5*k<id){
-    //     ImGui::SetCursorPosX(0.0f);
-    //     ImGui::SetWindowFontScale(1.5f);
-    //     if (ImGui::Button(SVinfo(Package_number + 5*k,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    // }
-    // if (5*k+1<id){
-    //     ImGui::SetCursorPosX(0.0f);
-    //     ImGui::SetWindowFontScale(1.5f);
-    //     if (ImGui::Button(SVinfo(Package_number +5*k+1,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    // }
-    // if (5*k+2<id){
-    //     ImGui::SetCursorPosX(0.0f);
-    //     ImGui::SetWindowFontScale(1.5f);
-    //     if (ImGui::Button(SVinfo(Package_number +5*k+2,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    // }
-    // if (5*k+3<id){
-    //     ImGui::SetCursorPosX(0.0f);
-    //     ImGui::SetWindowFontScale(1.5f);
-    //     if (ImGui::Button(SVinfo(Package_number +5*k+3,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    // }
-    // if (5*k+4<id){
-    //     ImGui::SetCursorPosX(0.0f);
-    //     ImGui::SetWindowFontScale(1.5f);
-    //     if (ImGui::Button(SVinfo(Package_number +5*k+4,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    // }
     
     if (k>0){
         ImGui::SetWindowFontScale(2.5f);    
@@ -170,13 +134,13 @@ void Streams_SV(bool *flag){
         if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
         ImGui::SetWindowFontScale(1.0f);
     }
+
     if (5*k<(DK.size()-5)){
         ImGui::SetWindowFontScale(2.5f);
         ImGui::SetCursorPos(ImVec2(240, 630));
         if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
         ImGui::SetWindowFontScale(1.0f);
     }
-
 
     ImGui::End();
 }
@@ -205,11 +169,10 @@ void Main_Menu(bool *flag){
 } 
 
 int main() {
-
-flag[0]=false;
-flag[1]=false;
-flag[2]=false;
-flag[3]=false;
+    flag[0]=false;
+    flag[1]=false;
+    flag[2]=false;
+    flag[3]=false;
 
     FreeConsole();
 
@@ -225,8 +188,6 @@ flag[3]=false;
         return -1;
     }
 
-    const char svID[8] = {'1','2','3','4','5','6','7','8'};
-
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
     //Что это не знаю, но без него не работает(
@@ -237,11 +198,12 @@ flag[3]=false;
     //Инициализация ImGui и Implot
     ImGui::CreateContext();
     ImPlot::CreateContext();
+
     //Инициализация ImGui для работы с библиотекой GLFW и OpenGL
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     //Инициализация ImGui для работы с OpenGL версии 3.3
     ImGui_ImplOpenGL3_Init("#version 130");
-    //bool flag = false; // флаг окно с расширенной информацией закрыто 
+
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
 
@@ -253,7 +215,6 @@ flag[3]=false;
         // Вызывает функцию
         if (!flag[0] && !flag[1] && !flag[2] && !flag[3]) Main_Menu(flag);
         if (flag[0]) Streams_SV(flag);
-
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();
