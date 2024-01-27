@@ -44,10 +44,10 @@ bool *flag = new bool;
 const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
 static int k=0;
 
-const char* SVinfo(int Package_number,unsigned char* SV_ID, unsigned short APP_ID, unsigned char* MAC)
+const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsigned char* MAC)
 {   
     string info;
-    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + string(reinterpret_cast<char*>(SV_ID)) +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + string(reinterpret_cast<char*>(MAC)) + "\n" ;
+    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + string(reinterpret_cast<char*>(MAC)) + "\n" ;
     return info.c_str();
 };
 
