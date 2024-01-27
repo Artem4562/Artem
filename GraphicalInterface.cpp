@@ -34,7 +34,8 @@ vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
 		SV_PROT_NF_I{{12,12,205,4,0,1},{12,239,175,48,222,46},16385,t,11},
 		SV_PROT_NF_I{{13,12,205,4,0,1},{12,239,175,48,222,46},16385,t,12},
 		SV_PROT_NF_I{{14,12,205,4,0,1},{12,239,175,48,222,46},16385,t,13},
-		SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14}
+		SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14},
+        SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14}
 	};
     
 SV_PROT_NF_I* a = &DK[0];
@@ -44,10 +45,16 @@ bool *flag = new bool;
 const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
 static int k=0;
 
-const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsigned char* MAC)
+const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
 {   
+    string D;
     string info;
-    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + string(reinterpret_cast<char*>(MAC)) + "\n" ;
+    for(int i=0;i<6;i++){
+        D += to_string(MAC[i]);
+        if (i<5) D+=':';
+    }
+    
+    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + D + "\n" ;
     return info.c_str();
 };
 
@@ -108,10 +115,10 @@ void Streams_SV(bool *flag){
     ImGui::SetCursorPosX(posX);
     ImGui::SetWindowFontScale(1.5f);
     ImGui::Text("Streams SV ");
-    ImVec2 sizetextX = ImGui::CalcTextSize("X streams detected");
+    ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
     float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
     ImGui::SetCursorPosX(posXX);
-    ImGui::Text("X streams detected ");
+    ImGui::Text("%d streams detected ",DK.size());
     ImGui::SetCursorPosX(0.0f);
 
     ImGui::SetWindowFontScale(1.5f);
@@ -126,7 +133,7 @@ void Streams_SV(bool *flag){
     // char* MAC = "MAC";
 
     // int id =7;
-    for(int i=0; 5*k<=i && i<5*k+4;){
+    for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
         if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100)));
@@ -163,7 +170,7 @@ void Streams_SV(bool *flag){
         if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
         ImGui::SetWindowFontScale(1.0f);
     }
-    if (5*k<(sizeof(a)/sizeof(*a))-5){
+    if (5*k<(DK.size()-5)){
         ImGui::SetWindowFontScale(2.5f);
         ImGui::SetCursorPos(ImVec2(240, 630));
         if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
