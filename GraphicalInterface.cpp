@@ -11,17 +11,43 @@
 #include <implot_internal.h>
 #include <iostream>
 #include <winsock2.h>
+#include <vector>
+#include <hell.hpp>
+#include <pcap.h>
 
 using namespace std;
+
+
+vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
+	vector<SV_PROT_NF_I> DK = {
+		SV_PROT_NF_I{{1,12,205,4,0,1},{12,239,175,48,222,46},16385,t,0},
+		SV_PROT_NF_I{{2,12,205,4,0,1},{12,239,175,48,222,46},51638,t,1},
+		SV_PROT_NF_I{{3,12,205,4,0,1},{12,239,175,48,222,46},13685,t,2},
+		SV_PROT_NF_I{{4,12,205,4,0,1},{12,239,175,48,222,46},16385,t,3},
+		SV_PROT_NF_I{{5,12,205,4,0,1},{12,239,175,48,222,46},16835,t,4},
+		SV_PROT_NF_I{{6,12,205,4,0,1},{12,239,175,48,222,46},13685,t,5},
+		SV_PROT_NF_I{{7,12,205,4,0,1},{12,239,175,48,222,46},16358,t,6},
+		SV_PROT_NF_I{{8,12,205,4,0,1},{12,239,175,48,222,46},21635,t,7},
+		SV_PROT_NF_I{{9,12,205,4,0,1},{12,239,175,48,222,46},16835,t,8},
+		SV_PROT_NF_I{{10,12,205,4,0,1},{12,239,175,48,222,46},16385,t,9},
+		SV_PROT_NF_I{{11,12,205,4,0,1},{12,239,175,48,222,46},16385,t,10},
+		SV_PROT_NF_I{{12,12,205,4,0,1},{12,239,175,48,222,46},16385,t,11},
+		SV_PROT_NF_I{{13,12,205,4,0,1},{12,239,175,48,222,46},16385,t,12},
+		SV_PROT_NF_I{{14,12,205,4,0,1},{12,239,175,48,222,46},16385,t,13},
+		SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14}
+	};
+    
+SV_PROT_NF_I* a = &DK[0];
+
 
 bool *flag = new bool; 
 const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
 static int k=0;
 
-const char* SVinfo(int Package_number,char* SV_ID, char* APP_ID, char* MAC)
+const char* SVinfo(int Package_number,unsigned char* SV_ID, unsigned short APP_ID, unsigned char* MAC)
 {   
     string info;
-    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID+ "\n"+ "APP_ID: " + APP_ID + + "\n" + "MAC: " + MAC + "\n" ;
+    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + /*SV_ID*/ "\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + MAC + "\n" ;
     return info.c_str();
 };
 
@@ -94,37 +120,42 @@ void Streams_SV(bool *flag){
 
     ImGui::SetWindowFontScale(1.0f);
 
-    int Package_number = 1;
-    char* SV_ID = "SV_ID";
-    char* APP_ID = "APP_ID";
-    char* MAC = "MAC";
+    // int Package_number = 1;
+    // char* SV_ID = "SV_ID";
+    // char* APP_ID = "APP_ID";
+    // char* MAC = "MAC";
 
-    int id =7;
-    if (5*k<id){
+    // int id =7;
+    for(int i=0; 5*k<=i && i<5*k+4;){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(Package_number + 5*k,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100)));
     }
-    if (5*k+1<id){
-        ImGui::SetCursorPosX(0.0f);
-        ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(Package_number +5*k+1,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    }
-    if (5*k+2<id){
-        ImGui::SetCursorPosX(0.0f);
-        ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(Package_number +5*k+2,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    }
-    if (5*k+3<id){
-        ImGui::SetCursorPosX(0.0f);
-        ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(Package_number +5*k+3,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    }
-    if (5*k+4<id){
-        ImGui::SetCursorPosX(0.0f);
-        ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(Package_number +5*k+4,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
-    }
+    // if (5*k<id){
+    //     ImGui::SetCursorPosX(0.0f);
+    //     ImGui::SetWindowFontScale(1.5f);
+    //     if (ImGui::Button(SVinfo(Package_number + 5*k,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    // }
+    // if (5*k+1<id){
+    //     ImGui::SetCursorPosX(0.0f);
+    //     ImGui::SetWindowFontScale(1.5f);
+    //     if (ImGui::Button(SVinfo(Package_number +5*k+1,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    // }
+    // if (5*k+2<id){
+    //     ImGui::SetCursorPosX(0.0f);
+    //     ImGui::SetWindowFontScale(1.5f);
+    //     if (ImGui::Button(SVinfo(Package_number +5*k+2,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    // }
+    // if (5*k+3<id){
+    //     ImGui::SetCursorPosX(0.0f);
+    //     ImGui::SetWindowFontScale(1.5f);
+    //     if (ImGui::Button(SVinfo(Package_number +5*k+3,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    // }
+    // if (5*k+4<id){
+    //     ImGui::SetCursorPosX(0.0f);
+    //     ImGui::SetWindowFontScale(1.5f);
+    //     if (ImGui::Button(SVinfo(Package_number +5*k+4,SV_ID, APP_ID, MAC), ImVec2(480, 100)));
+    // }
     
     if (k>0){
         ImGui::SetWindowFontScale(2.5f);    
