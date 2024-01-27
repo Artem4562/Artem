@@ -17,6 +17,13 @@ using namespace std;
 bool *flag = new bool; 
 const char* data[12] = {"SV_ID","APP_ID","MAC","Ua","Ub","Uc","Un","Ia","Ib","Ic","In"};
 
+const char* SVinfo(int Package_number,char* SV_ID, char* APP_ID, char* MAC)
+{   
+    std::string info;
+    info = "Package_number: "+ std::to_string(Package_number) + "\n" + "SV_ID: " + SV_ID+ "\n"+ "APP_ID: " + APP_ID + + "\n" + "MAC: " + MAC + "\n" ;
+    return info.c_str();
+};
+
 void WindowFullInformation(int id,char* svID, bool *flag) {
     const char* Ia = "4678";
     const char* Ib = "2023";
@@ -78,33 +85,27 @@ void Streams_SV(bool *flag){
     float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
     ImGui::SetCursorPosX(posXX);
     ImGui::Text("X streams detected ");
-    ImGui::SetWindowFontScale(1.0f);
     ImGui::SetCursorPosX(0.0f);
 
-    ImGui::SetWindowFontScale(1.2f);
+    ImGui::SetWindowFontScale(1.5f);
     if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
         flag[0] = false;
     ImGui::SetCursorPosX(0.0f);
-    // char* Package_number="Package number: " + "1 \n";
-    // char* SV_ID="SV_ID:" + "2 \n";
-    // char* APP_ID="APP_ID:" + "3 \n";
-    // char* MAC_Destination="MAC_Destination" + "4 \n";
-    // char* MAC_Source="MAC_Source" + "5 \n";
-    // char* x= Package_number + SV_ID + APP_ID + MAC_Destination + MAC_Source;
-    string p="sdhgdsjhfksdb";
-    char* f=p;
-    
-    if (ImGui::Button(f , ImVec2(480, 150)));
-
     ImGui::SetWindowFontScale(1.0f);
 
-    // int i=1;
-    // while (i<6 && flag[0]){
-    //     if (ImGui::Button("Package number:  \n\n SV_ID: \n\n APP_ID: \n\n MAC_Destination: ", ImVec2(480, 150)))
-    //     ImGui::TextWrapped("dfjhsdhfsdk");
-    //     ImGui::SetCursorPosX(0.0f);
-    //     i++;
-    // }
+    int Package_number = 1;
+    char* SV_ID = "SV_ID";
+    char* APP_ID = "APP_ID";
+    char* MAC = "MAC";
+
+    ImGui::SetWindowFontScale(1.5f);
+    if (ImGui::Button(SVinfo(Package_number,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
+    if (ImGui::Button(SVinfo(Package_number +1,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
+    if (ImGui::Button(SVinfo(Package_number +2,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
+    if (ImGui::Button(SVinfo(Package_number +3,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
+    if (ImGui::Button(SVinfo(Package_number +4,SV_ID, APP_ID, MAC ), ImVec2(480, 100)));
+    ImGui::SetWindowFontScale(1.0f);
+
     ImGui::End();
 }
 
@@ -119,7 +120,7 @@ void Main_Menu(bool *flag){
 
     ImGui::SetWindowFontScale(1.5f);
     ImGui::Text("Main Menu");
-    if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true;
+    if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true; 
     if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
     // if (flag[1]) Streams_GOOSE(flag);
     if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
