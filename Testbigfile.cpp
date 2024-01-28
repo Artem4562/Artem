@@ -12,12 +12,19 @@
 
 using namespace std;
 
+void (*dispatcher) (u_char *, const struct pcap_pkthdr *, const u_char *);
+void dispatcher_handler1(u_char *, const struct pcap_pkthdr *, const u_char *);
+void dispatcher_handler2(u_char *, const struct pcap_pkthdr *, const u_char *);
 
+
+static vector<SV_PROT_NF_I> DataKrat;
+static vector<SV_PROT_F_I> DataPoln;
+static int id =0;
+static int kek=0;
 
 int main(int argc, char **argv)
 {	
-	vector<SV_PROT_NF_I> DataKrat;
-	vector<SV_PROT_F_I> DataPoln;
+	kek = 10000*(int(argv[2][0])-48)+1000*int((argv[2][1])-48)+100*int((argv[2][2])-48)+10*int((argv[2][3])-48)+int((argv[2][4])-48);
 	pcap_t *fp;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	struct pcap_pkthdr *header;
@@ -57,54 +64,66 @@ int main(int argc, char **argv)
 				pcap_close(fp);
 				return -4;
 			}
-	vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
-	vector<SV_PROT_NF_I> DK = {
-		SV_PROT_NF_I{{1,12,205,4,0,1},{12,239,175,48,222,46},16385,t,0},
-		SV_PROT_NF_I{{2,12,205,4,0,1},{12,239,175,48,222,46},51638,t,1},
-		SV_PROT_NF_I{{3,12,205,4,0,1},{12,239,175,48,222,46},13685,t,2},
-		SV_PROT_NF_I{{4,12,205,4,0,1},{12,239,175,48,222,46},16385,t,3},
-		SV_PROT_NF_I{{5,12,205,4,0,1},{12,239,175,48,222,46},16835,t,4},
-		SV_PROT_NF_I{{6,12,205,4,0,1},{12,239,175,48,222,46},13685,t,5},
-		SV_PROT_NF_I{{7,12,205,4,0,1},{12,239,175,48,222,46},16358,t,6},
-		SV_PROT_NF_I{{8,12,205,4,0,1},{12,239,175,48,222,46},21635,t,7},
-		SV_PROT_NF_I{{9,12,205,4,0,1},{12,239,175,48,222,46},16835,t,8},
-		SV_PROT_NF_I{{10,12,205,4,0,1},{12,239,175,48,222,46},16385,t,9},
-		SV_PROT_NF_I{{11,12,205,4,0,1},{12,239,175,48,222,46},16385,t,10},
-		SV_PROT_NF_I{{12,12,205,4,0,1},{12,239,175,48,222,46},16385,t,11},
-		SV_PROT_NF_I{{13,12,205,4,0,1},{12,239,175,48,222,46},16385,t,12},
-		SV_PROT_NF_I{{14,12,205,4,0,1},{12,239,175,48,222,46},16385,t,13},
-		SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14}
-	};
 
-
-	int k = 0;
-	SV_PROT prot;
-	SV_PROT_NF_I data;
-	int id =0;
-	bool flg;
-	while(k < 540000){
-		k++;
-		/* Retrieve the packets from the file */
-		res = pcap_next_ex(fp, &header, &pkt_data);
-		flg = false;
-		int j = 0;
-		WildFox(pkt_data,header,&prot);
-		while(!flg && j<id){
-			if(prot.AppID==DataKrat[j].AppID ) flg=true;
-			j++;
-		}
-		if(!DataKrat.size() || !flg){
-			data.AppID = prot.AppID;
-			copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
-			copy_n(prot.Source, sizeof(prot.Source), data.Source);
-			data.svID = prot.svID;
-			data.id = id++;
-			DataKrat.push_back(data);
-		}
-
-	}
-	cout<<k;
+	if(!argv[2]) dispatcher = dispatcher_handler1; 
+	else dispatcher = dispatcher_handler2;
+	pcap_loop(fp,0,dispatcher,NULL);
+	
 	pcap_close(fp);
 	return 0;
+}
+
+void dispatcher_handler1(u_char *temp1, 
+						const struct pcap_pkthdr *header, 
+						const u_char *pkt_data)
+{
+	
+	SV_PROT prot;
+	SV_PROT_NF_I data;
+	bool flg = false;
+	int j = 0;
+	WildFox(pkt_data,header, &prot);
+	while(!flg && j<id){
+		if(prot.AppID==DataKrat[j].AppID ) flg=true;
+		j++;
+	}
+	if(!DataKrat.size() || !flg){
+		data.AppID = prot.AppID;
+		copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
+		copy_n(prot.Source, sizeof(prot.Source), data.Source);
+		data.svID = prot.svID;
+		data.id = id++;
+		DataKrat.push_back(data);
+	}	
+	
+}
+
+void dispatcher_handler2(u_char *temp1, 
+						const struct pcap_pkthdr *header, 
+						const u_char *pkt_data)
+{
+	
+	SV_PROT prot;
+	SV_PROT_F_I data;
+	bool flg = false;
+	int j = 0;
+	WildFox(pkt_data,header, &prot);
+	if(prot.AppID == kek){
+		data.Ia = prot.Ia;
+		data.Ib = prot.Ib;
+		data.Ic = prot.Ic;
+		data.In = prot.In;
+		data.Ua = prot.Ua;
+		data.Ub = prot.Ub;
+		data.Uc = prot.Uc;
+		data.Un = prot.Un;
+		DataPoln.push_back(data);
+	}
+	if(DataPoln.size()==800){
+		DataPoln.erase(DataPoln.cbegin(),DataPoln.cend()-400);
+		//for(SV_PROT_F_I n : DataPoln) cout<<  n.Ia << "\n"; 
+	
+		
+	}
 }
 

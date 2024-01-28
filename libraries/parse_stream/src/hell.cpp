@@ -69,7 +69,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 }
 
 
-void WildFox(const u_char *pkt_data, pcap_pkthdr *header, SV_PROT *package){
+void WildFox(const u_char *pkt_data,const pcap_pkthdr *header, SV_PROT *package){
     int i;
     int len;
 
