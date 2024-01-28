@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <string>
 #define LINE_LEN 16
 
 using namespace std;
@@ -29,11 +30,13 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline("../SVLong.pcapng",			// name of the device
+	string name;
+	name = string("../") + argv[1];
+	if ((fp = pcap_open_offline(name.c_str(),			// name of the device
 						 errbuf							// error buffer
 						 )) == NULL)
 	{
-		fprintf(stderr,"\nUnable to open the file %s.\n", argv[1]);
+		fprintf(stderr,"\nUnable to open the file: %s.\n", errbuf);
 		return -1;
 	}
 
@@ -54,6 +57,25 @@ int main(int argc, char **argv)
 				pcap_close(fp);
 				return -4;
 			}
+	vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
+	vector<SV_PROT_NF_I> DK = {
+		SV_PROT_NF_I{{1,12,205,4,0,1},{12,239,175,48,222,46},16385,t,0},
+		SV_PROT_NF_I{{2,12,205,4,0,1},{12,239,175,48,222,46},51638,t,1},
+		SV_PROT_NF_I{{3,12,205,4,0,1},{12,239,175,48,222,46},13685,t,2},
+		SV_PROT_NF_I{{4,12,205,4,0,1},{12,239,175,48,222,46},16385,t,3},
+		SV_PROT_NF_I{{5,12,205,4,0,1},{12,239,175,48,222,46},16835,t,4},
+		SV_PROT_NF_I{{6,12,205,4,0,1},{12,239,175,48,222,46},13685,t,5},
+		SV_PROT_NF_I{{7,12,205,4,0,1},{12,239,175,48,222,46},16358,t,6},
+		SV_PROT_NF_I{{8,12,205,4,0,1},{12,239,175,48,222,46},21635,t,7},
+		SV_PROT_NF_I{{9,12,205,4,0,1},{12,239,175,48,222,46},16835,t,8},
+		SV_PROT_NF_I{{10,12,205,4,0,1},{12,239,175,48,222,46},16385,t,9},
+		SV_PROT_NF_I{{11,12,205,4,0,1},{12,239,175,48,222,46},16385,t,10},
+		SV_PROT_NF_I{{12,12,205,4,0,1},{12,239,175,48,222,46},16385,t,11},
+		SV_PROT_NF_I{{13,12,205,4,0,1},{12,239,175,48,222,46},16385,t,12},
+		SV_PROT_NF_I{{14,12,205,4,0,1},{12,239,175,48,222,46},16385,t,13},
+		SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14}
+	};
+
 
 	int k = 0;
 	SV_PROT prot;
@@ -75,12 +97,11 @@ int main(int argc, char **argv)
 			data.AppID = prot.AppID;
 			copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
 			copy_n(prot.Source, sizeof(prot.Source), data.Source);
-			copy_n(prot.svID, sizeof(prot.svID), data.svID);
+			data.svID = prot.svID;
 			data.id = id++;
 			DataKrat.push_back(data);
 		}
 
-		//cout<<prot.Ia<<"\n";
 	}
 	cout<<k;
 	pcap_close(fp);
