@@ -37,15 +37,19 @@ typedef struct {
 }SV_PROT_NF_I;
 
 typedef struct {
-    unsigned char Destination[6];
-    unsigned char Source[6];
-    unsigned short AppID;
-    std::vector<char> svID;
+    int Ia;
+    int Ib;
+    int Ic;
+    int In;
+    int Ua;
+    int Ub;
+    int Uc;
+    int Un;
 }SV_PROT_F_I;
 
 
 
-void WildFox(const u_char * , pcap_pkthdr * , SV_PROT *);
+void WildFox(const u_char * ,const pcap_pkthdr * , SV_PROT *);
 
 
 #endif // HELL_H

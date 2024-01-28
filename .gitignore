@@ -68,6 +68,7 @@ build
 *.pcap
 *.pcapng
 /build
+libraries/fftw-3.3.10
 *.ini
 *.tcl
 /.vscode/settings.json
