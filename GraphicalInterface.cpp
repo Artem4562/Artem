@@ -33,15 +33,17 @@ vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
 		SV_PROT_NF_I{{13,12,205,4,0,1},{12,239,175,48,222,46},16385,t,12},
 		SV_PROT_NF_I{{14,12,205,4,0,1},{12,239,175,48,222,46},16385,t,13},
 		SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14},
-        SV_PROT_NF_I{{15,12,205,4,0,1},{12,239,175,48,222,46},16385,t,14}
+        SV_PROT_NF_I{{16,12,205,4,0,1},{12,239,175,48,222,46},16385,t,15}
 	};
     
 SV_PROT_NF_I* a = &DK[0];
 
 bool *flag = new bool; 
-static int k=0;
+static int k=0; // для кнопок в Streams_Sv
+static unsigned short f = 0; // для APP_ID в Streams_SV
+static int s; // для вызова WindowFullInformation
 
-const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
+const char* SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
 {   
     string D;
     string info;
@@ -50,52 +52,130 @@ const char* SVinfo(int Package_number, char* SV_ID, unsigned short APP_ID, unsig
         if (i<5) D+=':';
     }
     
-    info = "Package_number: "+ to_string(Package_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + D + "\n" ;
+    info = "Stream_number: "+ to_string(Stream_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + D + "\n" ;
     return info.c_str();
 }
 
-void WindowFullInformation(int id,char* svID, bool *flag) {
-    const char* Ia = "4678";
-    const char* Ib = "2023";
-    const char* Ic = "7698";
-    const char* In = "2288";
-    const char* Ua = "1520";
-    const char* Ub = "1337";
-    const char* Uc = "3654";
-    const char* Un = "5436";
+void WindowFullInformation(int id,char* svID,unsigned short APP_ID, unsigned char MAC[6]) {
+    string D ="";
+    for(int i=0;i<6;i++){
+        D += to_string(MAC[i]);
+        if (i<5) D+=':';
+    }
+    
     ImGui::SetNextWindowPos(ImVec2(0, 0));    
     ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin("Protocol Data",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
-    ImGui::Text("SV_ID: ");
-    ImGui::Text("APP_ID: ");
-    ImGui::Text("MAC: ");
+    ImGui::Begin("Full_Information_to_SV",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+    ImGui::SetWindowFontScale(1.5f);
+    ImVec2 sizewindow = ImGui::GetWindowSize();
+    ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
+    float posX = (sizewindow.x - sizetext.x) * 0.5f;
+    ImGui::SetCursorPosX(posX);
+    ImGui::Text("Streams SV");
+    ImVec2 sizetextX = ImGui::CalcTextSize("Stream # XX");
+    posX=(sizewindow.x - sizetextX.x) * 0.5f;
+    ImGui::SetCursorPosX(posX);
+    ImGui::Text("Stream # %d",id+1);
+    ImGui::SetCursorPosX(0.0f);
 
-    ImGui::Text("Ua= %s;",Ua);
-    ImGui::Text("Ub= %s;",Ub);
-    ImGui::Text("Uc= %s;",Uc);
-    ImGui::Text("Un= %s;",Un);
+    if (ImGui::Button("Return to the list of streams", ImVec2(480, 50))) f = 0;
 
-    ImGui::Text("Ia= %s;",Ia);
-    ImGui::Text("Ib= %s;",Ib);
-    ImGui::Text("Ic= %s;",Ic);
-    ImGui::Text("In= %s;",In);
+    ImGui::Text("SV_ID: %s", svID);
+    ImGui::Text("APP_ID: %d", APP_ID);
+    ImGui::Text("MAC: %s", D.c_str());
+    
+    
+    int Ia = 4678;
+    int Ib = 2023;
+    int Ic = 7698;
+    int In = 2288;
+    int Ua = 1520;
+    int Ub = 1337;
+    int Uc = 3654;
+    int Un = 5436;
 
-    if (ImGui::Button("Return to the list of streams")) flag[id] = false;
-    // if (ImPlot::BeginPlot("Graph valid values Ia, Ib, Ic, In", SizeGraph,  ImPlotFlags_NoInputs)) {
-    //     int n = 100; // количество точек на графике
-    //     float* xs = new float[n];
-    //     float* ys = new float[n];
-    //     float step = 2 * M_PI/ n;
-    //     for (int i = 0; i < n; i++) {
-    //         xs[i] = i * step;
-    //         ys[i] = std::sin(xs[i]);
-    //     }
-    //     ImPlot::PlotLine("sin(x)", xs, ys, n);
+    ImVec2 cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Ua= %d;",Ua);
 
-    //     delete[] xs;
-    //     delete[] ys;
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Ub= %d;",Ub);
+
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Uc= %d;",Uc);
+
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Un= %d;",Un);
+
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Ia= %d;",Ia);
+
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Ib= %d;",Ib);
+
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("Ic= %d;",Ic);
+
+    cursorpos = ImGui::GetCursorPos();
+    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
+    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+    ImGui::Text("In= %d;",In);
+
+    ImGui::SetWindowFontScale(1.0f);
+    
+    if(ImPlot::BeginPlot("Graph I", ImVec2(300,300))){
+        float Iax[2]={0.0, 1.0};
+        float Iay[2]={0.0, 1.0};
+        ImPlot::PlotLine("Ia",Iax, Iay, 2);
+
+        float Ibx[2]={0.0, 0.2};
+        float Iby[2]={0.0, 0.1};
+        ImPlot::PlotLine("Ib",Ibx, Iby, 2);
+
+        float Icx[2]={0.0, -1.5};
+        float Icy[2]={0.0, -0.5};
+        ImPlot::PlotLine("Ic",Icx, Icy, 2);
+
+        float Inx[2]={0.0, -1.0};
+        float Iny[2]={0.0, 1.0};
+        ImPlot::PlotLine("In",Inx, Iny, 2);
+
+        ImPlot::EndPlot(); 
+    }
+
+    // if(ImPlot::BeginPlot("Graph U", ImVec2(300,300))){
+    //     float Uax[2]={0.0, 1.0};
+    //     float Uay[2]={0.0, 1.0};
+    //     ImPlot::PlotLine("Ua",Uax, Uay, 2);
+
+    //     float Ubx[2]={0.0, 1.5};
+    //     float Uby[2]={0.0, 0.5};
+    //     ImPlot::PlotLine("Ub",Ubx, Uby, 2);
+
+    //     float Ucx[2]={0.0, -1.5};
+    //     float Ucy[2]={0.0, -0.5};
+    //     ImPlot::PlotLine("Uc",Ucx, Ucy, 2);
+
+    //     float Unx[2]={0.0, -1.0};
+    //     float Uny[2]={0.0, 1.0};
+    //     ImPlot::PlotLine("Un",Unx, Uny, 2);
+        
     //     ImPlot::EndPlot(); 
     // }
+    
     ImGui::End();
 }
 
@@ -105,11 +185,11 @@ void Streams_SV(bool *flag){
     ImGui::SetNextWindowSize(ImVec2(480,800));
     ImGui::Begin("Streams SV",  nullptr,  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
     | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+    ImGui::SetWindowFontScale(1.5f);
     ImVec2 sizewindow = ImGui::GetWindowSize();
     ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
     float posX = (sizewindow.x - sizetext.x) * 0.5f;
     ImGui::SetCursorPosX(posX);
-    ImGui::SetWindowFontScale(1.5f);
     ImGui::Text("Streams SV ");
     ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
     float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
@@ -125,7 +205,10 @@ void Streams_SV(bool *flag){
     for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100)));
+        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100))) {
+            f=a[i].AppID;
+            s=i;
+        }
     }
     
     if (k>0){
@@ -165,8 +248,16 @@ void Main_Menu(bool *flag){
     // if (flag[3]) Generator_GOOSE(flag);
     ImGui::SetWindowFontScale(1.0f);
 
+
+    const char* labels[] = { "A", "B", "C", "D" };
+    double values[] = { 25.0, 35.0, 20.0, 20.0 };
+
+    
     ImGui::End();
 } 
+
+
+
 
 int main() {
     flag[0]=false;
@@ -199,6 +290,13 @@ int main() {
     ImGui::CreateContext();
     ImPlot::CreateContext();
 
+    float red = (float)0x19 / 255.0f;
+    float green = (float)0x19 / 255.0f;
+    float blue = (float)0x70 / 255.0f;
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(red, green , blue, 0.5f); // Красный цвет фона окна
+;
     //Инициализация ImGui для работы с библиотекой GLFW и OpenGL
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     //Инициализация ImGui для работы с OpenGL версии 3.3
@@ -211,10 +309,15 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
         
         // Вызывает функцию
-        if (!flag[0] && !flag[1] && !flag[2] && !flag[3]) Main_Menu(flag);
-        if (flag[0]) Streams_SV(flag);
+        if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Main_Menu(flag);
+        if (flag[0] && f==0) Streams_SV(flag);
+        if (f!=0){
+            flag[0]=true;
+            WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
+        }
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();
