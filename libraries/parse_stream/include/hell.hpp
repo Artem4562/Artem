@@ -36,16 +36,7 @@ typedef struct {
     unsigned char id;
 }SV_PROT_NF_I;
 
-typedef struct {
-    int Ia;
-    int Ib;
-    int Ic;
-    int In;
-    int Ua;
-    int Ub;
-    int Uc;
-    int Un;
-}SV_PROT_F_I;
+
 
 
 

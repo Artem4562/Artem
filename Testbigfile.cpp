@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <DFT.hpp>
 #define LINE_LEN 16
 
 using namespace std;
@@ -18,9 +19,14 @@ void dispatcher_handler2(u_char *, const struct pcap_pkthdr *, const u_char *);
 
 
 static vector<SV_PROT_NF_I> DataKrat;
-static vector<SV_PROT_F_I> DataPoln;
+static SV_PROT_F_I datat;
+static bool flg = false;
+static bool fg = false;
+static bool flag = false;
 static int id =0;
 static int kek=0;
+static int MINUA=0;
+static std::vector<DATAF> Result;
 
 int main(int argc, char **argv)
 {	
@@ -104,26 +110,49 @@ void dispatcher_handler2(u_char *temp1,
 {
 	
 	SV_PROT prot;
-	SV_PROT_F_I data;
-	bool flg = false;
-	int j = 0;
+	//SV_PROT_F_I data;
 	WildFox(pkt_data,header, &prot);
-	if(prot.AppID == kek){
-		data.Ia = prot.Ia;
-		data.Ib = prot.Ib;
-		data.Ic = prot.Ic;
-		data.In = prot.In;
-		data.Ua = prot.Ua;
-		data.Ub = prot.Ub;
-		data.Uc = prot.Uc;
-		data.Un = prot.Un;
-		DataPoln.push_back(data);
-	}
-	if(DataPoln.size()==800){
-		DataPoln.erase(DataPoln.cbegin(),DataPoln.cend()-400);
-		//for(SV_PROT_F_I n : DataPoln) cout<<  n.Ia << "\n"; 
-	
+	if(prot.AppID == kek ){
+		if(MINUA==0 && MINUA>prot.Ua && !fg){
+			MINUA=prot.Ua;
+		}
+		if(MINUA>prot.Ua && !fg){
+			MINUA=prot.Ua;
+			flag= true;
+		}
+		if(MINUA<prot.Ua && flag== true && !fg){
+			fg= true;
+		}
+
+		if(!flg && fg && 0.001>(abs(float(prot.Ua)/MINUA))){
+			flg = true;
+		}
+
+		if(flg){
+			datat.Ia.push_back(prot.Ia);
+			datat.Ib.push_back(prot.Ib);
+			datat.Ic.push_back(prot.Ic);
+			datat.In.push_back(prot.In);
+			datat.Ua.push_back(prot.Ua);
+			datat.Ub.push_back(prot.Ub);
+			datat.Uc.push_back(prot.Uc);
+			datat.Un.push_back(prot.Un);
+			//DataPoln.push_back(data);
+		}
+		if(datat.Ia.size()==800){
+			DFT_4000D_1S(800,datat,LOWPERF,&Result);
+			datat.Ia.erase(datat.Ia.cbegin(),datat.Ia.cend()-400);
+			datat.Ib.erase(datat.Ib.cbegin(),datat.Ib.cend()-400);
+			datat.Ic.erase(datat.Ic.cbegin(),datat.Ic.cend()-400);
+			datat.In.erase(datat.In.cbegin(),datat.In.cend()-400);
+			datat.Ua.erase(datat.Ua.cbegin(),datat.Ua.cend()-400);
+			datat.Ub.erase(datat.Ub.cbegin(),datat.Ub.cend()-400);
+			datat.Uc.erase(datat.Uc.cbegin(),datat.Uc.cend()-400);
+			datat.Un.erase(datat.Un.cbegin(),datat.Un.cend()-400);
+			//for(SV_PROT_F_I n : DataPoln) cout<<  n.Uc << "\n"; 
 		
+			
+		}
 	}
 }
 
