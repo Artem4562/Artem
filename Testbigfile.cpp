@@ -19,14 +19,14 @@ void dispatcher_handler2(u_char *, const struct pcap_pkthdr *, const u_char *);
 
 
 static vector<SV_PROT_NF_I> DataKrat;
-static SV_PROT_F_I datat;
+static SV_PROT_AMP datat;
 static bool flg = false;
 static bool fg = false;
 static bool flag = false;
 static int id =0;
 static int kek=0;
 static int MINUA=0;
-static std::vector<DATAF> Result;
+static std::vector<SV_PROT_D> Result;
 
 int main(int argc, char **argv)
 {	
@@ -70,6 +70,16 @@ int main(int argc, char **argv)
 				pcap_close(fp);
 				return -4;
 			}
+	// datat.Ia.reserve(4000);
+	// datat.Ib.reserve(4000);
+	// datat.Ic.reserve(4000);
+	// datat.In.reserve(4000);
+	// datat.Ua.reserve(4000);
+	// datat.Ub.reserve(4000);
+	// datat.Uc.reserve(4000);
+	// datat.Un.reserve(4000);
+
+
 
 	if(!argv[2]) dispatcher = dispatcher_handler1; 
 	else dispatcher = dispatcher_handler2;
@@ -129,6 +139,8 @@ void dispatcher_handler2(u_char *temp1,
 		}
 
 		if(flg){
+			
+
 			datat.Ia.push_back(prot.Ia);
 			datat.Ib.push_back(prot.Ib);
 			datat.Ic.push_back(prot.Ic);
@@ -141,14 +153,14 @@ void dispatcher_handler2(u_char *temp1,
 		}
 		if(datat.Ia.size()==800){
 			DFT_4000D_1S(800,datat,LOWPERF,&Result);
-			datat.Ia.erase(datat.Ia.cbegin(),datat.Ia.cend()-400);
-			datat.Ib.erase(datat.Ib.cbegin(),datat.Ib.cend()-400);
-			datat.Ic.erase(datat.Ic.cbegin(),datat.Ic.cend()-400);
-			datat.In.erase(datat.In.cbegin(),datat.In.cend()-400);
-			datat.Ua.erase(datat.Ua.cbegin(),datat.Ua.cend()-400);
-			datat.Ub.erase(datat.Ub.cbegin(),datat.Ub.cend()-400);
-			datat.Uc.erase(datat.Uc.cbegin(),datat.Uc.cend()-400);
-			datat.Un.erase(datat.Un.cbegin(),datat.Un.cend()-400);
+			datat.Ia.erase(datat.Ia.cbegin(),datat.Ia.cend());
+			datat.Ib.erase(datat.Ib.cbegin(),datat.Ib.cend());
+			datat.Ic.erase(datat.Ic.cbegin(),datat.Ic.cend());
+			datat.In.erase(datat.In.cbegin(),datat.In.cend());
+			datat.Ua.erase(datat.Ua.cbegin(),datat.Ua.cend());
+			datat.Ub.erase(datat.Ub.cbegin(),datat.Ub.cend());
+			datat.Uc.erase(datat.Uc.cbegin(),datat.Uc.cend());
+			datat.Un.erase(datat.Un.cbegin(),datat.Un.cend());
 			//for(SV_PROT_F_I n : DataPoln) cout<<  n.Uc << "\n"; 
 		
 			
