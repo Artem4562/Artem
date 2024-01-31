@@ -74,7 +74,7 @@ typedef struct SV_PROT_AMP{
 
     SV_PROT_D DTF(int N, int K, int FREC){
         SV_PROT_D COCO {    DFT_I(N,Ia,K),DFT_I(N,Ib,K),DFT_I(N,Ic,K),DFT_I(N,In,K),
-                        DFT_I(N,Ua,K),DFT_I(N,Ub,K),DFT_I(N,Uc,K),DFT_I(N,Un,K), FREC};
+                            DFT_I(N,Ua,K),DFT_I(N,Ub,K),DFT_I(N,Uc,K),DFT_I(N,Un,K), FREC};
         return COCO;
     }
     private:
