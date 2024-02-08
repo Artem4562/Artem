@@ -14,7 +14,7 @@ typedef struct {
     unsigned short Res1; 
     unsigned short Res2; 
     unsigned char noAsdu = 0;
-    std::vector <unsigned char> svID;
+    std::vector<char> svID;
     unsigned short smpCnt;
     unsigned long confRef;
     unsigned char smpSynch;
@@ -32,25 +32,16 @@ typedef struct {
     std::vector <unsigned char> Destination;
     std::vector <unsigned char> Source;
     unsigned short AppID;
-    std::vector <unsigned char> svID;
+    std::vector<char>svID;
     unsigned char id;
     bool opened = false;
 }SV_PROT_NF_I;
 
-typedef struct {
-    int Ia;
-    int Ib;
-    int Ic;
-    int In;
-    int Ua;
-    int Ub;
-    int Uc;
-    int Un;
-}SV_PROT_F_I;
 
 
 
-void WildFox(const u_char * , pcap_pkthdr * , SV_PROT *);
+
+void WildFox(const u_char * ,const pcap_pkthdr * , SV_PROT *);
 
 
 #endif // HELL_H

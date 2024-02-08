@@ -24,7 +24,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 				if(package->noAsdu){
                     package->svID.clear();
                     for(int j = i; j-i<len_triplet; j++){
-                        package->svID.push_back( pc[j+1]);
+                        package->svID.push_back(pc[j+1]);
                     } 
                 }
                 else package->noAsdu = pc[i+1];
@@ -69,7 +69,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 }
 
 
-void WildFox(const u_char *pkt_data, pcap_pkthdr *header, SV_PROT *package){
+void WildFox(const u_char *pkt_data,const pcap_pkthdr *header, SV_PROT *package){
     int i;
     int len;
 
