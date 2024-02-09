@@ -4,7 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include <conio.h>
+//#include <conio.h>
 using namespace std;
 
 void sum(int &a, int &b){

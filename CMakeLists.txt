@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 project(oke VERSION 0.9.1 LANGUAGES C CXX)
 include(CTest)
 set (CMAKE_CXX_STANDARD 17)
 
 
-#add_executable(Testmisc Testmisc.cpp )
 
 
 
@@ -36,7 +35,7 @@ target_link_libraries(graph PRIVATE glfw)
 
 add_subdirectory(libraries/glfw)
 add_subdirectory(libraries/imgui-w)
-add_subdirectory(libraries/implot-w)
+add_subdirectory(libraries/implot-w/)
 add_subdirectory(libraries/parse_stream)
 add_subdirectory(libraries/DFT)
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 project(DFT  VERSION 0.9.1)
 set(namespace "some")
 

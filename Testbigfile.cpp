@@ -1,5 +1,4 @@
 #include <pcap.h>
-#include <conio.h>
 #include <hell.hpp>
 #include <iostream>
 #include <iomanip>
@@ -57,7 +56,6 @@ int main(int argc, char **argv)
 		if((res = pcap_compile(fp, &fcode, "not udp", 1, 0)) < 0) //составление фльтра 
 			{	
 				cout<<"\nError compiling filter: "<< res <<'\n';
-				getch();
 				pcap_close(fp);
 				return -3;
 			}
@@ -66,7 +64,6 @@ int main(int argc, char **argv)
 		if((res = pcap_setfilter(fp, &fcode))<0)   //применение фильтра 
 			{
 				cout<<"\nError setting the filter: "<< res <<'\n';
-				getch();
 				pcap_close(fp);
 				return -4;
 			}

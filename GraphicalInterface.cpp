@@ -10,11 +10,20 @@
 #include <implot.h>
 #include <implot_internal.h>
 #include <iostream>
-#include <winsock2.h>
+//#include <winsock2.h>
 #include <vector>
-#include <hell.hpp>
-#include <pcap.h>
+//#include <hell.hpp>
+//#include <pcap.h>
 using namespace std;
+
+typedef struct {
+    std::vector <unsigned char> Destination;
+    std::vector <unsigned char> Source;
+    unsigned short AppID;
+    std::vector<char>svID;
+    unsigned char id;
+    bool opened = false;
+}SV_PROT_NF_I;
 
 vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
 	vector<SV_PROT_NF_I> DK = {
@@ -194,7 +203,7 @@ void Streams_SV(bool *flag){
     ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
     float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
     ImGui::SetCursorPosX(posXX);
-    ImGui::Text("%d streams detected ",DK.size());
+    ImGui::Text("%d streams detected ",int(DK.size()));
     ImGui::SetCursorPosX(0.0f);
 
     ImGui::SetWindowFontScale(1.5f);
@@ -205,7 +214,7 @@ void Streams_SV(bool *flag){
     for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100))) {
+        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, &(a[i].Destination[0])), ImVec2(480, 100))) {
             f=a[i].AppID;
             s=i;
         }
@@ -265,7 +274,7 @@ int main() {
     flag[2]=false;
     flag[3]=false;
 
-    FreeConsole();
+    //FreeConsole();
 
     //Инициализация библиотеки GLFW
     if (!glfwInit()) {
@@ -316,7 +325,7 @@ int main() {
         if (flag[0] && f==0) Streams_SV(flag);
         if (f!=0){
             flag[0]=true;
-            WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
+            WindowFullInformation(s,&(a[s].svID)[0],f, &(a[s].Destination[0]));
         }
 
         //Завершает отрисовку интерфейса и выводит на экран результат
