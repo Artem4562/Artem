@@ -29,8 +29,8 @@ typedef struct {
 }SV_PROT;
 
 typedef struct {
-    std::vector <unsigned char> Destination;
-    std::vector <unsigned char> Source;
+    unsigned char Destination[6];
+    unsigned char Source[6];
     unsigned short AppID;
     std::vector<char>svID;
     unsigned char id;

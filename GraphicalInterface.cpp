@@ -12,13 +12,13 @@
 #include <iostream>
 //#include <winsock2.h>
 #include <vector>
-//#include <hell.hpp>
-//#include <pcap.h>
+#include <hell.hpp>
+#include <pcap.h>
 using namespace std;
 
 typedef struct {
-    std::vector <unsigned char> Destination;
-    std::vector <unsigned char> Source;
+    unsigned char Destination[6];
+    unsigned char Source[6];
     unsigned short AppID;
     std::vector<char>svID;
     unsigned char id;
@@ -214,7 +214,7 @@ void Streams_SV(bool *flag){
     for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, &(a[i].Destination[0])), ImVec2(480, 100))) {
+        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100))) {
             f=a[i].AppID;
             s=i;
         }
@@ -325,7 +325,7 @@ int main() {
         if (flag[0] && f==0) Streams_SV(flag);
         if (f!=0){
             flag[0]=true;
-            WindowFullInformation(s,&(a[s].svID)[0],f, &(a[s].Destination[0]));
+            WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
         }
 
         //Завершает отрисовку интерфейса и выводит на экран результат

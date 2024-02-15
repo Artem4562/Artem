@@ -11,28 +11,28 @@ endif()
 
 
 add_library(${PROJECT_NAME} STATIC)
-target_link_libraries(${PROJECT_NAME} wpcap.lib)
+#target_link_libraries(${PROJECT_NAME} wpcap.lib)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/hell.cpp
 )
-target_link_directories(${PROJECT_NAME}
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/npcap-sdk/Lib>
- 
-)
+#target_link_directories(${PROJECT_NAME}
+#    PUBLIC
+#       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/npcap-sdk/Lib>
+# 
+#)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         # where the library itself will look for its internal headers
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-    PUBLIC
-        # where top-level project will look for the library's public headers
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/npcap-sdk/Include>
-        # where external projects will look for the library's public headers
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+#    PUBLIC
+#        # where top-level project will look for the library's public headers
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/npcap-sdk/Include>
+#      # where external projects will look for the library's public headers
+#        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 

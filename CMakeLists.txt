@@ -25,9 +25,6 @@ add_executable(gui
 )
 
 add_executable(graph GraphicalInterface.cpp)
-target_include_directories(graph PUBLIC "./npcap-sdk/Include") 
-target_link_directories(graph PUBLIC "./npcap-sdk/Lib/x64")
-target_link_libraries(graph PRIVATE wpcap.lib)
 target_link_libraries(graph PRIVATE parsestream)
 target_link_libraries(graph PRIVATE imgui)
 target_link_libraries(graph PRIVATE implot)
