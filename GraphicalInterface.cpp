@@ -16,14 +16,6 @@
 #include <pcap.h>
 using namespace std;
 
-typedef struct {
-    unsigned char Destination[6];
-    unsigned char Source[6];
-    unsigned short AppID;
-    std::vector<char>svID;
-    unsigned char id;
-    bool opened = false;
-}SV_PROT_NF_I;
 
 vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
 	vector<SV_PROT_NF_I> DK = {
@@ -55,14 +47,35 @@ static int s; // для вызова WindowFullInformation
 const char* SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
 {   
     string D;
-    string info;
+    string info = "";
+    const char *ch; 
     for(int i=0;i<6;i++){
         D += to_string(MAC[i]);
         if (i<5) D+=':';
     }
-    
-    info = "Stream_number: "+ to_string(Stream_number) + "\n" + "SV_ID: " + SV_ID +"\n"+ "APP_ID: " + to_string(APP_ID) +  "\n" + "MAC: " + D + "\n" ;
-    return info.c_str();
+    std::cout<<info<<"Nach\n\n";
+    info += "Stream_number: ";
+    std::cout<<info<<"\n\n";
+    info += to_string(Stream_number) ;
+    std::cout<<info<<"\n\n";
+    info += "\nSV_ID: " ;
+    std::cout<<info<<"\n\n";
+    info += SV_ID ;
+    std::cout<<info<<"\n\n";
+    info +="\nAPP_ID: " ;
+    std::cout<<info<<"\n\n";
+    info += to_string(APP_ID) ;
+    std::cout<<info<<"\n\n";
+    info += "\nMAC: " ;
+    std::cout<<info<<"\n\n";
+    info += D;
+    std::cout<<info<<"\n\n";
+    info += "\n" ;
+    std::cout<<info<<"\n\n";
+    ch = info.c_str();
+    info = "";
+    std::cout<<ch<<'\n';
+    return ch;
 }
 
 void WindowFullInformation(int id,char* svID,unsigned short APP_ID, unsigned char MAC[6]) {
@@ -214,10 +227,12 @@ void Streams_SV(bool *flag){
     for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination), ImVec2(480, 100))) {
+        if (ImGui::Button("hehe", ImVec2(480, 100))) {
             f=a[i].AppID;
             s=i;
+            
         }
+        std::cout<<SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination);
     }
     
     if (k>0){
@@ -324,7 +339,6 @@ int main() {
         if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Main_Menu(flag);
         if (flag[0] && f==0) Streams_SV(flag);
         if (f!=0){
-            flag[0]=true;
             WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
         }
 

@@ -2,8 +2,6 @@
 #include <hell.hpp>
 #include <iostream>
 #include <iomanip>
-#include <fstream>
-#include <thread>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -42,7 +40,7 @@ int main(int argc, char **argv)
 
 
 	/* Open the capture file */
-	string name;
+	string name ;
 	name = string("../") + argv[1];
 	if ((fp = pcap_open_offline(name.c_str(),			// name of the device
 						 errbuf							// error buffer
@@ -67,14 +65,7 @@ int main(int argc, char **argv)
 				pcap_close(fp);
 				return -4;
 			}
-	// datat.Ia.reserve(4000);
-	// datat.Ib.reserve(4000);
-	// datat.Ic.reserve(4000);
-	// datat.In.reserve(4000);
-	// datat.Ua.reserve(4000);
-	// datat.Ub.reserve(4000);
-	// datat.Uc.reserve(4000);
-	// datat.Un.reserve(4000);
+
 
 
 
@@ -114,10 +105,8 @@ void dispatcher_handler1(u_char *temp1,
 void dispatcher_handler2(u_char *temp1, 
 						const struct pcap_pkthdr *header, 
 						const u_char *pkt_data)
-{
-	
+{	
 	SV_PROT prot;
-	//SV_PROT_F_I data;
 	WildFox(pkt_data,header, &prot);
 	if(prot.AppID == kek ){
 		if(MINUA==0 && MINUA>prot.Ua && !fg){
@@ -136,29 +125,11 @@ void dispatcher_handler2(u_char *temp1,
 		}
 
 		if(flg){
-			
-
-			datat.Ia.push_back(prot.Ia);
-			datat.Ib.push_back(prot.Ib);
-			datat.Ic.push_back(prot.Ic);
-			datat.In.push_back(prot.In);
-			datat.Ua.push_back(prot.Ua);
-			datat.Ub.push_back(prot.Ub);
-			datat.Uc.push_back(prot.Uc);
-			datat.Un.push_back(prot.Un);
-			//DataPoln.push_back(data);
+			datat.push_back_prot(prot);
 		}
 		if(datat.Ia.size()==800){
 			DFT_4000D_1S(800,datat,LOWPERF,&Result);
-			datat.Ia.erase(datat.Ia.cbegin(),datat.Ia.cend());
-			datat.Ib.erase(datat.Ib.cbegin(),datat.Ib.cend());
-			datat.Ic.erase(datat.Ic.cbegin(),datat.Ic.cend());
-			datat.In.erase(datat.In.cbegin(),datat.In.cend());
-			datat.Ua.erase(datat.Ua.cbegin(),datat.Ua.cend());
-			datat.Ub.erase(datat.Ub.cbegin(),datat.Ub.cend());
-			datat.Uc.erase(datat.Uc.cbegin(),datat.Uc.cend());
-			datat.Un.erase(datat.Un.cbegin(),datat.Un.cend());
-			//for(SV_PROT_F_I n : DataPoln) cout<<  n.Uc << "\n"; 
+			datat.erase_prot_all();
 		
 			
 		}

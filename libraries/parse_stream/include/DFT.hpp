@@ -3,6 +3,7 @@
 #include <vector>
 #include <complex>
 #include <iostream>
+#include "hell.hpp"
 
 
 
@@ -37,7 +38,7 @@ typedef struct SV_PROT_D {
     int FREC;
 
     SV_PROT_D(  POLAR_COMPLEX PIa , POLAR_COMPLEX PIb , POLAR_COMPLEX PIc , POLAR_COMPLEX PIn ,
-            POLAR_COMPLEX PUa , POLAR_COMPLEX PUb , POLAR_COMPLEX PUc , POLAR_COMPLEX PUn , int PFREC  )
+                POLAR_COMPLEX PUa , POLAR_COMPLEX PUb , POLAR_COMPLEX PUc , POLAR_COMPLEX PUn , int PFREC  )
     {
         Ia = PIa;
         Ib = PIb;
@@ -77,8 +78,45 @@ typedef struct SV_PROT_AMP{
                             DFT_I(N,Ua,K),DFT_I(N,Ub,K),DFT_I(N,Uc,K),DFT_I(N,Un,K), FREC};
         return COCO;
     }
-    private:
-    
+
+    SV_PROT_AMP push_back_prot(SV_PROT Prot)
+    {
+        this->Ia.push_back(Prot.Ia);
+        this->Ib.push_back(Prot.In);
+        this->Ic.push_back(Prot.Ic);
+        this->In.push_back(Prot.In);
+        this->Ua.push_back(Prot.Ua);
+        this->Ub.push_back(Prot.Ub);
+        this->Uc.push_back(Prot.Uc);
+        this->Un.push_back(Prot.Un);
+        return *this;
+    };
+
+    SV_PROT_AMP erase_prot_all()
+    {
+        this->Ia.erase(this->Ia.cbegin(),this->Ia.cend());
+        this->Ib.erase(this->Ib.cbegin(),this->Ib.cend());
+        this->Ic.erase(this->Ic.cbegin(),this->Ic.cend());
+        this->In.erase(this->In.cbegin(),this->In.cend());
+        this->Ua.erase(this->Ua.cbegin(),this->Ua.cend());
+        this->Ub.erase(this->Ub.cbegin(),this->Ub.cend());
+        this->Uc.erase(this->Uc.cbegin(),this->Uc.cend());
+        this->Un.erase(this->Un.cbegin(),this->Un.cend());
+        return *this;
+    };
+
+    // SV_PROT_AMP()
+    // {
+    //     Ia = {};
+    //     Ib = {};
+    //     Ic = {};
+    //     In = {};
+    //     Ua = {};
+    //     Ub = {};
+    //     Uc = {};
+    //     Un = {};
+    // }
+
     POLAR_COMPLEX DFT_I(int N, std::vector<int> argv, int K){
         std::complex<double> PR = 0.0 +0.0i;
         for (int n = 0; n < N; n++){
