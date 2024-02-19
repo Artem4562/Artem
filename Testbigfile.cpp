@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
 
 
-	if(!argv[2]) dispatcher = dispatcher_handler1; 
+	if(!argv[2]<10) dispatcher = dispatcher_handler1; 
 	else dispatcher = dispatcher_handler2;
 	pcap_loop(fp,0,dispatcher,NULL);
 	
@@ -127,7 +127,7 @@ void dispatcher_handler2(u_char *temp1,
 		if(flg){
 			datat.push_back_prot(prot);
 		}
-		if(datat.Ia.size()==800){
+		if(datat.size()==800){
 			DFT_4000D_1S(800,datat,LOWPERF,&Result);
 			datat.erase_prot_all();
 		

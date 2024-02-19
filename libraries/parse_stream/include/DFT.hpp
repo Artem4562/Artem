@@ -104,6 +104,11 @@ typedef struct SV_PROT_AMP{
         this->Un.erase(this->Un.cbegin(),this->Un.cend());
         return *this;
     };
+    int size()
+    {
+        int S = this->Ia.size();
+        return S;
+    }
 
     // SV_PROT_AMP()
     // {

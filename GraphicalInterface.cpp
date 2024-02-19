@@ -44,7 +44,7 @@ static int k=0; // для кнопок в Streams_Sv
 static unsigned short f = 0; // для APP_ID в Streams_SV
 static int s; // для вызова WindowFullInformation
 
-const char* SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
+string SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6])
 {   
     string D;
     string info = "";
@@ -54,28 +54,9 @@ const char* SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsign
         if (i<5) D+=':';
     }
     std::cout<<info<<"Nach\n\n";
-    info += "Stream_number: ";
-    std::cout<<info<<"\n\n";
-    info += to_string(Stream_number) ;
-    std::cout<<info<<"\n\n";
-    info += "\nSV_ID: " ;
-    std::cout<<info<<"\n\n";
-    info += SV_ID ;
-    std::cout<<info<<"\n\n";
-    info +="\nAPP_ID: " ;
-    std::cout<<info<<"\n\n";
-    info += to_string(APP_ID) ;
-    std::cout<<info<<"\n\n";
-    info += "\nMAC: " ;
-    std::cout<<info<<"\n\n";
-    info += D;
-    std::cout<<info<<"\n\n";
-    info += "\n" ;
-    std::cout<<info<<"\n\n";
-    ch = info.c_str();
-    info = "";
-    std::cout<<ch<<'\n';
-    return ch;
+    info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + SV_ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + D +"\n" ;
+
+    return info;
 }
 
 void WindowFullInformation(int id,char* svID,unsigned short APP_ID, unsigned char MAC[6]) {
@@ -223,28 +204,30 @@ void Streams_SV(bool *flag){
     if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
         flag[0] = false;
     ImGui::SetWindowFontScale(1.0f);
-
-    for( int i=5*k ; i < DK.size() && i < 5*k+5 ;i++){
+    ImGui::SetCursorPosX(0.0f);
+    ImGui::SetWindowFontScale(1.5f);
+   
+    for( int i=6*k ; i < DK.size() && i < 6*k+6 ;i++){
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button("hehe", ImVec2(480, 100))) {
+        if (ImGui::Button(&SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination)[0], ImVec2(480, 100))) {
             f=a[i].AppID;
             s=i;
             
         }
-        std::cout<<SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination);
+        
     }
     
     if (k>0){
         ImGui::SetWindowFontScale(2.5f);    
-        ImGui::SetCursorPos(ImVec2(0, 630));
+        ImGui::SetCursorPos(ImVec2(0, 732));
         if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
         ImGui::SetWindowFontScale(1.0f);
     }
 
-    if (5*k<(DK.size()-5)){
+    if (6*k<(DK.size()-6)){
         ImGui::SetWindowFontScale(2.5f);
-        ImGui::SetCursorPos(ImVec2(240, 630));
+        ImGui::SetCursorPos(ImVec2(240, 732));
         if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
         ImGui::SetWindowFontScale(1.0f);
     }
