@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <string>
 #include <DFT.hpp>
+#include <time.h>
 #define LINE_LEN 16
 
 using namespace std;
@@ -37,14 +38,103 @@ int main(int argc, char **argv)
 	int res;  //переменная под ошибки 
 	bpf_u_int32 mask;   /* Сетевая маска устройства */
 	bpf_u_int32 net;	/* IP устройства */
+	pcap_if_t *alldevs;
+	pcap_if_t *dev;
+	time_t local_tv_sec;
+	struct tm ltime;
+	char timestr[16];
+	int inum;
 
-
-	/* Open the capture file */
+	
+	    /* Retrieve the device list on the local machine */
+    if (pcap_findalldevs(&alldevs, errbuf) == -1)
+    {
+        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+        exit(1);
+    }
+    
+    /* Print the list */
+    for(dev=alldevs; dev; dev=dev->next)
+    {
+        printf("%d. %s", ++i, dev->name);
+        if (dev->description)
+            printf(" (%s)\n", dev->description);
+        else
+            printf(" (No description available)\n");
+    }
+    
+    if(i==0)
+    {
+        printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
+        return -1;
+    }
+    
+    printf("Enter the interface number (1-%d):",i);
+    std::cin>>(inum);
+    
+    if(inum < 1 || inum > i)
+    {
+        printf("\nInterface number out of range.\n");
+        /* Free the device list */
+        pcap_freealldevs(alldevs);
+        return -1;
+    }
+    
+    /* Jump to the selected adapter */
+    for(dev=alldevs, i=0; i< inum-1 ;dev=dev->next, i++);
+    
+    /* Open the device */
+    if ( (fp= pcap_open_live(dev->name,          // name of the device
+                              65536,            // portion of the packet to capture. 
+                                                // 65536 guarantees that the whole packet will be captured on all the link layers
+                              1000,             // read timeout
+                              NULL,             // authentication on the remote machine
+                              errbuf            // error buffer
+                              ) ) == NULL)
+    {
+        fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n", dev->name);
+        /* Free the device list */
+        pcap_freealldevs(alldevs);
+        return -1;
+    }
+    
+    printf("\nlistening on %s...\n", dev->description);
+    
+    /* At this point, we don't need any more the device list. Free it */
+    pcap_freealldevs(alldevs);
+    
+    /* Retrieve the packets */
+    while((res = pcap_next_ex( fp, &header, &pkt_data)) >= 0){
+        
+        if(res == 0)
+            /* Timeout elapsed */
+            continue;
+        
+        /* convert the timestamp to readable format */
+        local_tv_sec = header->ts.tv_sec;
+        localtime_r(&local_tv_sec,&ltime);
+        strftime( timestr, sizeof timestr, "%H:%M:%S", &ltime);
+        
+        printf("%s,%.6d len:%d\n", timestr, header->ts.tv_usec, header->len);
+    }
+    
+    if(res == -1){
+        printf("Error reading the packets: %s\n", pcap_geterr(fp));
+        return -1;
+    }
+    
+    return 0;
+	
+	
+		/* Open the capture file */
 	string name ;
-	name = string("../") + argv[1];
-	if ((fp = pcap_open_offline(name.c_str(),			// name of the device
-						 errbuf							// error buffer
-						 )) == NULL)
+	name = argv[1];
+	if ((	fp = pcap_open_live(dev->name,     // name of the device
+			BUFSIZ,
+			0,
+			10000,
+			errbuf							// error buffer
+			)) == NULL);
 	{
 		fprintf(stderr,"\nUnable to open the file: %s.\n", errbuf);
 		return -1;
