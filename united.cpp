@@ -26,11 +26,86 @@ using namespace std;
 #define _USE_MATH_DEFINES
 #define LINE_LEN 16
 
+typedef struct use_mutex_tag {
+    pthread_mutex_t mutex;
+} use_mutex_t;
+
+typedef struct thread_data {
+    vector<SV_PROT_NF_I> DK;
+    use_mutex_t mutex_tag;
+    int* Errno;
+} thread_data;
+
+typedef struct thread_dispatch{
+    vector<SV_PROT_NF_I> DataKrat;
+
+    thread_dispatch(vector<SV_PROT_NF_I> DP,){
+        DataKrat = DP;
+    }
+
+    void dispatcher_handler1(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){
+        SV_PROT prot;
+        SV_PROT_NF_I data;
+        bool flg = false;
+        int j = 0;
+        WildFox(pkt_data,header, &prot);
+        while(!flg && j<id){
+            if(prot.AppID==DataKrat[j].AppID ) flg=true;
+            j++;
+        }
+        
+        if(!DataKrat.size() || !flg){
+            data.AppID = prot.AppID;
+            copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
+            copy_n(prot.Source, sizeof(prot.Source), data.Source);
+            data.svID = prot.svID;
+            data.id = id++;
+            DataKrat.push_back(data);
+        }	
+        
+        
+    }
+
+    void dispatcher_handler2(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){	
+        SV_PROT prot;
+        WildFox(pkt_data,header, &prot);
+        if(prot.AppID == kek ){
+            if(MINUA==0 && MINUA>prot.Ua && !fg){
+                MINUA=prot.Ua;
+            }
+            if(MINUA>prot.Ua && !fg){
+                MINUA=prot.Ua;
+                flagg= true;
+            }
+            if(MINUA<prot.Ua && flagg== true && !fg){
+                fg= true;
+            }
+
+            if(!flg && fg && 0.001>(abs(float(prot.Ua)/MINUA))){
+                flg = true;
+            }
+
+            if(flg){
+                datat.push_back_prot(prot);
+            }
+            if(datat.size()==800){
+                DFT_4000D_1S(800,datat,LOWPERF,&Result);
+                datat.erase_prot_all();
+            
+                
+            }
+        }
+}
 
 
-void (*dispatcher) (u_char *, const struct pcap_pkthdr *, const u_char *);
-void dispatcher_handler1(u_char *, const struct pcap_pkthdr *, const u_char *);
-void dispatcher_handler2(u_char *, const struct pcap_pkthdr *, const u_char *);
+
+} thr_dis;
+
+
+
+
+
+
 
 
 static SV_PROT_AMP datat;
@@ -42,16 +117,11 @@ static int kek=0;
 static int MINUA=0;
 static std::vector<SV_PROT_D> Result;
 
-void * receive(void * DataKrat){	
-    // for (;;){
-    int argc;
-    char **argv;
-	// accept signal from VSCode for pausing/stopping
-    char *sudo_uid = getenv("SUDO_UID");
-    if (sudo_uid) setresuid(0, 0, atoi(sudo_uid));
+void * receive(void * thread_arg){	
 
-    printf("uid = %d\n", getuid());
-
+    thread_data *my_data = (thread_data *) thread_arg;
+    static vector<SV_PROT_NF_I> DataKrat = my_data->DK;
+    int* Err = my_data->Errno;
 
 
 	pcap_t *fp;
@@ -69,6 +139,10 @@ void * receive(void * DataKrat){
 	struct tm ltime;
 	char timestr[16];
 	int inum;
+
+    
+
+    
 
 	std::cin>>(kek);
 	    /* Retrieve the device list on the local machine */
@@ -91,7 +165,8 @@ void * receive(void * DataKrat){
     if(i==0)
     {
         printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
-        return -1;
+        *Err = -1;
+        pthread_exit(Err);
     }
     
     printf("Enter the interface number (1-%d):",i);
@@ -102,7 +177,8 @@ void * receive(void * DataKrat){
         printf("\nInterface number out of range.\n");
         /* Free the device list */
         pcap_freealldevs(alldevs);
-        return -1;
+        *Err = -1;
+        pthread_exit(Err);
     }
     
     /* Jump to the selected adapter */
@@ -120,20 +196,23 @@ void * receive(void * DataKrat){
 		std::cout<<'\n'<<errbuf;
         /* Free the device list */
         pcap_freealldevs(alldevs);
-        return -1;
+        *Err = -1;
+        pthread_exit(Err);
     }
 
 	if (pcap_datalink(fp) != DLT_EN10MB) 
 		{
 			fprintf(stderr, "Device %s doesn't provide Ethernet headers -not  supported\n", dev->name);
-			return(2);
+			*Err = -1;
+            pthread_exit(Err);
 		}
 
 	if((res = pcap_compile(fp, &fcode, "not udp and not ip and ether[12]=136 and ether[13]=186", 1, 0)) < 0) //составление фльтра 
 		{	
 			cout<<"\nError compiling filter: "<< res <<'\n';
 			pcap_close(fp);
-			return -3;
+			*Err = -3;
+        pthread_exit(Err);
 		}
 
 		//set the filter
@@ -141,7 +220,8 @@ void * receive(void * DataKrat){
 		{
 			cout<<"\nError setting the filter: "<< res <<'\n';
 			pcap_close(fp);
-			return -4;
+			*Err = -4;
+            pthread_exit(Err);
 		}
 
     
@@ -151,8 +231,7 @@ void * receive(void * DataKrat){
     pcap_freealldevs(alldevs);
     
     
-	if(!kek) dispatcher = dispatcher_handler1; 
-	else dispatcher = dispatcher_handler2;
+	
 	pcap_loop(fp,0,dispatcher,NULL);
 	
 	pcap_close(fp);
@@ -160,64 +239,11 @@ void * receive(void * DataKrat){
     // }
 }
 
-void dispatcher_handler1(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){
-	
-	SV_PROT prot;
-	SV_PROT_NF_I data;
-	bool flg = false;
-	int j = 0;
-	WildFox(pkt_data,header, &prot);
-	while(!flg && j<id){
-		if(prot.AppID==DataKrat[j].AppID ) flg=true;
-		j++;
-	}
-    pthread_mutex_lock(&(extd->mutex));
-	if(!DataKrat.size() || !flg){
-		data.AppID = prot.AppID;
-		copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
-		copy_n(prot.Source, sizeof(prot.Source), data.Source);
-		data.svID = prot.svID;
-		data.id = id++;
-		DataKrat.push_back(data);
-	}	
-    pthread_mutex_unlock(&(extd->mutex));
-	
-}
 
-void dispatcher_handler2(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){	
-	SV_PROT prot;
-	WildFox(pkt_data,header, &prot);
-	if(prot.AppID == kek ){
-		if(MINUA==0 && MINUA>prot.Ua && !fg){
-			MINUA=prot.Ua;
-		}
-		if(MINUA>prot.Ua && !fg){
-			MINUA=prot.Ua;
-			flagg= true;
-		}
-		if(MINUA<prot.Ua && flagg== true && !fg){
-			fg= true;
-		}
-
-		if(!flg && fg && 0.001>(abs(float(prot.Ua)/MINUA))){
-			flg = true;
-		}
-
-		if(flg){
-			datat.push_back_prot(prot);
-		}
-		if(datat.size()==800){
-			DFT_4000D_1S(800,datat,LOWPERF,&Result);
-			datat.erase_prot_all();
-		
-			
-		}
-	}
-}
 // -------------------------------------------------------------------------------------------------------------------
 
 
-vector<char> t = {'N','G','r','i','d','_','c','a','b','l','e','_','1'};
+
     
 
 
@@ -422,12 +448,12 @@ void Main_Menu(bool *flag){
     ImGui::End();
 } 
 
-void * draw(void* DataKrat){
-    for (;;){
-    
-    pthread_mutex_lock(&(extd->mutex));
+void * draw(void* thread_arg){
+
+    thread_data *my_data = (thread_data *) thread_arg;
+    vector<SV_PROT_NF_I> DataKrat = my_data->DK;
+    int* Err = my_data->Errno;
     SV_PROT_NF_I* a = &DataKrat[0];
-    pthread_mutex_unlock(&(extd->mutex));
     flag[0]=false;
     flag[1]=false;
     flag[2]=false;
@@ -438,13 +464,15 @@ void * draw(void* DataKrat){
     //Инициализация библиотеки GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
-        return EXIT_FAILURE;
+        *Err = EXIT_FAILURE;
+        pthread_exit(Err); 
     }
     //Создаю окно 
     GLFWwindow* window = glfwCreateWindow(480, 800, "My window", NULL, NULL);
     if (!window) {
         glfwTerminate();
-        return -1;
+        *Err = -1;
+        pthread_exit(Err);
     }
 
     // Создание контекста OpenGL
@@ -500,21 +528,36 @@ void * draw(void* DataKrat){
     //Освобождает все выделенные ресурсы, связанные с GLFW и завершает работу этой библиотеки 
     ImPlot::DestroyContext();
     glfwTerminate();
-    }
+    
 }
 
 
 // -------------------------------------------------------------------------------------------------------------------
 
 
+
+
+
 int main(){
+
+    // accept signal from VSCode for pausing/stopping
+    char *sudo_uid = getenv("SUDO_UID");
+    if (sudo_uid) setresuid(0, 0, atoi(sudo_uid));
+    printf("uid = %d\n", getuid());
+
+
     pthread_t sv_receive, draw_graphics;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     vector<SV_PROT_NF_I> DataKrat;
-    DataKrat.mutex = mutex;
+    use_mutex_t param;
+    pthread_mutex_init(&(param.mutex), NULL);
 
-    pthread_create(&sv_receive, NULL, *receive, (void *) &DataKrat);
-    pthread_create(&draw_graphics, NULL, *draw, (void *) &DataKrat);
+    thread_data thread_arg = {DataKrat,param};
+
+
+
+    pthread_create(&sv_receive, NULL, *receive, (void *) &thread_arg);
+    pthread_create(&draw_graphics, NULL, *draw, (void *) &thread_arg);
     pthread_join(sv_receive, NULL);
     pthread_join(draw_graphics, NULL);
 }

@@ -47,9 +47,8 @@ add_executable(pthrtest pthreadtest.cpp)
 
 
 add_executable(united united.cpp)
-target_link_libraries(united pcap)
-target_link_libraries(united parsestream)
-
-target_link_libraries(united imgui)
-target_link_libraries(united implot)
-target_link_libraries(united glfw)
+target_link_libraries(united PRIVATE pcap)
+target_link_libraries(united PRIVATE parsestream)
+target_link_libraries(united PRIVATE imgui)
+target_link_libraries(united PRIVATE implot)
+target_link_libraries(united PRIVATE glfw)
