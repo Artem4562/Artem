@@ -27,15 +27,19 @@ using namespace std;
 #define LINE_LEN 16
 
 typedef struct use_mutex_tag {
+    private:
+    int N;
+    public:
     pthread_mutex_t mutex;
-    int* Errno;
+    int* Errno = &N;
+    
 } use_mutex_t;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 vector<SV_PROT_NF_I> DataKrat;
 use_mutex_t param;
 int id = 0;
-SV_PROT_NF_I* a = &DataKrat[0];
+SV_PROT_NF_I* a;
 
 
 
@@ -54,12 +58,16 @@ void dispatcher_handler1(u_char *temp1,
             j++;
         }
         if(!DataKrat.size() || !flg){
+            pthread_mutex_lock(&param.mutex);
             data.AppID = prot.AppID;
             copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
             copy_n(prot.Source, sizeof(prot.Source), data.Source);
             data.svID = prot.svID;
             data.id = id++;
             DataKrat.push_back(data);
+            a = &DataKrat[0];
+            pthread_mutex_unlock(&param.mutex);
+
         }	
         
     }    
@@ -193,7 +201,8 @@ void * receive(void * args){
 	pcap_loop(fp,0,dispatcher_handler1,NULL);
 	
 	pcap_close(fp);
-	return 0;
+    *Err = 0;
+	pthread_exit(Err);
     // }
 }
 
@@ -495,7 +504,7 @@ void * draw(void* args){
     ImPlot::DestroyContext();
     glfwTerminate();
     *Err = 0;
-    return Err;
+    pthread_exit(Err);
 }
 
 
@@ -524,4 +533,5 @@ int main(){
     pthread_create(&draw_graphics, NULL, *draw, (void *) &param);
     pthread_join(sv_receive, NULL);
     pthread_join(draw_graphics, NULL);
+    return 0;
 }

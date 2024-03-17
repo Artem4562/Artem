@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <pcap.h>
 #include <hell.hpp>
 #include <iostream>
