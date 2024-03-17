@@ -35,6 +35,7 @@ typedef struct {
     std::vector<char>svID;
     unsigned char id;
     bool opened = false;
+    pthread_mutex_t mutex;
 }SV_PROT_NF_I;
 
 
