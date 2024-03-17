@@ -28,22 +28,22 @@ using namespace std;
 
 typedef struct use_mutex_tag {
     pthread_mutex_t mutex;
+    int* Errno;
 } use_mutex_t;
 
-typedef struct thread_data {
-    vector<SV_PROT_NF_I> DK;
-    use_mutex_t mutex_tag;
-    int* Errno;
-} thread_data;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+vector<SV_PROT_NF_I> DataKrat;
+use_mutex_t param;
+int id = 0;
+SV_PROT_NF_I* a = &DataKrat[0];
 
-typedef struct thread_dispatch{
-    vector<SV_PROT_NF_I> DataKrat;
 
-    thread_dispatch(vector<SV_PROT_NF_I> DP,){
-        DataKrat = DP;
-    }
 
-    void dispatcher_handler1(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){
+void dispatcher_handler1(u_char *temp1, 
+						    const struct pcap_pkthdr *header, 
+						    const u_char *pkt_data)
+    {
+        
         SV_PROT prot;
         SV_PROT_NF_I data;
         bool flg = false;
@@ -53,7 +53,6 @@ typedef struct thread_dispatch{
             if(prot.AppID==DataKrat[j].AppID ) flg=true;
             j++;
         }
-        
         if(!DataKrat.size() || !flg){
             data.AppID = prot.AppID;
             copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
@@ -63,65 +62,25 @@ typedef struct thread_dispatch{
             DataKrat.push_back(data);
         }	
         
-        
-    }
-
-    void dispatcher_handler2(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){	
-        SV_PROT prot;
-        WildFox(pkt_data,header, &prot);
-        if(prot.AppID == kek ){
-            if(MINUA==0 && MINUA>prot.Ua && !fg){
-                MINUA=prot.Ua;
-            }
-            if(MINUA>prot.Ua && !fg){
-                MINUA=prot.Ua;
-                flagg= true;
-            }
-            if(MINUA<prot.Ua && flagg== true && !fg){
-                fg= true;
-            }
-
-            if(!flg && fg && 0.001>(abs(float(prot.Ua)/MINUA))){
-                flg = true;
-            }
-
-            if(flg){
-                datat.push_back_prot(prot);
-            }
-            if(datat.size()==800){
-                DFT_4000D_1S(800,datat,LOWPERF,&Result);
-                datat.erase_prot_all();
-            
-                
-            }
-        }
-}
-
-
-
-} thr_dis;
-
-
-
-
-
-
+    }    
 
 
 static SV_PROT_AMP datat;
 static bool flg = false;
 static bool fg = false;
 static bool flagg = false;
-static int id =0;
 static int kek=0;
 static int MINUA=0;
 static std::vector<SV_PROT_D> Result;
 
-void * receive(void * thread_arg){	
+void * receive(void * args){	
 
-    thread_data *my_data = (thread_data *) thread_arg;
-    static vector<SV_PROT_NF_I> DataKrat = my_data->DK;
-    int* Err = my_data->Errno;
+    use_mutex_t *arg = (use_mutex_t*) args;
+    int *Err = arg->Errno;
+    pthread_mutex_t mutex = arg->mutex;
+
+
+    
 
 
 	pcap_t *fp;
@@ -141,7 +100,7 @@ void * receive(void * thread_arg){
 	int inum;
 
     
-
+    
     
 
 	std::cin>>(kek);
@@ -230,9 +189,8 @@ void * receive(void * thread_arg){
     /* At this point, we don't need any more the device list. Free it */
     pcap_freealldevs(alldevs);
     
-    
 	
-	pcap_loop(fp,0,dispatcher,NULL);
+	pcap_loop(fp,0,dispatcher_handler1,NULL);
 	
 	pcap_close(fp);
 	return 0;
@@ -252,208 +210,216 @@ static int k=0; // для кнопок в Streams_Sv
 static unsigned short f = 0; // для APP_ID в Streams_SV
 static int s; // для вызова WindowFullInformation
 
-string SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6]){   
-    string D;
-    string info = "";
-    const char *ch; 
-    for(int i=0;i<6;i++){
-        D += to_string(MAC[i]);
-        if (i<5) D+=':';
+
+typedef struct{
+    
+
+    string SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6]){   
+        string D;
+        string info = "";
+        const char *ch; 
+        for(int i=0;i<6;i++){
+            D += to_string(MAC[i]);
+            if (i<5) D+=':';
+        }
+        std::cout<<info<<"Nach\n\n";
+        info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + SV_ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + D +"\n" ;
+
+        return info;
     }
-    std::cout<<info<<"Nach\n\n";
-    info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + SV_ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + D +"\n" ;
 
-    return info;
-}
+    void WindowFullInformation(int id,char* svID,unsigned short APP_ID, unsigned char MAC[6]) {
+        string D ="";
+        for(int i=0;i<6;i++){
+            D += to_string(MAC[i]);
+            if (i<5) D+=':';
+        }
+        
+        ImGui::SetNextWindowPos(ImVec2(0, 0));    
+        ImGui::SetNextWindowSize(ImVec2(480,800));
+        ImGui::Begin("Full_Information_to_SV",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+        ImGui::SetWindowFontScale(1.5f);
+        ImVec2 sizewindow = ImGui::GetWindowSize();
+        ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
+        float posX = (sizewindow.x - sizetext.x) * 0.5f;
+        ImGui::SetCursorPosX(posX);
+        ImGui::Text("Streams SV");
+        ImVec2 sizetextX = ImGui::CalcTextSize("Stream # XX");
+        posX=(sizewindow.x - sizetextX.x) * 0.5f;
+        ImGui::SetCursorPosX(posX);
+        ImGui::Text("Stream # %d",id+1);
+        ImGui::SetCursorPosX(0.0f);
 
-void WindowFullInformation(int id,char* svID,unsigned short APP_ID, unsigned char MAC[6]) {
-    string D ="";
-    for(int i=0;i<6;i++){
-        D += to_string(MAC[i]);
-        if (i<5) D+=':';
+        if (ImGui::Button("Return to the list of streams", ImVec2(480, 50))) f = 0;
+
+        ImGui::Text("SV_ID: %s", svID);
+        ImGui::Text("APP_ID: %d", APP_ID);
+        ImGui::Text("MAC: %s", D.c_str());
+        
+        
+        int Ia = 4678;
+        int Ib = 2023;
+        int Ic = 7698;
+        int In = 2288;
+        int Ua = 1520;
+        int Ub = 1337;
+        int Uc = 3654;
+        int Un = 5436;
+
+        ImVec2 cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Ua= %d;",Ua);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Ub= %d;",Ub);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Uc= %d;",Uc);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Un= %d;",Un);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Ia= %d;",Ia);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Ib= %d;",Ib);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("Ic= %d;",Ic);
+
+        cursorpos = ImGui::GetCursorPos();
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
+        ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
+        ImGui::Text("In= %d;",In);
+
+        ImGui::SetWindowFontScale(1.0f);
+        
+        if(ImPlot::BeginPlot("Graph I", ImVec2(300,300))){
+            float Iax[2]={0.0, 1.0};
+            float Iay[2]={0.0, 1.0};
+            ImPlot::PlotLine("Ia",Iax, Iay, 2);
+
+            float Ibx[2]={0.0, 0.2};
+            float Iby[2]={0.0, 0.1};
+            ImPlot::PlotLine("Ib",Ibx, Iby, 2);
+
+            float Icx[2]={0.0, -1.5};
+            float Icy[2]={0.0, -0.5};
+            ImPlot::PlotLine("Ic",Icx, Icy, 2);
+
+            float Inx[2]={0.0, -1.0};
+            float Iny[2]={0.0, 1.0};
+            ImPlot::PlotLine("In",Inx, Iny, 2);
+
+            ImPlot::EndPlot(); 
+        }
+        ImGui::End();
     }
-    
-    ImGui::SetNextWindowPos(ImVec2(0, 0));    
-    ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin("Full_Information_to_SV",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
-    ImGui::SetWindowFontScale(1.5f);
-    ImVec2 sizewindow = ImGui::GetWindowSize();
-    ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
-    float posX = (sizewindow.x - sizetext.x) * 0.5f;
-    ImGui::SetCursorPosX(posX);
-    ImGui::Text("Streams SV");
-    ImVec2 sizetextX = ImGui::CalcTextSize("Stream # XX");
-    posX=(sizewindow.x - sizetextX.x) * 0.5f;
-    ImGui::SetCursorPosX(posX);
-    ImGui::Text("Stream # %d",id+1);
-    ImGui::SetCursorPosX(0.0f);
 
-    if (ImGui::Button("Return to the list of streams", ImVec2(480, 50))) f = 0;
+    void Streams_SV(bool *flag){
+        ImGui::SetNextWindowPos(ImVec2(0,0));
+        ImGui::SetNextWindowSize(ImVec2(480,800));
+        ImGui::Begin("Streams SV",  nullptr,  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
+        | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::SetWindowFontScale(1.5f);
+        ImVec2 sizewindow = ImGui::GetWindowSize();
+        ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
+        float posX = (sizewindow.x - sizetext.x) * 0.5f;
+        ImGui::SetCursorPosX(posX);
+        ImGui::Text("Streams SV ");
+        ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
+        float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
+        ImGui::SetCursorPosX(posXX);
+        ImGui::Text("%d streams detected ",int(DataKrat.size()));
+        ImGui::SetCursorPosX(0.0f);
 
-    ImGui::Text("SV_ID: %s", svID);
-    ImGui::Text("APP_ID: %d", APP_ID);
-    ImGui::Text("MAC: %s", D.c_str());
-    
-    
-    int Ia = 4678;
-    int Ib = 2023;
-    int Ic = 7698;
-    int In = 2288;
-    int Ua = 1520;
-    int Ub = 1337;
-    int Uc = 3654;
-    int Un = 5436;
-
-    ImVec2 cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Ua= %d;",Ua);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Ub= %d;",Ub);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Uc= %d;",Uc);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Un= %d;",Un);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Ia= %d;",Ia);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Ib= %d;",Ib);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("Ic= %d;",Ic);
-
-    cursorpos = ImGui::GetCursorPos();
-    ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
-    ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-    ImGui::Text("In= %d;",In);
-
-    ImGui::SetWindowFontScale(1.0f);
-    
-    if(ImPlot::BeginPlot("Graph I", ImVec2(300,300))){
-        float Iax[2]={0.0, 1.0};
-        float Iay[2]={0.0, 1.0};
-        ImPlot::PlotLine("Ia",Iax, Iay, 2);
-
-        float Ibx[2]={0.0, 0.2};
-        float Iby[2]={0.0, 0.1};
-        ImPlot::PlotLine("Ib",Ibx, Iby, 2);
-
-        float Icx[2]={0.0, -1.5};
-        float Icy[2]={0.0, -0.5};
-        ImPlot::PlotLine("Ic",Icx, Icy, 2);
-
-        float Inx[2]={0.0, -1.0};
-        float Iny[2]={0.0, 1.0};
-        ImPlot::PlotLine("In",Inx, Iny, 2);
-
-        ImPlot::EndPlot(); 
-    }
-    ImGui::End();
-}
-
-void Streams_SV(bool *flag){
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin("Streams SV",  nullptr,  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
-    | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus);
-    ImGui::SetWindowFontScale(1.5f);
-    ImVec2 sizewindow = ImGui::GetWindowSize();
-    ImVec2 sizetext = ImGui::CalcTextSize("Streams SV");
-    float posX = (sizewindow.x - sizetext.x) * 0.5f;
-    ImGui::SetCursorPosX(posX);
-    ImGui::Text("Streams SV ");
-    ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
-    float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
-    ImGui::SetCursorPosX(posXX);
-    ImGui::Text("%d streams detected ",int(DataKrat.size()));
-    ImGui::SetCursorPosX(0.0f);
-
-    ImGui::SetWindowFontScale(1.5f);
-    if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
-        flag[0] = false;
-    ImGui::SetWindowFontScale(1.0f);
-    ImGui::SetCursorPosX(0.0f);
-    ImGui::SetWindowFontScale(1.5f);
-   
-    for( int i=6*k ; i < DataKrat.size() && i < 6*k+6 ;i++){
+        ImGui::SetWindowFontScale(1.5f);
+        if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
+            flag[0] = false;
+        ImGui::SetWindowFontScale(1.0f);
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button(&SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination)[0], ImVec2(480, 100))) {
-            f=a[i].AppID;
-            s=i;
+    
+        for( int i=6*k ; i < DataKrat.size() && i < 6*k+6 ;i++){
+            ImGui::SetCursorPosX(0.0f);
+            ImGui::SetWindowFontScale(1.5f);
+            if (ImGui::Button(&SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination)[0], ImVec2(480, 100))) {
+                f=a[i].AppID;
+                s=i;
+                
+            }
             
         }
         
+        if (k>0){
+            ImGui::SetWindowFontScale(2.5f);    
+            ImGui::SetCursorPos(ImVec2(0, 732));
+            if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
+            ImGui::SetWindowFontScale(1.0f);
+        }
+
+        if (6*k<(DataKrat.size()-6)){
+            ImGui::SetWindowFontScale(2.5f);
+            ImGui::SetCursorPos(ImVec2(240, 732));
+            if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
+            ImGui::SetWindowFontScale(1.0f);
+        }
+
+        ImGui::End();
     }
-    
-    if (k>0){
-        ImGui::SetWindowFontScale(2.5f);    
-        ImGui::SetCursorPos(ImVec2(0, 732));
-        if (ImGui::Button("<", ImVec2(235, 50))) k -= 1;
+
+    void Main_Menu(bool *flag){
+        ImGui::SetNextWindowPos(ImVec2(0,0)); // Указывает конкретную область, в которой должно появиться окно
+        ImGui::SetNextWindowSize(ImVec2(480,800));
+        ImGui::Begin("Main Menu",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize );
+        ImVec2 sizewindow = ImGui::GetWindowSize();
+        ImVec2 sizetext = ImGui::CalcTextSize("Main Menu");
+        float posX = (sizewindow.x - sizetext.x) * 0.5f;
+        ImGui::SetCursorPosX(posX);
+
+        ImGui::SetWindowFontScale(1.5f);
+        ImGui::Text("Main Menu");
+        if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true; 
+        if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
+        // if (flag[1]) Streams_GOOSE(flag);
+        if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
+        // if (flag[2]) Generator_SV(flag);
+        if (ImGui::Button("Generator GOOSE", ImVec2(480, 100))) flag[3] = true;
+        // if (flag[3]) Generator_GOOSE(flag);
         ImGui::SetWindowFontScale(1.0f);
-    }
-
-    if (6*k<(DataKrat.size()-6)){
-        ImGui::SetWindowFontScale(2.5f);
-        ImGui::SetCursorPos(ImVec2(240, 732));
-        if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
-        ImGui::SetWindowFontScale(1.0f);
-    }
-
-    ImGui::End();
-}
-
-void Main_Menu(bool *flag){
-    ImGui::SetNextWindowPos(ImVec2(0,0)); // Указывает конкретную область, в которой должно появиться окно
-    ImGui::SetNextWindowSize(ImVec2(480,800));
-    ImGui::Begin("Main Menu",  nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize );
-    ImVec2 sizewindow = ImGui::GetWindowSize();
-    ImVec2 sizetext = ImGui::CalcTextSize("Main Menu");
-    float posX = (sizewindow.x - sizetext.x) * 0.5f;
-    ImGui::SetCursorPosX(posX);
-
-    ImGui::SetWindowFontScale(1.5f);
-    ImGui::Text("Main Menu");
-    if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true; 
-    if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
-    // if (flag[1]) Streams_GOOSE(flag);
-    if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
-    // if (flag[2]) Generator_SV(flag);
-    if (ImGui::Button("Generator GOOSE", ImVec2(480, 100))) flag[3] = true;
-    // if (flag[3]) Generator_GOOSE(flag);
-    ImGui::SetWindowFontScale(1.0f);
 
 
-    const char* labels[] = { "A", "B", "C", "D" };
-    double values[] = { 25.0, 35.0, 20.0, 20.0 };
+        const char* labels[] = { "A", "B", "C", "D" };
+        double values[] = { 25.0, 35.0, 20.0, 20.0 };
 
+        
+        ImGui::End();
+    } 
+
+}Display;
+
+
+
+void * draw(void* args){
+
+    use_mutex_t *arg = (use_mutex_t*) args;
+    int *Err = arg->Errno;
+    pthread_mutex_t mutex = arg->mutex;
     
-    ImGui::End();
-} 
-
-void * draw(void* thread_arg){
-
-    thread_data *my_data = (thread_data *) thread_arg;
-    vector<SV_PROT_NF_I> DataKrat = my_data->DK;
-    int* Err = my_data->Errno;
-    SV_PROT_NF_I* a = &DataKrat[0];
     flag[0]=false;
     flag[1]=false;
     flag[2]=false;
@@ -478,7 +444,7 @@ void * draw(void* thread_arg){
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
     //Что это не знаю, но без него не работает(
-    gladLoadGL(glfwGetProcAddress);
+    //gladLoadGL(glfwGetProcAddress);
     //Частота обновления кадров в приложении такая же, как у монитора
     glfwSwapInterval(1);
 
@@ -496,7 +462,7 @@ void * draw(void* thread_arg){
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     //Инициализация ImGui для работы с OpenGL версии 3.3
     ImGui_ImplOpenGL3_Init("#version 130");
-
+    Display Display;
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
 
@@ -507,17 +473,17 @@ void * draw(void* thread_arg){
 
         
         // Вызывает функцию
-        if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Main_Menu(flag);
-        if (flag[0] && f==0) Streams_SV(flag);
+        if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Display.Main_Menu(flag);
+        if (flag[0] && f==0) Display.Streams_SV(flag);
         if (f!=0){
-            WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
+            Display.WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
         }
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();
 
         //Очищает буфер кадра, обычно для подготовки его к отрисовке нового кадра.
-        glClear(GL_COLOR_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT);
 
         //Рисует данные пользовательского интерфейса ImGui на текущем буфере кадра OpenGL
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -528,7 +494,8 @@ void * draw(void* thread_arg){
     //Освобождает все выделенные ресурсы, связанные с GLFW и завершает работу этой библиотеки 
     ImPlot::DestroyContext();
     glfwTerminate();
-    
+    *Err = 0;
+    return Err;
 }
 
 
@@ -547,17 +514,14 @@ int main(){
 
 
     pthread_t sv_receive, draw_graphics;
-    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    vector<SV_PROT_NF_I> DataKrat;
-    use_mutex_t param;
     pthread_mutex_init(&(param.mutex), NULL);
+    
+    
 
-    thread_data thread_arg = {DataKrat,param};
 
 
-
-    pthread_create(&sv_receive, NULL, *receive, (void *) &thread_arg);
-    pthread_create(&draw_graphics, NULL, *draw, (void *) &thread_arg);
+    pthread_create(&sv_receive, NULL, *receive, (void *) &param);
+    pthread_create(&draw_graphics, NULL, *draw, (void *) &param);
     pthread_join(sv_receive, NULL);
     pthread_join(draw_graphics, NULL);
 }

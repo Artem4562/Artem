@@ -30,7 +30,7 @@ static std::vector<SV_PROT_D> Result;
 int main(int argc, char **argv)
 {	
 
-	// accept signal from VSCode for pausing/stopping
+	//accept signal from VSCode for pausing/stopping
     char *sudo_uid = getenv("SUDO_UID");
     if (sudo_uid)
         setresuid(0, 0, atoi(sudo_uid));
