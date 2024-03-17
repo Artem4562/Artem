@@ -16,6 +16,8 @@
 #include <imgui.h>
 #include <implot.h>
 #include <implot_internal.h>
+#include <pthread.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -34,20 +36,19 @@ void dispatcher_handler2(u_char *, const struct pcap_pkthdr *, const u_char *);
 static SV_PROT_AMP datat;
 static bool flg = false;
 static bool fg = false;
-static bool flag = false;
+static bool flagg = false;
 static int id =0;
 static int kek=0;
 static int MINUA=0;
 static std::vector<SV_PROT_D> Result;
 
 void * receive(void * DataKrat){	
-    for (;;){
-    int argc
-    char **argv
+    // for (;;){
+    int argc;
+    char **argv;
 	// accept signal from VSCode for pausing/stopping
     char *sudo_uid = getenv("SUDO_UID");
-    if (sudo_uid)
-        setresuid(0, 0, atoi(sudo_uid));
+    if (sudo_uid) setresuid(0, 0, atoi(sudo_uid));
 
     printf("uid = %d\n", getuid());
 
@@ -156,7 +157,7 @@ void * receive(void * DataKrat){
 	
 	pcap_close(fp);
 	return 0;
-    }
+    // }
 }
 
 void dispatcher_handler1(u_char *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data){
@@ -192,9 +193,9 @@ void dispatcher_handler2(u_char *temp1, const struct pcap_pkthdr *header, const 
 		}
 		if(MINUA>prot.Ua && !fg){
 			MINUA=prot.Ua;
-			flag= true;
+			flagg= true;
 		}
-		if(MINUA<prot.Ua && flag== true && !fg){
+		if(MINUA<prot.Ua && flagg== true && !fg){
 			fg= true;
 		}
 
@@ -383,7 +384,7 @@ void Streams_SV(bool *flag){
         ImGui::SetWindowFontScale(1.0f);
     }
 
-    if (6*k<(DK.size()-6)){
+    if (6*k<(DataKrat.size()-6)){
         ImGui::SetWindowFontScale(2.5f);
         ImGui::SetCursorPos(ImVec2(240, 732));
         if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
