@@ -42,3 +42,5 @@ target_link_libraries(gui PRIVATE parsestream)
 
 add_executable(potok onvpotoke.cpp)
 
+add_executable(pthrtest pthreadtest.cpp)
+
