@@ -18,6 +18,7 @@
 #include <implot_internal.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <chrono>
 
 using namespace std;
 
@@ -35,11 +36,14 @@ typedef struct use_mutex_tag {
     
 } use_mutex_t;
 
+
+
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 vector<SV_PROT_NF_I> DataKrat;
 use_mutex_t param;
 int id = 0;
-SV_PROT_NF_I* a;
+
+
 
 
 
@@ -49,23 +53,36 @@ void dispatcher_handler1(u_char *temp1,
     {
         
         SV_PROT prot;
-        SV_PROT_NF_I data;
         bool flg = false;
         int j = 0;
         WildFox(pkt_data,header, &prot);
         while(!flg && j<id){
-            if(prot.AppID==DataKrat[j].AppID ) flg=true;
+            if(prot.AppID==DataKrat[j].AppID ){
+                flg=true;
+                DataKrat[j].smt_counter++;
+                if (DataKrat[j].check_time()){
+                    if(3980<= DataKrat[j].smt_counter){
+                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
+                    }
+                    if(3500<= DataKrat[j].smt_counter && 3980> DataKrat[j].smt_counter){
+                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
+                    }
+                    if(2000<= DataKrat[j].smt_counter && 3500> DataKrat[j].smt_counter){
+                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
+                    }
+                    if(0 <= DataKrat[j].smt_counter && 2000> DataKrat[j].smt_counter){
+                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
+                    }
+                    DataKrat[j].smt_counter = 0;
+                    
+                }
+                
+            } 
             j++;
         }
         if(!DataKrat.size() || !flg){
             pthread_mutex_lock(&param.mutex);
-            data.AppID = prot.AppID;
-            copy_n(prot.Destination, sizeof(prot.Destination), data.Destination);
-            copy_n(prot.Source, sizeof(prot.Source), data.Source);
-            data.svID = prot.svID;
-            data.id = id++;
-            DataKrat.push_back(data);
-            a = &DataKrat[0];
+            DataKrat.push_back({prot.Destination,prot.Source,prot.AppID,prot.svID,id++});
             pthread_mutex_unlock(&param.mutex);
 
         }	
@@ -73,13 +90,6 @@ void dispatcher_handler1(u_char *temp1,
     }    
 
 
-static SV_PROT_AMP datat;
-static bool flg = false;
-static bool fg = false;
-static bool flagg = false;
-static int kek=0;
-static int MINUA=0;
-static std::vector<SV_PROT_D> Result;
 
 void * receive(void * args){	
 
@@ -109,9 +119,7 @@ void * receive(void * args){
 
     
     
-    
 
-	std::cin>>(kek);
 	    /* Retrieve the device list on the local machine */
     if (pcap_findalldevs(&alldevs, errbuf) == -1)
     {
@@ -197,7 +205,6 @@ void * receive(void * args){
     /* At this point, we don't need any more the device list. Free it */
     pcap_freealldevs(alldevs);
     
-	
 	pcap_loop(fp,0,dispatcher_handler1,NULL);
 	
 	pcap_close(fp);
@@ -223,25 +230,22 @@ static int s; // для вызова WindowFullInformation
 typedef struct{
     
 
-    string SVinfo(int Stream_number, char* SV_ID, unsigned short APP_ID, unsigned char MAC[6]){   
-        string D;
+    string SVinfo(int Stream_number,vector <char> SV_ID, unsigned short APP_ID, string MAC,string Cond){   
+        string ID;
         string info = "";
         const char *ch; 
-        for(int i=0;i<6;i++){
-            D += to_string(MAC[i]);
-            if (i<5) D+=':';
+        for(int i=0;i<SV_ID.size();i++){
+            ID += SV_ID[i];
         }
-        std::cout<<info<<"Nach\n\n";
-        info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + SV_ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + D +"\n" ;
+        info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + MAC +"\n" +Cond+"\n" ;
 
         return info;
     }
 
-    void WindowFullInformation(int id,char* svID,unsigned short APP_ID, unsigned char MAC[6]) {
-        string D ="";
-        for(int i=0;i<6;i++){
-            D += to_string(MAC[i]);
-            if (i<5) D+=':';
+    void WindowFullInformation(int id,vector <char> svID,unsigned short APP_ID, string MAC) {
+        string ID ="";
+        for(int i=0;i<svID.size();i++){
+            ID += svID[i];
         }
         
         ImGui::SetNextWindowPos(ImVec2(0, 0));    
@@ -261,9 +265,9 @@ typedef struct{
 
         if (ImGui::Button("Return to the list of streams", ImVec2(480, 50))) f = 0;
 
-        ImGui::Text("SV_ID: %s", svID);
+        ImGui::Text("SV_ID: %s", ID.c_str());
         ImGui::Text("APP_ID: %d", APP_ID);
-        ImGui::Text("MAC: %s", D.c_str());
+        ImGui::Text("MAC: %s", MAC.c_str());
         
         
         int Ia = 4678;
@@ -366,8 +370,8 @@ typedef struct{
         for( int i=6*k ; i < DataKrat.size() && i < 6*k+6 ;i++){
             ImGui::SetCursorPosX(0.0f);
             ImGui::SetWindowFontScale(1.5f);
-            if (ImGui::Button(&SVinfo(i+1,&(a[i].svID)[0], a[i].AppID, a[i].Destination)[0], ImVec2(480, 100))) {
-                f=a[i].AppID;
+            if (ImGui::Button(&SVinfo(i+1,DataKrat[i].svID, DataKrat[i].AppID, DataKrat[i].Destination,DataKrat[i].condition)[0], ImVec2(480, 100))) {
+                f=DataKrat[i].AppID;
                 s=i;
                 
             }
@@ -381,7 +385,7 @@ typedef struct{
             ImGui::SetWindowFontScale(1.0f);
         }
 
-        if (6*k<(DataKrat.size()-6)){
+        if (k<(DataKrat.size()/6)){
             ImGui::SetWindowFontScale(2.5f);
             ImGui::SetCursorPos(ImVec2(240, 732));
             if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
@@ -485,7 +489,7 @@ void * draw(void* args){
         if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Display.Main_Menu(flag);
         if (flag[0] && f==0) Display.Streams_SV(flag);
         if (f!=0){
-            Display.WindowFullInformation(s,&(a[s].svID)[0],f, a[s].Destination);
+            Display.WindowFullInformation(s,DataKrat[s].svID,f, DataKrat[s].Destination);
         }
 
         //Завершает отрисовку интерфейса и выводит на экран результат

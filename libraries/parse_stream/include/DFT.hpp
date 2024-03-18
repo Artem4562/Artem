@@ -21,8 +21,6 @@ typedef struct POLAR_COMPLEX {
         NORM = P_NORM;
         ANGLE = P_ANGLE;
     }
-    // POLAR_COMPLEX():POLAR_COMPLEX(0.0,0.0){
-    // };
    
 }POLAR_COMPLEX;
 
@@ -82,7 +80,7 @@ typedef struct SV_PROT_AMP{
     SV_PROT_AMP push_back_prot(SV_PROT Prot)
     {
         this->Ia.push_back(Prot.Ia);
-        this->Ib.push_back(Prot.In);
+        this->Ib.push_back(Prot.Ib);
         this->Ic.push_back(Prot.Ic);
         this->In.push_back(Prot.In);
         this->Ua.push_back(Prot.Ua);
