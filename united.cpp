@@ -59,23 +59,9 @@ void dispatcher_handler1(u_char *temp1,
         while(!flg && j<id){
             if(prot.AppID==DataKrat[j].AppID ){
                 flg=true;
+                pthread_mutex_lock(&param.mutex);
                 DataKrat[j].smt_counter++;
-                if (DataKrat[j].check_time()){
-                    if(3980<= DataKrat[j].smt_counter){
-                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
-                    }
-                    if(3500<= DataKrat[j].smt_counter && 3980> DataKrat[j].smt_counter){
-                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
-                    }
-                    if(2000<= DataKrat[j].smt_counter && 3500> DataKrat[j].smt_counter){
-                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
-                    }
-                    if(0 <= DataKrat[j].smt_counter && 2000> DataKrat[j].smt_counter){
-                        DataKrat[j].condition = to_string(DataKrat[j].smt_counter);
-                    }
-                    DataKrat[j].smt_counter = 0;
-                    
-                }
+                pthread_mutex_unlock(&param.mutex);
                 
             } 
             j++;
@@ -376,6 +362,8 @@ typedef struct{
                 
             }
             
+                
+            
         }
         
         if (k>0){
@@ -491,6 +479,29 @@ void * draw(void* args){
         if (f!=0){
             Display.WindowFullInformation(s,DataKrat[s].svID,f, DataKrat[s].Destination);
         }
+
+        for(int i = 0; i < DataKrat.size() && flag[0];i++){
+
+            if (DataKrat[i].check_time()){
+                pthread_mutex_lock(&param.mutex);
+                if(3980<= DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                if(3500<= DataKrat[i].smt_counter && 3980> DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                if(2000<= DataKrat[i].smt_counter && 3500> DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                if(0 <= DataKrat[i].smt_counter && 2000> DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                DataKrat[i].smt_counter = 0;
+                pthread_mutex_unlock(&param.mutex);
+                    
+            }
+        }
+
 
         //Завершает отрисовку интерфейса и выводит на экран результат
         ImGui::Render();
