@@ -19,6 +19,9 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <chrono>
+#include <fstream>
+#include <algorithm>
+
 
 using namespace std;
 
@@ -83,7 +86,11 @@ void * receive(void * args){
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex;
 
+    typedef struct conf_pr{
+        string name;
+        string value;
 
+    }conf_pr;
     
 
 
@@ -96,74 +103,105 @@ void * receive(void * args){
 	int res;  //переменная под ошибки 
 	bpf_u_int32 mask;   /* Сетевая маска устройства */
 	bpf_u_int32 net;	/* IP устройства */
-	pcap_if_t *alldevs;
-	pcap_if_t *dev;
+    conf_pr device;
 	time_t local_tv_sec;
 	struct tm ltime;
 	char timestr[16];
 	int inum;
 
+    std::ifstream myfile; 
+    myfile.open("./config.txt");
+    if(myfile.is_open()){
+        string line;
+        while(getline(myfile,line)){
+            line.erase(std::remove_if(line.begin(), line.end(),[](unsigned char x) { return std::isspace(x); }),
+                                 line.end());
+            if( line.empty() || line[0] == '#' )
+            {
+                continue;
+            }
+            auto delimiterPos = line.find("=");
+            device.name = line.substr(0, delimiterPos);
+            device.value = line.substr(delimiterPos + 1);
+
+
+
+        }
+
+
+    }
+    else 
+    {   
+        std::cerr << "Couldn't open config file for reading.\n";
+        pcap_if_t *alldevs;
+	    pcap_if_t *dev;
+        if (pcap_findalldevs(&alldevs, errbuf) == -1)
+        {
+            fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+            exit(1);
+        }
+        
+        /* Print the list */
+        for(dev=alldevs; dev; dev=dev->next)
+        {
+            printf("%d. %s", ++i, dev->name);
+            if (dev->description)
+                printf(" (%s)\n", dev->description);
+            else
+                printf(" (No description available)\n");
+        }
+        
+        if(i==0)
+        {
+            printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
+            *Err = -1;
+            pthread_exit(Err);
+        }
+        
+        printf("Enter the interface number (1-%d):",i);
+        std::cin>>(inum);
+        
+        if(inum < 1 || inum > i)
+        {
+            printf("\nInterface number out of range.\n");
+            /* Free the device list */
+            pcap_freealldevs(alldevs);
+            *Err = -1;
+            pthread_exit(Err);
+        }
+        
+        /* Jump to the selected adapter */
+        for(dev=alldevs, i=0; i< inum-1 ;dev=dev->next, i++);
+
+        device.name = "device";
+        device.value = dev->name;
+        pcap_freealldevs(alldevs);
+        
+    }
     
     
 
-	    /* Retrieve the device list on the local machine */
-    if (pcap_findalldevs(&alldevs, errbuf) == -1)
-    {
-        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
-        exit(1);
-    }
-    
-    /* Print the list */
-    for(dev=alldevs; dev; dev=dev->next)
-    {
-        printf("%d. %s", ++i, dev->name);
-        if (dev->description)
-            printf(" (%s)\n", dev->description);
-        else
-            printf(" (No description available)\n");
-    }
-    
-    if(i==0)
-    {
-        printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
-        *Err = -1;
-        pthread_exit(Err);
-    }
-    
-    printf("Enter the interface number (1-%d):",i);
-    std::cin>>(inum);
-    
-    if(inum < 1 || inum > i)
-    {
-        printf("\nInterface number out of range.\n");
-        /* Free the device list */
-        pcap_freealldevs(alldevs);
-        *Err = -1;
-        pthread_exit(Err);
-    }
-    
-    /* Jump to the selected adapter */
-    for(dev=alldevs, i=0; i< inum-1 ;dev=dev->next, i++);
+	/* Retrieve the device list on the local machine */
     
     /* Open the device */
-    if ( (fp= pcap_open_live(dev->name,         // name of the device
+    if ( (fp= pcap_open_live(device.value.c_str(),         // name of the device
                               65536,            // portion of the packet to capture. 
                               true,             // 65536 guarantees that the whole packet will be captured on all the link layers
                               1000,             // read timeout            
                               errbuf            // error buffer
                               ) ) == NULL)
     {
-        fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n", dev->name);
+        fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n", device.name.c_str());
 		std::cout<<'\n'<<errbuf;
         /* Free the device list */
-        pcap_freealldevs(alldevs);
+        
         *Err = -1;
         pthread_exit(Err);
     }
 
 	if (pcap_datalink(fp) != DLT_EN10MB) 
 		{
-			fprintf(stderr, "Device %s doesn't provide Ethernet headers -not  supported\n", dev->name);
+			fprintf(stderr, "Device %s doesn't provide Ethernet headers -not  supported\n", device.name.c_str());
 			*Err = -1;
             pthread_exit(Err);
 		}
@@ -186,10 +224,8 @@ void * receive(void * args){
 		}
 
     
-    printf("\nlistening on %s...\n", dev->name);
+    printf("\nlistening on %s...\n", device.value.c_str());
     
-    /* At this point, we don't need any more the device list. Free it */
-    pcap_freealldevs(alldevs);
     
 	pcap_loop(fp,0,dispatcher_handler1,NULL);
 	
