@@ -39,12 +39,33 @@ typedef struct use_mutex_tag {
     
 } use_mutex_t;
 
+typedef struct conf_pr{
+    string name;
+    string value;
 
+}conf_pr;
+    
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 vector<SV_PROT_NF_I> DataKrat;
 use_mutex_t param;
 int id = 0;
+
+
+
+void config_writer(conf_pr dev){
+    std::ofstream myfile;
+    myfile.open("./build/config.txt");
+    if(myfile.is_open()){
+        myfile << dev.name << " = " << dev.value;
+
+
+
+        
+    myfile.close();
+    }
+    
+}
 
 
 
@@ -86,11 +107,6 @@ void * receive(void * args){
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex;
 
-    typedef struct conf_pr{
-        string name;
-        string value;
-
-    }conf_pr;
     
 
 
@@ -110,7 +126,7 @@ void * receive(void * args){
 	int inum;
 
     std::ifstream myfile; 
-    myfile.open("./config.txt");
+    myfile.open("./build.config.txt");
     if(myfile.is_open()){
         string line;
         while(getline(myfile,line)){
@@ -127,7 +143,7 @@ void * receive(void * args){
 
 
         }
-
+    myfile.close();
 
     }
     else 
@@ -176,6 +192,7 @@ void * receive(void * args){
         device.name = "device";
         device.value = dev->name;
         pcap_freealldevs(alldevs);
+        config_writer(device);
         
     }
     

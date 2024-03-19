@@ -1,2 +1,0 @@
-device = enp0s3
-
