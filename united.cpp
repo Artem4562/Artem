@@ -126,7 +126,7 @@ void * receive(void * args){
 	int inum;
 
     std::ifstream myfile; 
-    myfile.open("./build.config.txt");
+    myfile.open("./build/config.txt");
     if(myfile.is_open()){
         string line;
         while(getline(myfile,line)){
