@@ -125,29 +125,29 @@ void * receive(void * args){
 	char timestr[16];
 	int inum;
 
-    std::ifstream myfile; 
-    myfile.open("./build/config.txt");
-    if(myfile.is_open()){
-        string line;
-        while(getline(myfile,line)){
-            line.erase(std::remove_if(line.begin(), line.end(),[](unsigned char x) { return std::isspace(x); }),
-                                 line.end());
-            if( line.empty() || line[0] == '#' )
-            {
-                continue;
-            }
-            auto delimiterPos = line.find("=");
-            device.name = line.substr(0, delimiterPos);
-            device.value = line.substr(delimiterPos + 1);
+    //std::ifstream myfile; 
+    // myfile.open("./build/config.txt");
+    // if(myfile.is_open()){
+    //     string line;
+    //     while(getline(myfile,line)){
+    //         line.erase(std::remove_if(line.begin(), line.end(),[](unsigned char x) { return std::isspace(x); }),
+    //                              line.end());
+    //         if( line.empty() || line[0] == '#' )
+    //         {
+    //             continue;
+    //         }
+    //         auto delimiterPos = line.find("=");
+    //         device.name = line.substr(0, delimiterPos);
+    //         device.value = line.substr(delimiterPos + 1);
 
 
 
-        }
-    myfile.close();
+    //     }
+    // myfile.close();
 
-    }
-    else 
-    {   
+    // }
+    // else 
+    // {   
         std::cerr << "Couldn't open config file for reading.\n";
         pcap_if_t *alldevs;
 	    pcap_if_t *dev;
@@ -194,7 +194,7 @@ void * receive(void * args){
         pcap_freealldevs(alldevs);
         config_writer(device);
         
-    }
+    //}
     
     
 
