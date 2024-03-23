@@ -92,7 +92,24 @@ void dispatcher_handler1(u_char *temp1,
         }
         if(!DataKrat.size() || !flg){
             pthread_mutex_lock(&param.mutex);
-            DataKrat.push_back({prot.Destination,prot.Source,prot.AppID,prot.svID,id++});
+            SV_PROT_NF_I per;
+            string Destination, Source;
+
+            for(int i = 0;i<6;i++){
+                Destination+= std::to_string(prot.Destination[i]);
+                Source+= std::to_string(prot.Source[i]);
+                if(i<5){
+                    Destination+= ":";
+                    Source+= ":";
+                }
+            }
+
+            per.Destination = Destination;
+            per.Source = Source;
+            per.AppID = prot.AppID;
+            per. svID = prot.svID;
+            per.id = id++;
+            DataKrat.push_back(per);
             pthread_mutex_unlock(&param.mutex);
 
         }	
