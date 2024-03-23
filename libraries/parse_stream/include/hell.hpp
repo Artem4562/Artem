@@ -44,40 +44,40 @@ typedef struct SV_PROT_NF_I{
     int smt_counter = 0;
     
 
-    SV_PROT_NF_I(   unsigned char PDestination[6], unsigned char PSource[6], 
-                    unsigned short PAppID, std::vector<char>PsvID, unsigned char Pid, 
-                    bool Popened, std::string Pcondition, int Psmt_counter)
-    {
-        for(int i = 0;i<6;i++){
-            Destination+= std::to_string(PDestination[i]);
-            Source+= std::to_string(PSource[i]);
-            if(i<5){
-                Destination+= ":";
-                Source+= ":";
-            }
-        }
-        AppID = PAppID;
-        svID = PsvID;
-        id = u_char(Pid);
-        opened = Popened;
-        condition = Pcondition;
-        smt_counter = Psmt_counter;
-    }
+    // SV_PROT_NF_I(   unsigned char PDestination[6], unsigned char PSource[6], 
+    //                 unsigned short PAppID, std::vector<char>PsvID, unsigned char Pid, 
+    //                 bool Popened, std::string Pcondition, int Psmt_counter)
+    // {
+    //     for(int i = 0;i<6;i++){
+    //         Destination+= std::to_string(PDestination[i]);
+    //         Source+= std::to_string(PSource[i]);
+    //         if(i<5){
+    //             Destination+= ":";
+    //             Source+= ":";
+    //         }
+    //     }
+    //     AppID = PAppID;
+    //     svID = PsvID;
+    //     id = u_char(Pid);
+    //     opened = Popened;
+    //     condition = Pcondition;
+    //     smt_counter = Psmt_counter;
+    // }
 
-    SV_PROT_NF_I(): SV_PROT_NF_I({},{},0,{},0,0,"",0){     };
-    SV_PROT_NF_I(   unsigned char PDestination[6], unsigned char PSource[6], 
-                    unsigned short PAppID, std::vector<char>PsvID, int Pid)
-                    :SV_PROT_NF_I(  PDestination, PSource, 
-                                    PAppID, PsvID,Pid, 
-                                    opened, condition,0){     };
-    SV_PROT_NF_I(   std::string Pcondition)
-                    :SV_PROT_NF_I(  {}, {}, 
-                                    AppID, svID,id, 
-                                    opened, Pcondition,0){     };
-    SV_PROT_NF_I(   int Psmt_counter)
-                    :SV_PROT_NF_I(  {}, {}, 
-                                    AppID, svID,id, 
-                                    opened, condition,Psmt_counter){     };
+    // SV_PROT_NF_I(): SV_PROT_NF_I({},{},0,{},0,0,"",0){     };
+    // SV_PROT_NF_I(   unsigned char PDestination[6], unsigned char PSource[6], 
+    //                 unsigned short PAppID, std::vector<char>PsvID, int Pid)
+    //                 :SV_PROT_NF_I(  PDestination, PSource, 
+    //                                 PAppID, PsvID,Pid, 
+    //                                 opened, condition,0){     };
+    // SV_PROT_NF_I(   std::string Pcondition)
+    //                 :SV_PROT_NF_I(  {}, {}, 
+    //                                 AppID, svID,id, 
+    //                                 opened, Pcondition,0){     };
+    // SV_PROT_NF_I(   int Psmt_counter)
+    //                 :SV_PROT_NF_I(  {}, {}, 
+    //                                 AppID, svID,id, 
+    //                                 opened, condition,Psmt_counter){     };
 
     
 

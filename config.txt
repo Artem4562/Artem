@@ -1,1 +1,1 @@
-device = enp0s3
+device = wlan0
