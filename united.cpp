@@ -55,7 +55,7 @@ int id = 0;
 
 void config_writer(conf_pr dev){
     std::ofstream myfile;
-    myfile.open("./build/config.txt");
+    myfile.open("config.txt");
     if(myfile.is_open()){
         myfile << dev.name << " = " << dev.value;
 

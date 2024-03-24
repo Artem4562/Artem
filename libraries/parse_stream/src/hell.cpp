@@ -64,7 +64,7 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 
     else func_rasb( pc , i + TRIPLET_SHIFT, len_pc ,package );
         
-    if(len_pc - len_triplet - i - LENGHT_SHIFT -6 != 0)  func_rasb( pc , i + len_triplet + TRIPLET_SHIFT , len_pc , package );
+    if(len_pc - len_triplet - i - LENGHT_SHIFT  != 0)  func_rasb( pc , i + len_triplet + TRIPLET_SHIFT , len_pc , package );
     
 }
 
