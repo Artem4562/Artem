@@ -293,7 +293,7 @@ typedef struct{
         for(int i=0;i<SV_ID.size();i++){
             ID += SV_ID[i];
         }
-        info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + MAC +"\n" +Cond+"\n" ;
+        info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + MAC +"\n" +Cond ;
 
         return info;
     }
