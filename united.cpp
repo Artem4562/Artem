@@ -34,8 +34,9 @@ typedef struct use_mutex_tag {
     private:
     int N;
     public:
-    pthread_mutex_t mutex;
+    pthread_mutex_t mutex_DK;
     int* Errno = &N;
+    GLFWwindow* ww;
     
 } use_mutex_t;
 
@@ -48,8 +49,11 @@ typedef struct conf_pr{
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 vector<SV_PROT_NF_I> DataKrat;
+vector<SV_PROT_AMP> DataD;
+vector<vector<SV_PROT_D>> DataFull;
 use_mutex_t param;
 int id = 0;
+
 
 
 
@@ -83,34 +87,28 @@ void dispatcher_handler1(u_char *temp1,
         while(!flg && j<id){
             if(prot.AppID==DataKrat[j].AppID ){
                 flg=true;
-                pthread_mutex_lock(&param.mutex);
+                pthread_mutex_lock(&param.mutex_DK);
                 DataKrat[j].smt_counter++;
-                pthread_mutex_unlock(&param.mutex);
+                pthread_mutex_unlock(&param.mutex_DK);
+
+                DataD[j].push_back_prot(prot);
+                if(DataKrat[j].smt_counter == 800){
+                    DFT_4000D_1S(DataKrat[j].smt_counter,DataD[j],LOWPERF,&(DataFull[j]));
+                    printf("hi %d\n",j);
+                }
                 
             } 
             j++;
         }
         if(!DataKrat.size() || !flg){
-            pthread_mutex_lock(&param.mutex);
-            SV_PROT_NF_I per;
-            string Destination, Source;
+            pthread_mutex_lock(&param.mutex_DK);
+            DataKrat.push_back(fill(prot,id++));
+            pthread_mutex_unlock(&param.mutex_DK);
 
-            for(int i = 0;i<6;i++){
-                Destination+= std::to_string(prot.Destination[i]);
-                Source+= std::to_string(prot.Source[i]);
-                if(i<5){
-                    Destination+= ":";
-                    Source+= ":";
-                }
-            }
-
-            per.Destination = Destination;
-            per.Source = Source;
-            per.AppID = prot.AppID;
-            per. svID = prot.svID;
-            per.id = id++;
-            DataKrat.push_back(per);
-            pthread_mutex_unlock(&param.mutex);
+            SV_PROT_AMP DataD_T;
+            DataD.push_back(DataD_T);
+            vector<SV_PROT_D> DataFull_T;
+            DataFull.push_back(DataFull_T);
 
         }	
         
@@ -122,7 +120,7 @@ void * receive(void * args){
 
     use_mutex_t *arg = (use_mutex_t*) args;
     int *Err = arg->Errno;
-    pthread_mutex_t mutex = arg->mutex;
+    pthread_mutex_t mutex = arg->mutex_DK;
 
     
 
@@ -262,6 +260,8 @@ void * receive(void * args){
     
     
 	pcap_loop(fp,0,dispatcher_handler1,NULL);
+
+    
 	
 	pcap_close(fp);
     *Err = 0;
@@ -338,7 +338,7 @@ typedef struct{
         ImVec2 cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ua= %d;",Ua);
+        ImGui::Text("Ua= %d;",DataFull[id].front().Ua);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
@@ -489,14 +489,13 @@ void * draw(void* args){
 
     use_mutex_t *arg = (use_mutex_t*) args;
     int *Err = arg->Errno;
-    pthread_mutex_t mutex = arg->mutex;
+    pthread_mutex_t mutex = arg->mutex_DK;
     
     flag[0]=false;
     flag[1]=false;
     flag[2]=false;
     flag[3]=false;
     
-    //FreeConsole();
 
     //Инициализация библиотеки GLFW
     if (!glfwInit()) {
@@ -511,6 +510,8 @@ void * draw(void* args){
         *Err = -1;
         pthread_exit(Err);
     }
+
+    param.ww = window;
 
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
@@ -550,27 +551,7 @@ void * draw(void* args){
             Display.WindowFullInformation(s,DataKrat[s].svID,f, DataKrat[s].Destination);
         }
 
-        for(int i = 0; i < DataKrat.size() && flag[0];i++){
-
-            if (DataKrat[i].check_time()){
-                pthread_mutex_lock(&param.mutex);
-                if(3980<= DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                if(3500<= DataKrat[i].smt_counter && 3980> DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                if(2000<= DataKrat[i].smt_counter && 3500> DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                if(0 <= DataKrat[i].smt_counter && 2000> DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                DataKrat[i].smt_counter = 0;
-                pthread_mutex_unlock(&param.mutex);
-                    
-            }
-        }
+        
 
 
         //Завершает отрисовку интерфейса и выводит на экран результат
@@ -595,7 +576,40 @@ void * draw(void* args){
 
 // -------------------------------------------------------------------------------------------------------------------
 
+void * alarm_for_prot(void * args){
+    use_mutex_t *arg = (use_mutex_t*) args;
+    int *Err = arg->Errno;
+    sleep(3);
+    GLFWwindow* window = arg->ww;
+    pthread_mutex_t mutex = arg->mutex_DK;
 
+    if(glfwInit()){
+        while(!glfwWindowShouldClose(window)){
+            for(int i = 0; i < DataKrat.size() && flag[0];i++){
+
+                    if (DataKrat[i].check_time()){
+                        pthread_mutex_lock(&param.mutex_DK);
+                        if(3980<= DataKrat[i].smt_counter){
+                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                        }
+                        if(3500<= DataKrat[i].smt_counter && 3980> DataKrat[i].smt_counter){
+                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                        }
+                        if(2000<= DataKrat[i].smt_counter && 3500> DataKrat[i].smt_counter){
+                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                        }
+                        if(0 <= DataKrat[i].smt_counter && 2000> DataKrat[i].smt_counter){
+                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                        }
+                        DataKrat[i].smt_counter = 0;
+                        pthread_mutex_unlock(&param.mutex_DK);
+                            
+                    }
+                }
+        }
+    }
+    return 0;
+}
 
 
 
@@ -606,9 +620,11 @@ int main(){
     if (sudo_uid) setresuid(0, 0, atoi(sudo_uid));
     printf("uid = %d\n", getuid());
 
+    
 
-    pthread_t sv_receive, draw_graphics;
-    pthread_mutex_init(&(param.mutex), NULL);
+
+    pthread_t sv_receive, draw_graphics, alarm_sv;
+    pthread_mutex_init(&(param.mutex_DK), NULL);
     
     
 
@@ -616,7 +632,9 @@ int main(){
 
     pthread_create(&sv_receive, NULL, *receive, (void *) &param);
     pthread_create(&draw_graphics, NULL, *draw, (void *) &param);
+    pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) &param);
     pthread_join(sv_receive, NULL);
     pthread_join(draw_graphics, NULL);
+    pthread_join(alarm_sv, NULL);
     return 0;
 }

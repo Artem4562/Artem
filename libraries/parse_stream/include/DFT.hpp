@@ -3,14 +3,15 @@
 #include <vector>
 #include <complex>
 #include <iostream>
+#include <queue>
 #include "hell.hpp"
 
 
 
 #define STANDART    0   //4000 packets
 #define STANDART_MP 1   //4000 packest whith garmonics that has at least 0.1% impact
-#define LOWPERF     2   //4000 packets
-#define LOWPERF_MP  3   //800 packest whith garmonics that has at least 0.1% impact
+#define LOWPERF     2   //800  packets
+#define LOWPERF_MP  3   //800  packest whith garmonics that has at least 0.1% impact
 
 using namespace std::complex_literals;
 
@@ -61,14 +62,14 @@ typedef struct SV_PROT_D {
 typedef struct SV_PROT_AMP{
     
     public:
-    std::vector<int> Ia;
-    std::vector<int> Ib;
-    std::vector<int> Ic;
-    std::vector<int> In;
-    std::vector<int> Ua;
-    std::vector<int> Ub;
-    std::vector<int> Uc;
-    std::vector<int> Un;
+    std::queue<int> Ia;
+    std::queue<int> Ib;
+    std::queue<int> Ic;
+    std::queue<int> In;
+    std::queue<int> Ua;
+    std::queue<int> Ub;
+    std::queue<int> Uc;
+    std::queue<int> Un;
     
 
     SV_PROT_D DTF(int N, int K, int FREC){
@@ -79,51 +80,30 @@ typedef struct SV_PROT_AMP{
 
     SV_PROT_AMP push_back_prot(SV_PROT Prot)
     {
-        this->Ia.push_back(Prot.Ia);
-        this->Ib.push_back(Prot.Ib);
-        this->Ic.push_back(Prot.Ic);
-        this->In.push_back(Prot.In);
-        this->Ua.push_back(Prot.Ua);
-        this->Ub.push_back(Prot.Ub);
-        this->Uc.push_back(Prot.Uc);
-        this->Un.push_back(Prot.Un);
+        this->Ia.push(Prot.Ia);
+        this->Ib.push(Prot.Ib);
+        this->Ic.push(Prot.Ic);
+        this->In.push(Prot.In);
+        this->Ua.push(Prot.Ua);
+        this->Ub.push(Prot.Ub);
+        this->Uc.push(Prot.Uc);
+        this->Un.push(Prot.Un);
         return *this;
     };
 
-    SV_PROT_AMP erase_prot_all()
-    {
-        this->Ia.erase(this->Ia.cbegin(),this->Ia.cend());
-        this->Ib.erase(this->Ib.cbegin(),this->Ib.cend());
-        this->Ic.erase(this->Ic.cbegin(),this->Ic.cend());
-        this->In.erase(this->In.cbegin(),this->In.cend());
-        this->Ua.erase(this->Ua.cbegin(),this->Ua.cend());
-        this->Ub.erase(this->Ub.cbegin(),this->Ub.cend());
-        this->Uc.erase(this->Uc.cbegin(),this->Uc.cend());
-        this->Un.erase(this->Un.cbegin(),this->Un.cend());
-        return *this;
-    };
+  
     int size()
     {
         int S = this->Ia.size();
         return S;
     }
 
-    // SV_PROT_AMP()
-    // {
-    //     Ia = {};
-    //     Ib = {};
-    //     Ic = {};
-    //     In = {};
-    //     Ua = {};
-    //     Ub = {};
-    //     Uc = {};
-    //     Un = {};
-    // }
 
-    POLAR_COMPLEX DFT_I(int N, std::vector<int> argv, int K){
+    POLAR_COMPLEX DFT_I(int N, std::queue<int> argv, int K){
         std::complex<double> PR = 0.0 +0.0i;
         for (int n = 0; n < N; n++){
-                PR+=(double)argv[n]*exp((-2*M_PI*n*K/N)*1i);
+                PR+=(double)argv.front()*exp((-2*M_PI*n*K/N)*1i);
+                argv.pop();
             };
         return {abs(PR)/(N/2*sqrt(2)),arg(PR)*180/M_PI+180};
     }

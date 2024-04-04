@@ -32,7 +32,7 @@ typedef struct {
 
 typedef struct SV_PROT_NF_I{
     private:
-    std::chrono::system_clock::time_point saved_time = std::chrono::system_clock::now();
+    std::chrono::steady_clock::time_point saved_time = std::chrono::steady_clock::now();
     public:
     std::string Destination;
     std::string Source;
@@ -43,8 +43,9 @@ typedef struct SV_PROT_NF_I{
     std::string condition;
     int smt_counter = 0;
     
+    
 
-    // SV_PROT_NF_I(   unsigned char PDestination[6], unsigned char PSource[6], 
+    void text(){// SV_PROT_NF_I(   unsigned char PDestination[6], unsigned char PSource[6], 
     //                 unsigned short PAppID, std::vector<char>PsvID, unsigned char Pid, 
     //                 bool Popened, std::string Pcondition, int Psmt_counter)
     // {
@@ -78,11 +79,11 @@ typedef struct SV_PROT_NF_I{
     //                 :SV_PROT_NF_I(  {}, {}, 
     //                                 AppID, svID,id, 
     //                                 opened, condition,Psmt_counter){     };
-
+    };
     
 
     bool check_time(){
-        if(saved_time + std::chrono::seconds(1)  <= std::chrono::system_clock::now()){
+        if(saved_time + std::chrono::seconds(1)  <= std::chrono::steady_clock::now()){
             saved_time+=std::chrono::seconds(1);
             return 1;
         };
@@ -98,6 +99,8 @@ typedef struct SV_PROT_NF_I{
 
 
 void WildFox(const u_char * ,const pcap_pkthdr * , SV_PROT *);
+
+SV_PROT_NF_I fill(SV_PROT prot,int id_0);
 
 
 #endif // HELL_H

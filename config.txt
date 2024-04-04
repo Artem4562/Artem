@@ -1,1 +1,1 @@
-device = wlan0
+device = eth0

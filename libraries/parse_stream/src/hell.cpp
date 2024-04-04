@@ -92,5 +92,23 @@ void WildFox(const u_char *pkt_data,const pcap_pkthdr *header, SV_PROT *package)
 }
 
 
+SV_PROT_NF_I fill(SV_PROT prot,int id_0){
+        SV_PROT_NF_I per;
+        for(int i = 0;i<6;i++){
+            per.Destination+= std::to_string(prot.Destination[i]);
+            per.Source+= std::to_string(prot.Source[i]);
+            if(i<5){
+                per.Destination+= ":";
+                per.Source+= ":";
+            }
+        }
+
+        per.AppID = prot.AppID;
+        per.svID = prot.svID;
+        per.id = id_0;
+        return per;
+    }
+
+
 
 
