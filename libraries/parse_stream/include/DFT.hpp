@@ -73,8 +73,8 @@ typedef struct SV_PROT_AMP{
     
 
     SV_PROT_D DTF(int N, int K, int FREC){
-        SV_PROT_D COCO {    DFT_I(N,Ia,K),DFT_I(N,Ib,K),DFT_I(N,Ic,K),DFT_I(N,In,K),
-                            DFT_I(N,Ua,K),DFT_I(N,Ub,K),DFT_I(N,Uc,K),DFT_I(N,Un,K), FREC};
+        SV_PROT_D COCO {    DFT_I(N,&Ia,K),DFT_I(N,&Ib,K),DFT_I(N,&Ic,K),DFT_I(N,&In,K),
+                            DFT_I(N,&Ua,K),DFT_I(N,&Ub,K),DFT_I(N,&Uc,K),DFT_I(N,&Un,K), FREC};
         return COCO;
     }
 
@@ -99,11 +99,11 @@ typedef struct SV_PROT_AMP{
     }
 
 
-    POLAR_COMPLEX DFT_I(int N, std::queue<int> argv, int K){
+    POLAR_COMPLEX DFT_I(int N, std::queue<int> * argv, int K){
         std::complex<double> PR = 0.0 +0.0i;
         for (int n = 0; n < N; n++){
-                PR+=(double)argv.front()*exp((-2*M_PI*n*K/N)*1i);
-                argv.pop();
+                PR+=(double) argv->front()*exp((-2*M_PI*n*K/N)*1i);
+                argv->pop();
             };
         return {abs(PR)/(N/2*sqrt(2)),arg(PR)*180/M_PI+180};
     }
@@ -114,7 +114,7 @@ typedef struct SV_PROT_AMP{
 
 }SV_PROT_AMP;
 
-int DFT_4000D_1S (int, SV_PROT_AMP, int , std::vector<SV_PROT_D> *);
+int DFT_4000D_1S (int, SV_PROT_AMP *, int , std::vector<SV_PROT_D> *);
 
 
 #endif // HELL_H

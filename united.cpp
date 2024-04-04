@@ -92,8 +92,8 @@ void dispatcher_handler1(u_char *temp1,
                 pthread_mutex_unlock(&param.mutex_DK);
 
                 DataD[j].push_back_prot(prot);
-                if(DataKrat[j].smt_counter == 800){
-                    DFT_4000D_1S(DataKrat[j].smt_counter,DataD[j],LOWPERF,&(DataFull[j]));
+                if(DataD[j].size() == 800){
+                    DFT_4000D_1S(DataD[j].size(),&(DataD[j]),LOWPERF,&(DataFull[j]));
                     printf("hi %d\n",j);
                 }
                 
@@ -338,7 +338,7 @@ typedef struct{
         ImVec2 cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ua= %d;",DataFull[id].front().Ua);
+        ImGui::Text("Ua= %6.4f;",DataFull[id].front().Ua.NORM);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
@@ -579,7 +579,7 @@ void * draw(void* args){
 void * alarm_for_prot(void * args){
     use_mutex_t *arg = (use_mutex_t*) args;
     int *Err = arg->Errno;
-    sleep(3);
+    sleep(10);
     GLFWwindow* window = arg->ww;
     pthread_mutex_t mutex = arg->mutex_DK;
 

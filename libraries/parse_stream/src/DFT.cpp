@@ -40,7 +40,7 @@ int MODE (int N, int* N_L){
 
 
 
-int DFT_4000D_1S (int N, SV_PROT_AMP IN, int FLAG = LOWPERF, std::vector<SV_PROT_D> *OUT = 0){
+int DFT_4000D_1S (int N, SV_PROT_AMP * IN, int FLAG = LOWPERF, std::vector<SV_PROT_D> *OUT = 0){
     int N_L;
     int K;
     bool MP;
@@ -84,7 +84,7 @@ int DFT_4000D_1S (int N, SV_PROT_AMP IN, int FLAG = LOWPERF, std::vector<SV_PROT
         
     case false:
     {
-        OUT->push_back(IN.DTF(N_L,K, K/(float(N_L)/LEN_P)));
+        OUT->push_back(IN->DTF(N_L,K, K/(float(N_L)/LEN_P)));
         break;
     }
     }
