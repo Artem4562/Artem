@@ -45,6 +45,11 @@ typedef struct conf_pr{
     string value;
 
 }conf_pr;
+
+typedef struct shiftUA{
+    int MinUa = 0;
+    bool flg,fg,flag = false;
+}shiftUA;
     
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -53,6 +58,8 @@ vector<SV_PROT_AMP> DataD;
 vector<vector<SV_PROT_D>> DataFull;
 use_mutex_t param;
 int id = 0;
+vector<shiftUA> Shift;
+
 
 
 
@@ -90,12 +97,30 @@ void dispatcher_handler1(u_char *temp1,
                 pthread_mutex_lock(&param.mutex_DK);
                 DataKrat[j].smt_counter++;
                 pthread_mutex_unlock(&param.mutex_DK);
-
-                DataD[j].push_back_prot(prot);
-                if(DataD[j].size() == 800){
-                    DFT_4000D_1S(DataD[j].size(),&(DataD[j]),LOWPERF,&(DataFull[j]));
-                    printf("hi %d\n",j);
+                if(Shift[j].MinUa==0 && Shift[j].MinUa>prot.Ua && !Shift[j].fg){
+                    Shift[j].MinUa=prot.Ua;
                 }
+                if(Shift[j].MinUa>prot.Ua && !Shift[j].fg){
+                    Shift[j].MinUa=prot.Ua;
+                    Shift[j].flag= true;
+                }
+                if(Shift[j].MinUa<prot.Ua && Shift[j].flag== true && !Shift[j].fg){
+                    Shift[j].fg= true;
+                }
+
+                if(!Shift[j].flg && Shift[j].fg && 0.05>(abs((float)prot.Ua/Shift[j].MinUa))){
+                    Shift[j].flg = true;
+                }
+
+                if(Shift[j].flg){
+                    DataD[j].push_back_prot(prot);
+                    if(DataD[j].size() == 800){
+                        DFT_4000D_1S(DataD[j].size(),&(DataD[j]),LOWPERF,&(DataFull[j]));
+                }
+                }
+                
+
+                
                 
             } 
             j++;
@@ -109,7 +134,8 @@ void dispatcher_handler1(u_char *temp1,
             DataD.push_back(DataD_T);
             vector<SV_PROT_D> DataFull_T;
             DataFull.push_back(DataFull_T);
-
+            shiftUA S_T;
+            Shift.push_back(S_T);
         }	
         
     }    
@@ -338,42 +364,42 @@ typedef struct{
         ImVec2 cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ua= %6.4f;",DataFull[id].front().Ua.NORM);
+        ImGui::Text("Ua= %6.0f<%3.2f;",DataFull[id].back().Ua.NORM,DataFull[id].back().Ua.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ub= %d;",Ub);
+        ImGui::Text("Ub= %6.0f<%3.2f;",DataFull[id].back().Ub.NORM,DataFull[id].back().Ub.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Uc= %d;",Uc);
+        ImGui::Text("Uc= %6.0f<%3.2f;",DataFull[id].back().Uc.NORM,DataFull[id].back().Uc.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Un= %d;",Un);
+        ImGui::Text("Un= %6.0f<%3.2f;",DataFull[id].back().Un.NORM,DataFull[id].back().Un.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ia= %d;",Ia);
+        ImGui::Text("Ia= %6.0f<%3.2f;",DataFull[id].back().Ia.NORM,DataFull[id].back().Ia.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ib= %d;",Ib);
+        ImGui::Text("Ib= %6.0f<%3.2f;",DataFull[id].back().Ib.NORM,DataFull[id].back().Ib.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ic= %d;",Ic);
+        ImGui::Text("Ic= %6.0f<%3.2f;",DataFull[id].back().Ic.NORM,DataFull[id].back().Ic.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("In= %d;",In);
+        ImGui::Text("In= %6.0f<%3.2f;",DataFull[id].back().In.NORM,DataFull[id].back().In.ANGLE);
 
         ImGui::SetWindowFontScale(1.0f);
         
@@ -579,7 +605,7 @@ void * draw(void* args){
 void * alarm_for_prot(void * args){
     use_mutex_t *arg = (use_mutex_t*) args;
     int *Err = arg->Errno;
-    sleep(10);
+    sleep(2);
     GLFWwindow* window = arg->ww;
     pthread_mutex_t mutex = arg->mutex_DK;
 
