@@ -123,10 +123,11 @@ void * alarm_for_prot(void * args){
                 pthread_mutex_unlock(&arg->mutex_DK);
                     
             }
-            pthread_mutex_lock(&arg->mutex_CM);
-            if (arg->command_queue.front() == SV_close) close = true;
-            pthread_mutex_unlock(&arg->mutex_CM);
+            
         }
+        pthread_mutex_lock(&arg->mutex_CM);
+        if (arg->command_queue.front() == SV_close) close = true;
+        pthread_mutex_unlock(&arg->mutex_CM);
     }  
     return 0;
 }
@@ -352,8 +353,7 @@ void * receive(void * args){
     
 	pcap_close(fp);
     *Err = 0;
-	pthread_exit(Err);
-    // }
+    return 0;
 }
 
 
@@ -694,9 +694,9 @@ void * manager(void* args){
 
         case SV_close:
             pthread_create(&loop_break, NULL, *loop_breaker, (void *) arg);
-            pthread_join(loop_break, NULL);
             pthread_join(sv_receive, NULL);
             pthread_join(alarm_sv, NULL);
+            pthread_join(loop_break, NULL);
             sleep(0.5);
             
             pthread_mutex_lock(&arg->mutex_CM);
