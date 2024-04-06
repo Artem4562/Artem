@@ -21,6 +21,7 @@
 #include <chrono>
 #include <fstream>
 #include <algorithm>
+#include <queue>
 
 
 using namespace std;
@@ -30,15 +31,30 @@ using namespace std;
 #define _USE_MATH_DEFINES
 #define LINE_LEN 16
 
+#define SV_open 1000
+#define SV_close 1001
+#define Window_close 1100
+
 typedef struct use_mutex_tag {
+    pthread_mutex_t mutex_DK;
+} use_mutex_t;
+
+typedef struct command_manager {
+    pthread_mutex_t mutex_CM;
+    queue<int> command_queue;
+    pthread_mutex_t mutex_DK;
+    
+    pcap_t *fp;
     private:
     int N;
     public:
-    pthread_mutex_t mutex_DK;
     int* Errno = &N;
-    GLFWwindow* ww;
-    
-} use_mutex_t;
+
+   
+
+
+
+}command_manager;
 
 typedef struct conf_pr{
     string name;
@@ -52,13 +68,17 @@ typedef struct shiftUA{
 }shiftUA;
     
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 vector<SV_PROT_NF_I> DataKrat;
 vector<SV_PROT_AMP> DataD;
 vector<vector<SV_PROT_D>> DataFull;
 use_mutex_t param;
 int id = 0;
 vector<shiftUA> Shift;
+
+bool *flag = new bool; 
+static int k=0; // для кнопок в Streams_Sv
+static unsigned short f = 0; // для APP_ID в Streams_SV
+static int s; // для вызова WindowFullInformation
 
 
 
@@ -78,8 +98,47 @@ void config_writer(conf_pr dev){
     
 }
 
+void * alarm_for_prot(void * args){
+    command_manager *arg = (command_manager*) args;
+    int *Err = arg->Errno;
+    bool close = false;
+    for(;!close;){
+        for(int i = 0; i < DataKrat.size() && flag[0];i++){
+
+            if (DataKrat[i].check_time()){
+                pthread_mutex_lock(&arg->mutex_DK);
+                if(3980<= DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                if(3500<= DataKrat[i].smt_counter && 3980> DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                if(2000<= DataKrat[i].smt_counter && 3500> DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                if(0 <= DataKrat[i].smt_counter && 2000> DataKrat[i].smt_counter){
+                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
+                }
+                DataKrat[i].smt_counter = 0;
+                pthread_mutex_unlock(&arg->mutex_DK);
+                    
+            }
+            pthread_mutex_lock(&arg->mutex_CM);
+            if (arg->command_queue.front() == SV_close) close = true;
+            pthread_mutex_unlock(&arg->mutex_CM);
+        }
+    }  
+    return 0;
+}
 
 
+void * loop_breaker(void * args){
+    command_manager *arg = (command_manager*) args;
+    pthread_mutex_lock(&arg->mutex_CM);
+    pcap_breakloop(arg->fp);
+    pthread_mutex_unlock(&arg->mutex_CM);
+    return 0;
+}
 
 
 void dispatcher_handler1(u_char *temp1, 
@@ -144,7 +203,7 @@ void dispatcher_handler1(u_char *temp1,
 
 void * receive(void * args){	
 
-    use_mutex_t *arg = (use_mutex_t*) args;
+    command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex_DK;
 
@@ -283,12 +342,14 @@ void * receive(void * args){
 
     
     printf("\nlistening on %s...\n", device.value.c_str());
-    
-    
+
+    pthread_mutex_lock(&arg->mutex_CM);       
+    arg->fp = fp;
+    pthread_mutex_unlock(&arg->mutex_CM);
+
 	pcap_loop(fp,0,dispatcher_handler1,NULL);
 
     
-	
 	pcap_close(fp);
     *Err = 0;
 	pthread_exit(Err);
@@ -303,13 +364,12 @@ void * receive(void * args){
     
 
 
-bool *flag = new bool; 
-static int k=0; // для кнопок в Streams_Sv
-static unsigned short f = 0; // для APP_ID в Streams_SV
-static int s; // для вызова WindowFullInformation
+
 
 
 typedef struct{
+
+    command_manager * com;
     
 
     string SVinfo(int Stream_number,vector <char> SV_ID, unsigned short APP_ID, string MAC,string Cond){   
@@ -351,15 +411,6 @@ typedef struct{
         ImGui::Text("APP_ID: %d", APP_ID);
         ImGui::Text("MAC: %s", MAC.c_str());
         
-        
-        int Ia = 4678;
-        int Ib = 2023;
-        int Ic = 7698;
-        int In = 2288;
-        int Ua = 1520;
-        int Ub = 1337;
-        int Uc = 3654;
-        int Un = 5436;
 
         ImVec2 cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
@@ -443,8 +494,13 @@ typedef struct{
         ImGui::SetCursorPosX(0.0f);
 
         ImGui::SetWindowFontScale(1.5f);
-        if (ImGui::Button("Return to the main menu", ImVec2(480, 50))) 
+        if (ImGui::Button("Return to the main menu", ImVec2(480, 50))){
+            pthread_mutex_lock(&com->mutex_CM);
+            com->command_queue.push(SV_close);
+	        pthread_mutex_unlock(&com->mutex_CM);
+             
             flag[0] = false;
+        }
         ImGui::SetWindowFontScale(1.0f);
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
@@ -490,7 +546,13 @@ typedef struct{
 
         ImGui::SetWindowFontScale(1.5f);
         ImGui::Text("Main Menu");
-        if (ImGui::Button("Streams SV", ImVec2(480, 100))) flag[0] = true; 
+        if (ImGui::Button("Streams SV", ImVec2(480, 100))){
+            pthread_mutex_lock(&com->mutex_CM);
+            com->command_queue.push(SV_open);
+	        pthread_mutex_unlock(&com->mutex_CM);
+            
+            flag[0] = true; 
+        } 
         if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
         // if (flag[1]) Streams_GOOSE(flag);
         if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
@@ -513,7 +575,7 @@ typedef struct{
 
 void * draw(void* args){
 
-    use_mutex_t *arg = (use_mutex_t*) args;
+    command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex_DK;
     
@@ -521,6 +583,9 @@ void * draw(void* args){
     flag[1]=false;
     flag[2]=false;
     flag[3]=false;
+
+    
+    
     
 
     //Инициализация библиотеки GLFW
@@ -536,8 +601,6 @@ void * draw(void* args){
         *Err = -1;
         pthread_exit(Err);
     }
-
-    param.ww = window;
 
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
@@ -561,6 +624,7 @@ void * draw(void* args){
     //Инициализация ImGui для работы с OpenGL версии 3.3
     ImGui_ImplOpenGL3_Init("#version 130");
     Display Display;
+    Display.com = arg;
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
 
@@ -573,9 +637,8 @@ void * draw(void* args){
         // Вызывает функцию
         if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Display.Main_Menu(flag);
         if (flag[0] && f==0) Display.Streams_SV(flag);
-        if (f!=0){
-            Display.WindowFullInformation(s,DataKrat[s].svID,f, DataKrat[s].Destination);
-        }
+        if (f!=0)            Display.WindowFullInformation(s,DataKrat[s].svID,f, DataKrat[s].Destination);
+    
 
         
 
@@ -596,44 +659,72 @@ void * draw(void* args){
     ImPlot::DestroyContext();
     glfwTerminate();
     *Err = 0;
+    arg->command_queue.push(Window_close);
     pthread_exit(Err);
+
+    
 }
 
 
 // -------------------------------------------------------------------------------------------------------------------
 
-void * alarm_for_prot(void * args){
-    use_mutex_t *arg = (use_mutex_t*) args;
-    int *Err = arg->Errno;
-    sleep(2);
-    GLFWwindow* window = arg->ww;
-    pthread_mutex_t mutex = arg->mutex_DK;
+void * manager(void* args){
+    command_manager *arg = (command_manager*) args;
 
-    if(glfwInit()){
-        while(!glfwWindowShouldClose(window)){
-            for(int i = 0; i < DataKrat.size() && flag[0];i++){
+    pthread_t sv_receive, alarm_sv, loop_break;
+    int command;
+    bool program_end = false;
+    
+    for(;!program_end;){
 
-                    if (DataKrat[i].check_time()){
-                        pthread_mutex_lock(&param.mutex_DK);
-                        if(3980<= DataKrat[i].smt_counter){
-                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                        }
-                        if(3500<= DataKrat[i].smt_counter && 3980> DataKrat[i].smt_counter){
-                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                        }
-                        if(2000<= DataKrat[i].smt_counter && 3500> DataKrat[i].smt_counter){
-                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                        }
-                        if(0 <= DataKrat[i].smt_counter && 2000> DataKrat[i].smt_counter){
-                            DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                        }
-                        DataKrat[i].smt_counter = 0;
-                        pthread_mutex_unlock(&param.mutex_DK);
-                            
-                    }
-                }
+        pthread_mutex_lock(&arg->mutex_CM);
+        command = arg->command_queue.front();
+        pthread_mutex_unlock(&arg->mutex_CM);
+               
+        switch (command)
+        {
+        case SV_open:
+            pthread_create(&sv_receive, NULL, *receive, (void *) arg);
+            pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) arg);
+            
+            pthread_mutex_lock(&arg->mutex_CM);
+            arg->command_queue.pop();
+            pthread_mutex_unlock(&arg->mutex_CM);
+            break;
+
+        case SV_close:
+            pthread_create(&loop_break, NULL, *loop_breaker, (void *) arg);
+            pthread_join(loop_break, NULL);
+            pthread_join(sv_receive, NULL);
+            pthread_join(alarm_sv, NULL);
+            sleep(0.5);
+            
+            pthread_mutex_lock(&arg->mutex_CM);
+            arg->command_queue.pop();
+            pthread_mutex_unlock(&arg->mutex_CM);
+            break;
+        case Window_close:
+            program_end = true;
+            
+            pthread_mutex_lock(&arg->mutex_CM);
+            arg->command_queue.pop();
+            *arg->Errno = 0;
+            pthread_mutex_unlock(&arg->mutex_CM);
+            
+            
+            break;
+
+        
+        
         }
+        
+
+        
+        sleep(0.1);
+         
     }
+
+    pthread_exit(arg->Errno);
     return 0;
 }
 
@@ -649,18 +740,21 @@ int main(){
     
 
 
-    pthread_t sv_receive, draw_graphics, alarm_sv;
-    pthread_mutex_init(&(param.mutex_DK), NULL);
+    pthread_t draw_graphics, thread_manager;
+    
+    command_manager com;
+    pthread_mutex_init(&(com.mutex_CM), NULL);
+    pthread_mutex_init(&(com.mutex_DK), NULL);
+
+    param.mutex_DK = com.mutex_DK;
     
     
 
-
-
-    pthread_create(&sv_receive, NULL, *receive, (void *) &param);
-    pthread_create(&draw_graphics, NULL, *draw, (void *) &param);
-    pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) &param);
-    pthread_join(sv_receive, NULL);
+    pthread_create(&draw_graphics, NULL, *draw, (void *) &com);
+    pthread_create(&thread_manager, NULL, *manager, (void *) &com);
     pthread_join(draw_graphics, NULL);
-    pthread_join(alarm_sv, NULL);
+    pthread_join(thread_manager, NULL);
+
+    
     return 0;
 }
