@@ -56,11 +56,15 @@ typedef struct command_manager {
     public:
     int* Errno = &N;
 
-    vector<SV_PROT_NF_I> DataKrat;
-    vector<vector<SV_PROT_D>> DataFull;
+    vector<SV_PROT_NF_I>  DataKrat_T;
+    vector<vector<SV_PROT_D>>  DataFull_T;
 
    
+    vector<SV_PROT_NF_I> * DataKrat = &DataKrat_T;
+    vector<vector<SV_PROT_D>> * DataFull = &DataFull_T;
 
+    vector<SV_PROT_NF_I> ** DataKrat_P = &DataKrat;
+    vector<vector<SV_PROT_D>> ** DataFull_P = &DataFull;
 
 
 }command_manager;
@@ -86,6 +90,9 @@ typedef struct packet_handler{
     vector<SV_PROT_NF_I> DataKrat;
     vector<SV_PROT_AMP> DataD;
     vector<vector<SV_PROT_D>> DataFull;
+
+    vector<SV_PROT_NF_I> * DataKrat_P = &DataKrat;
+    vector<vector<SV_PROT_D>> * DataFull_P = &DataFull;
     
 
     void dispatcher_handler1(u_char *temp1, 
@@ -205,32 +212,36 @@ void config_writer(conf_pr dev){
 void * alarm_for_prot(void * args){
     command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
+    vector<SV_PROT_NF_I> ** DataKrat_P = arg->DataKrat_P;
+    vector<SV_PROT_NF_I> * DataKrat = *DataKrat_P;
     bool close = false;
     for(;!close;){
-        for(int i = 0; i < arg->DataKrat.size();i++){
+        for(int i = 0; i < DataKrat->size();i++){
 
-            if (arg->DataKrat[i].check_time()){
+            if ((*DataKrat)[i].check_time()){
                 pthread_mutex_lock(&arg->mutex_DK);
-                if(3980<= arg->DataKrat[i].smt_counter){
-                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                if(3980<= (*DataKrat)[i].smt_counter){
+                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
                 }
-                if(3500<= arg->DataKrat[i].smt_counter && 3980> arg->DataKrat[i].smt_counter){
-                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                if(3500<= (*DataKrat)[i].smt_counter && 3980> (*DataKrat)[i].smt_counter){
+                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
                 }
-                if(2000<= arg->DataKrat[i].smt_counter && 3500> arg->DataKrat[i].smt_counter){
-                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                if(2000<= (*DataKrat)[i].smt_counter && 3500> (*DataKrat)[i].smt_counter){
+                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
                 }
-                if(0 <= arg->DataKrat[i].smt_counter && 2000> arg->DataKrat[i].smt_counter){
-                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                if(0 <= (*DataKrat)[i].smt_counter && 2000> (*DataKrat)[i].smt_counter){
+                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
                 }
-                arg->DataKrat[i].smt_counter = 0;
+                (*DataKrat)[i].smt_counter = 0;
                 pthread_mutex_unlock(&arg->mutex_DK);
                     
             }
             
         }
         pthread_mutex_lock(&arg->mutex_CM);
-        if (arg->command_queue.front() == SV_close) close = true;
+        if (arg->command_queue.front() == SV_close) {
+            close = true;
+        }
         pthread_mutex_unlock(&arg->mutex_CM);
     }  
     return 0;
@@ -255,14 +266,20 @@ void * receive(void * args){
     command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex_DK;
-    packet_handler PH;
+
+    pcap_t *fp;
+    packet_handler handler;
+    
+    pthread_mutex_lock(&arg->mutex_CM);       
+    arg->DataKrat_P = &handler.DataKrat_P;
+    arg->DataFull_P = &handler.DataFull_P;
+    handler.mutex_DK = arg->mutex_DK;
+    pthread_mutex_unlock(&arg->mutex_CM);
 
 
     
 
-
-
-	pcap_t *fp;
+	
 	char errbuf[PCAP_ERRBUF_SIZE];
 	struct pcap_pkthdr *header;
 	const u_char *pkt_data;
@@ -395,13 +412,10 @@ void * receive(void * args){
     
     printf("\nlistening on %s...\n", device.value.c_str());
 
-    packet_handler handler;
+    
 
-    pthread_mutex_lock(&arg->mutex_CM);       
+    pthread_mutex_lock(&arg->mutex_CM);
     arg->fp = fp;
-    pthread_mutex_lock(&arg->mutex_DK);
-    handler.mutex_DK = arg->mutex_DK;
-    pthread_mutex_unlock(&arg->mutex_DK);
     pthread_mutex_unlock(&arg->mutex_CM);
     
  
@@ -454,6 +468,7 @@ typedef struct{
 
     void WindowFullInformation(int id,vector <char> svID,unsigned short APP_ID, string MAC) {
         string ID ="";
+        vector<vector<SV_PROT_D>> * DataFull = com->DataFull;
         for(int i=0;i<svID.size();i++){
             ID += svID[i];
         }
@@ -483,42 +498,42 @@ typedef struct{
         ImVec2 cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ua= %6.0f<%3.2f;",com->DataFull[id].back().Ua.NORM,com->DataFull[id].back().Ua.ANGLE);
+        ImGui::Text("Ua= %6.0f<%3.2f;",(*DataFull)[id].back().Ua.NORM,(*DataFull)[id].back().Ua.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ub= %6.0f<%3.2f;",com->DataFull[id].back().Ub.NORM,com->DataFull[id].back().Ub.ANGLE);
+        ImGui::Text("Ub= %6.0f<%3.2f;",(*DataFull)[id].back().Ub.NORM,(*DataFull)[id].back().Ub.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Uc= %6.0f<%3.2f;",com->DataFull[id].back().Uc.NORM,com->DataFull[id].back().Uc.ANGLE);
+        ImGui::Text("Uc= %6.0f<%3.2f;",(*DataFull)[id].back().Uc.NORM,(*DataFull)[id].back().Uc.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Un= %6.0f<%3.2f;",com->DataFull[id].back().Un.NORM,com->DataFull[id].back().Un.ANGLE);
+        ImGui::Text("Un= %6.0f<%3.2f;",(*DataFull)[id].back().Un.NORM,(*DataFull)[id].back().Un.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ia= %6.0f<%3.2f;",com->DataFull[id].back().Ia.NORM,com->DataFull[id].back().Ia.ANGLE);
+        ImGui::Text("Ia= %6.0f<%3.2f;",(*DataFull)[id].back().Ia.NORM,(*DataFull)[id].back().Ia.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ib= %6.0f<%3.2f;",com->DataFull[id].back().Ib.NORM,com->DataFull[id].back().Ib.ANGLE);
+        ImGui::Text("Ib= %6.0f<%3.2f;",(*DataFull)[id].back().Ib.NORM,(*DataFull)[id].back().Ib.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ic= %6.0f<%3.2f;",com->DataFull[id].back().Ic.NORM,com->DataFull[id].back().Ic.ANGLE);
+        ImGui::Text("Ic= %6.0f<%3.2f;",(*DataFull)[id].back().Ic.NORM,(*DataFull)[id].back().Ic.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("In= %6.0f<%3.2f;",com->DataFull[id].back().In.NORM,com->DataFull[id].back().In.ANGLE);
+        ImGui::Text("In= %6.0f<%3.2f;",(*DataFull)[id].back().In.NORM,(*DataFull)[id].back().In.ANGLE);
 
         ImGui::SetWindowFontScale(1.0f);
         
@@ -545,6 +560,7 @@ typedef struct{
     }
 
     void Streams_SV(bool *flag){
+        vector<SV_PROT_NF_I> * DataKrat = com->DataKrat;
         ImGui::SetNextWindowPos(ImVec2(0,0));
         ImGui::SetNextWindowSize(ImVec2(480,800));
         ImGui::Begin("Streams SV",  nullptr,  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
@@ -558,7 +574,7 @@ typedef struct{
         ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
         float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
         ImGui::SetCursorPosX(posXX);
-        ImGui::Text("%d streams detected ",int(com->DataKrat.size()));
+        ImGui::Text("%d streams detected ",int((*DataKrat).size()));
         ImGui::SetCursorPosX(0.0f);
 
         ImGui::SetWindowFontScale(1.5f);
@@ -573,11 +589,11 @@ typedef struct{
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
     
-        for( int i=6*k ; i < com->DataKrat.size() && i < 6*k+6 ;i++){
+        for( int i=6*k ; i < (*DataKrat).size() && i < 6*k+6 ;i++){
             ImGui::SetCursorPosX(0.0f);
             ImGui::SetWindowFontScale(1.5f);
-            if (ImGui::Button(&SVinfo(i+1,com->DataKrat[i].svID, com->DataKrat[i].AppID, com->DataKrat[i].Destination, com->DataKrat[i].condition)[0], ImVec2(480, 100))) {
-                f=com->DataKrat[i].AppID;
+            if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].condition)[0], ImVec2(480, 100))) {
+                f=(*DataKrat)[i].AppID;
                 s=i;
                 
             }
@@ -593,7 +609,7 @@ typedef struct{
             ImGui::SetWindowFontScale(1.0f);
         }
 
-        if (k<(com->DataKrat.size()/6)){
+        if (k<((*DataKrat).size()/6)){
             ImGui::SetWindowFontScale(2.5f);
             ImGui::SetCursorPos(ImVec2(240, 732));
             if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
@@ -646,7 +662,7 @@ void * draw(void* args){
     command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex_DK;
-    
+    vector<SV_PROT_NF_I> ** DataKrat = arg->DataKrat_P;
 
     
     
@@ -693,6 +709,7 @@ void * draw(void* args){
     for(int i = 0; i<4; i++){
         Display.flag[i]= false;
     }
+
     
 
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
@@ -707,7 +724,7 @@ void * draw(void* args){
         // Вызывает функцию
         if (!Display.flag[0] && !Display.flag[1] && !Display.flag[2] && !Display.flag[3] && Display.f==0) Display.Main_Menu(Display.flag);
         if (Display.flag[0] && Display.f==0) Display.Streams_SV(Display.flag);
-        if (Display.f!=0)            Display.WindowFullInformation(Display.s,arg->DataKrat[Display.s].svID, Display.f, arg->DataKrat[Display.s].Destination);
+        if (Display.f!=0)            Display.WindowFullInformation(Display.s,(**DataKrat)[Display.s].svID, Display.f, (**DataKrat)[Display.s].Destination);
     
 
         
@@ -749,6 +766,11 @@ void * manager(void* args){
     int command;
     bool program_end = false;
     bool SV_sniff_open = false;
+    pthread_mutex_lock(&arg->mutex_CM);
+    command = arg->command_queue.front();
+    cout<<command<<'\n';
+    pthread_mutex_unlock(&arg->mutex_CM);
+    
     
     for(;!program_end;){
 
