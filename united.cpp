@@ -22,6 +22,7 @@
 #include <fstream>
 #include <algorithm>
 #include <queue>
+#include <functional>
 
 
 using namespace std;
@@ -34,6 +35,11 @@ using namespace std;
 #define SV_open 1000
 #define SV_close 1001
 #define Window_close 1100
+#define Exit 9999
+
+
+
+
 
 typedef struct use_mutex_tag {
     pthread_mutex_t mutex_DK;
@@ -49,6 +55,9 @@ typedef struct command_manager {
     int N;
     public:
     int* Errno = &N;
+
+    vector<SV_PROT_NF_I> DataKrat;
+    vector<vector<SV_PROT_D>> DataFull;
 
    
 
@@ -66,83 +75,20 @@ typedef struct shiftUA{
     int MinUa = 0;
     bool flg,fg,flag = false;
 }shiftUA;
+
+
+
+
+typedef struct packet_handler{
+    pthread_mutex_t mutex_DK;
+    int id = 0;
+    vector<shiftUA> Shift;
+    vector<SV_PROT_NF_I> DataKrat;
+    vector<SV_PROT_AMP> DataD;
+    vector<vector<SV_PROT_D>> DataFull;
     
 
-vector<SV_PROT_NF_I> DataKrat;
-vector<SV_PROT_AMP> DataD;
-vector<vector<SV_PROT_D>> DataFull;
-use_mutex_t param;
-int id = 0;
-vector<shiftUA> Shift;
-
-bool *flag = new bool; 
-static int k=0; // для кнопок в Streams_Sv
-static unsigned short f = 0; // для APP_ID в Streams_SV
-static int s; // для вызова WindowFullInformation
-
-
-
-
-
-void config_writer(conf_pr dev){
-    std::ofstream myfile;
-    myfile.open("config.txt");
-    if(myfile.is_open()){
-        myfile << dev.name << " = " << dev.value;
-
-
-
-        
-    myfile.close();
-    }
-    
-}
-
-void * alarm_for_prot(void * args){
-    command_manager *arg = (command_manager*) args;
-    int *Err = arg->Errno;
-    bool close = false;
-    for(;!close;){
-        for(int i = 0; i < DataKrat.size() && flag[0];i++){
-
-            if (DataKrat[i].check_time()){
-                pthread_mutex_lock(&arg->mutex_DK);
-                if(3980<= DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                if(3500<= DataKrat[i].smt_counter && 3980> DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                if(2000<= DataKrat[i].smt_counter && 3500> DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                if(0 <= DataKrat[i].smt_counter && 2000> DataKrat[i].smt_counter){
-                    DataKrat[i].condition = to_string(DataKrat[i].smt_counter);
-                }
-                DataKrat[i].smt_counter = 0;
-                pthread_mutex_unlock(&arg->mutex_DK);
-                    
-            }
-            
-        }
-        pthread_mutex_lock(&arg->mutex_CM);
-        if (arg->command_queue.front() == SV_close) close = true;
-        pthread_mutex_unlock(&arg->mutex_CM);
-    }  
-    return 0;
-}
-
-
-void * loop_breaker(void * args){
-    command_manager *arg = (command_manager*) args;
-    pthread_mutex_lock(&arg->mutex_CM);
-    pcap_breakloop(arg->fp);
-    pthread_mutex_unlock(&arg->mutex_CM);
-    return 0;
-}
-
-
-void dispatcher_handler1(u_char *temp1, 
+    void dispatcher_handler1(u_char *temp1, 
 						    const struct pcap_pkthdr *header, 
 						    const u_char *pkt_data)
     {
@@ -154,9 +100,9 @@ void dispatcher_handler1(u_char *temp1,
         while(!flg && j<id){
             if(prot.AppID==DataKrat[j].AppID ){
                 flg=true;
-                pthread_mutex_lock(&param.mutex_DK);
+                pthread_mutex_lock(&mutex_DK);
                 DataKrat[j].smt_counter++;
-                pthread_mutex_unlock(&param.mutex_DK);
+                pthread_mutex_unlock(&mutex_DK);
                 if(Shift[j].MinUa==0 && Shift[j].MinUa>prot.Ua && !Shift[j].fg){
                     Shift[j].MinUa=prot.Ua;
                 }
@@ -186,9 +132,9 @@ void dispatcher_handler1(u_char *temp1,
             j++;
         }
         if(!DataKrat.size() || !flg){
-            pthread_mutex_lock(&param.mutex_DK);
+            pthread_mutex_lock(&mutex_DK);
             DataKrat.push_back(fill(prot,id++));
-            pthread_mutex_unlock(&param.mutex_DK);
+            pthread_mutex_unlock(&mutex_DK);
 
             SV_PROT_AMP DataD_T;
             DataD.push_back(DataD_T);
@@ -202,13 +148,118 @@ void dispatcher_handler1(u_char *temp1,
 
 
 
+
+    
+
+}packet_handler;
+
+
+
+
+
+template <typename T> struct Callback;
+
+template <typename Ret, typename... Params>
+struct Callback<Ret(Params...)> {
+   template <typename... Args> 
+   static Ret callback(Args... args) {                    
+      return func(args...);  
+   }
+   static std::function<Ret(Params...)> func; 
+};
+
+template <typename Ret, typename... Params> std::function<Ret(Params...)> Callback<Ret(Params...)>::func;
+
+
+
+
+
+typedef void (*callback_t)(u_char *, const struct pcap_pkthdr *, const u_char *);
+
+
+
+
+
+
+
+
+
+
+
+
+
+void config_writer(conf_pr dev){
+    std::ofstream myfile;
+    myfile.open("config.txt");
+    if(myfile.is_open()){
+        myfile << dev.name << " = " << dev.value;
+
+
+
+        
+    myfile.close();
+    }
+    
+}
+
+void * alarm_for_prot(void * args){
+    command_manager *arg = (command_manager*) args;
+    int *Err = arg->Errno;
+    bool close = false;
+    for(;!close;){
+        for(int i = 0; i < arg->DataKrat.size();i++){
+
+            if (arg->DataKrat[i].check_time()){
+                pthread_mutex_lock(&arg->mutex_DK);
+                if(3980<= arg->DataKrat[i].smt_counter){
+                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                }
+                if(3500<= arg->DataKrat[i].smt_counter && 3980> arg->DataKrat[i].smt_counter){
+                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                }
+                if(2000<= arg->DataKrat[i].smt_counter && 3500> arg->DataKrat[i].smt_counter){
+                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                }
+                if(0 <= arg->DataKrat[i].smt_counter && 2000> arg->DataKrat[i].smt_counter){
+                    arg->DataKrat[i].condition = to_string(arg->DataKrat[i].smt_counter);
+                }
+                arg->DataKrat[i].smt_counter = 0;
+                pthread_mutex_unlock(&arg->mutex_DK);
+                    
+            }
+            
+        }
+        pthread_mutex_lock(&arg->mutex_CM);
+        if (arg->command_queue.front() == SV_close) close = true;
+        pthread_mutex_unlock(&arg->mutex_CM);
+    }  
+    return 0;
+}
+
+
+void * loop_breaker(void * args){
+    command_manager *arg = (command_manager*) args;
+    pthread_mutex_lock(&arg->mutex_CM);
+    pcap_breakloop(arg->fp);
+    pthread_mutex_unlock(&arg->mutex_CM);
+    return 0;
+}
+
+
+
+
+
+
 void * receive(void * args){	
 
     command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex_DK;
+    packet_handler PH;
+
 
     
+
 
 
 	pcap_t *fp;
@@ -344,11 +395,24 @@ void * receive(void * args){
     
     printf("\nlistening on %s...\n", device.value.c_str());
 
+    packet_handler handler;
+
     pthread_mutex_lock(&arg->mutex_CM);       
     arg->fp = fp;
+    pthread_mutex_lock(&arg->mutex_DK);
+    handler.mutex_DK = arg->mutex_DK;
+    pthread_mutex_unlock(&arg->mutex_DK);
     pthread_mutex_unlock(&arg->mutex_CM);
+    
+ 
+    
+    Callback<void(u_char *, const struct pcap_pkthdr *, const u_char *)>::func = std::bind(&packet_handler::dispatcher_handler1, &handler, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3);
+    callback_t func = static_cast<callback_t>(Callback<void(u_char *, const struct pcap_pkthdr *, const u_char *)>::callback);
 
-	pcap_loop(fp,0,dispatcher_handler1,NULL);
+       
+    
+
+	pcap_loop(fp,0,func,NULL);
 
     
 	pcap_close(fp);
@@ -370,6 +434,10 @@ void * receive(void * args){
 typedef struct{
 
     command_manager * com;
+    bool flag[4]; 
+    int k=0; // для кнопок в Streams_Sv
+    unsigned short f = 0; // для APP_ID в Streams_SV
+    int s; // для вызова WindowFullInformation
     
 
     string SVinfo(int Stream_number,vector <char> SV_ID, unsigned short APP_ID, string MAC,string Cond){   
@@ -415,42 +483,42 @@ typedef struct{
         ImVec2 cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ua= %6.0f<%3.2f;",DataFull[id].back().Ua.NORM,DataFull[id].back().Ua.ANGLE);
+        ImGui::Text("Ua= %6.0f<%3.2f;",com->DataFull[id].back().Ua.NORM,com->DataFull[id].back().Ua.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ub= %6.0f<%3.2f;",DataFull[id].back().Ub.NORM,DataFull[id].back().Ub.ANGLE);
+        ImGui::Text("Ub= %6.0f<%3.2f;",com->DataFull[id].back().Ub.NORM,com->DataFull[id].back().Ub.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Uc= %6.0f<%3.2f;",DataFull[id].back().Uc.NORM,DataFull[id].back().Uc.ANGLE);
+        ImGui::Text("Uc= %6.0f<%3.2f;",com->DataFull[id].back().Uc.NORM,com->DataFull[id].back().Uc.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Un= %6.0f<%3.2f;",DataFull[id].back().Un.NORM,DataFull[id].back().Un.ANGLE);
+        ImGui::Text("Un= %6.0f<%3.2f;",com->DataFull[id].back().Un.NORM,com->DataFull[id].back().Un.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(139, 69, 19, 200));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ia= %6.0f<%3.2f;",DataFull[id].back().Ia.NORM,DataFull[id].back().Ia.ANGLE);
+        ImGui::Text("Ia= %6.0f<%3.2f;",com->DataFull[id].back().Ia.NORM,com->DataFull[id].back().Ia.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 0, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ib= %6.0f<%3.2f;",DataFull[id].back().Ib.NORM,DataFull[id].back().Ib.ANGLE);
+        ImGui::Text("Ib= %6.0f<%3.2f;",com->DataFull[id].back().Ib.NORM,com->DataFull[id].back().Ib.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(128, 128, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("Ic= %6.0f<%3.2f;",DataFull[id].back().Ic.NORM,DataFull[id].back().Ic.ANGLE);
+        ImGui::Text("Ic= %6.0f<%3.2f;",com->DataFull[id].back().Ic.NORM,com->DataFull[id].back().Ic.ANGLE);
 
         cursorpos = ImGui::GetCursorPos();
         ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(15,cursorpos.y+5), 7, IM_COL32(0, 0, 128, 255));
         ImGui::SetCursorPos(ImVec2(25,cursorpos.y-5));
-        ImGui::Text("In= %6.0f<%3.2f;",DataFull[id].back().In.NORM,DataFull[id].back().In.ANGLE);
+        ImGui::Text("In= %6.0f<%3.2f;",com->DataFull[id].back().In.NORM,com->DataFull[id].back().In.ANGLE);
 
         ImGui::SetWindowFontScale(1.0f);
         
@@ -490,7 +558,7 @@ typedef struct{
         ImVec2 sizetextX = ImGui::CalcTextSize("XX streams detected");
         float posXX = (sizewindow.x - sizetextX.x) * 0.5f;
         ImGui::SetCursorPosX(posXX);
-        ImGui::Text("%d streams detected ",int(DataKrat.size()));
+        ImGui::Text("%d streams detected ",int(com->DataKrat.size()));
         ImGui::SetCursorPosX(0.0f);
 
         ImGui::SetWindowFontScale(1.5f);
@@ -505,11 +573,11 @@ typedef struct{
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
     
-        for( int i=6*k ; i < DataKrat.size() && i < 6*k+6 ;i++){
+        for( int i=6*k ; i < com->DataKrat.size() && i < 6*k+6 ;i++){
             ImGui::SetCursorPosX(0.0f);
             ImGui::SetWindowFontScale(1.5f);
-            if (ImGui::Button(&SVinfo(i+1,DataKrat[i].svID, DataKrat[i].AppID, DataKrat[i].Destination,DataKrat[i].condition)[0], ImVec2(480, 100))) {
-                f=DataKrat[i].AppID;
+            if (ImGui::Button(&SVinfo(i+1,com->DataKrat[i].svID, com->DataKrat[i].AppID, com->DataKrat[i].Destination, com->DataKrat[i].condition)[0], ImVec2(480, 100))) {
+                f=com->DataKrat[i].AppID;
                 s=i;
                 
             }
@@ -525,7 +593,7 @@ typedef struct{
             ImGui::SetWindowFontScale(1.0f);
         }
 
-        if (k<(DataKrat.size()/6)){
+        if (k<(com->DataKrat.size()/6)){
             ImGui::SetWindowFontScale(2.5f);
             ImGui::SetCursorPos(ImVec2(240, 732));
             if (ImGui::Button(">", ImVec2(245, 50))) k += 1;
@@ -579,10 +647,6 @@ void * draw(void* args){
     int *Err = arg->Errno;
     pthread_mutex_t mutex = arg->mutex_DK;
     
-    flag[0]=false;
-    flag[1]=false;
-    flag[2]=false;
-    flag[3]=false;
 
     
     
@@ -624,7 +688,13 @@ void * draw(void* args){
     //Инициализация ImGui для работы с OpenGL версии 3.3
     ImGui_ImplOpenGL3_Init("#version 130");
     Display Display;
+
     Display.com = arg;
+    for(int i = 0; i<4; i++){
+        Display.flag[i]= false;
+    }
+    
+
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
 
@@ -635,9 +705,9 @@ void * draw(void* args){
 
         
         // Вызывает функцию
-        if (!flag[0] && !flag[1] && !flag[2] && !flag[3] && f==0) Display.Main_Menu(flag);
-        if (flag[0] && f==0) Display.Streams_SV(flag);
-        if (f!=0)            Display.WindowFullInformation(s,DataKrat[s].svID,f, DataKrat[s].Destination);
+        if (!Display.flag[0] && !Display.flag[1] && !Display.flag[2] && !Display.flag[3] && Display.f==0) Display.Main_Menu(Display.flag);
+        if (Display.flag[0] && Display.f==0) Display.Streams_SV(Display.flag);
+        if (Display.f!=0)            Display.WindowFullInformation(Display.s,arg->DataKrat[Display.s].svID, Display.f, arg->DataKrat[Display.s].Destination);
     
 
         
@@ -659,7 +729,9 @@ void * draw(void* args){
     ImPlot::DestroyContext();
     glfwTerminate();
     *Err = 0;
+
     arg->command_queue.push(Window_close);
+
     pthread_exit(Err);
 
     
@@ -668,12 +740,15 @@ void * draw(void* args){
 
 // -------------------------------------------------------------------------------------------------------------------
 
+
+
 void * manager(void* args){
     command_manager *arg = (command_manager*) args;
 
     pthread_t sv_receive, alarm_sv, loop_break;
     int command;
     bool program_end = false;
+    bool SV_sniff_open = false;
     
     for(;!program_end;){
 
@@ -690,6 +765,7 @@ void * manager(void* args){
             pthread_mutex_lock(&arg->mutex_CM);
             arg->command_queue.pop();
             pthread_mutex_unlock(&arg->mutex_CM);
+            SV_sniff_open = true;
             break;
 
         case SV_close:
@@ -702,8 +778,27 @@ void * manager(void* args){
             pthread_mutex_lock(&arg->mutex_CM);
             arg->command_queue.pop();
             pthread_mutex_unlock(&arg->mutex_CM);
+            SV_sniff_open = false;
             break;
         case Window_close:
+
+            pthread_mutex_lock(&arg->mutex_CM);
+            arg->command_queue.pop();
+            
+            
+            if(SV_sniff_open){
+                arg->command_queue.push(SV_close);
+               
+            }
+
+            arg->command_queue.push(Exit);
+            pthread_mutex_unlock(&arg->mutex_CM);
+
+    
+            
+            
+            break;
+        case Exit:
             program_end = true;
             
             pthread_mutex_lock(&arg->mutex_CM);
@@ -724,7 +819,7 @@ void * manager(void* args){
          
     }
 
-    pthread_exit(arg->Errno);
+
     return 0;
 }
 
@@ -746,7 +841,6 @@ int main(){
     pthread_mutex_init(&(com.mutex_CM), NULL);
     pthread_mutex_init(&(com.mutex_DK), NULL);
 
-    param.mutex_DK = com.mutex_DK;
     
     
 
