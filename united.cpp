@@ -63,8 +63,6 @@ typedef struct command_manager {
     vector<SV_PROT_NF_I> * DataKrat = &DataKrat_T;
     vector<vector<SV_PROT_D>> * DataFull = &DataFull_T;
 
-    vector<SV_PROT_NF_I> ** DataKrat_P = &DataKrat;
-    vector<vector<SV_PROT_D>> ** DataFull_P = &DataFull;
 
 
 }command_manager;
@@ -91,8 +89,6 @@ typedef struct packet_handler{
     vector<SV_PROT_AMP> DataD;
     vector<vector<SV_PROT_D>> DataFull;
 
-    vector<SV_PROT_NF_I> * DataKrat_P = &DataKrat;
-    vector<vector<SV_PROT_D>> * DataFull_P = &DataFull;
     
 
     void dispatcher_handler1(u_char *temp1, 
@@ -448,6 +444,7 @@ void * receive(void * args){
 typedef struct{
 
     command_manager * com;
+    
     bool flag[4]; 
     int k=0; // для кнопок в Streams_Sv
     unsigned short f = 0; // для APP_ID в Streams_SV
