@@ -41,7 +41,6 @@ typedef struct{
             ID += SV_ID[i];
         }
         info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + MAC +"\n" +Cond ;
-
         return info;
     }
 
@@ -176,18 +175,42 @@ typedef struct{
         ImGui::SetCursorPosX(0.0f);
         ImGui::SetWindowFontScale(1.5f);
     
-        for( int i=6*k ; i < (*DataKrat).size() && i < 6*k+6 ;i++){
-            ImGui::SetCursorPosX(0.0f);
-            ImGui::SetWindowFontScale(1.5f);
-            if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].condition)[0], ImVec2(480, 100))) {
-                APP_ID=(*DataKrat)[i].AppID;
-                id=i;
+            for( int i=6*k ; i < (*DataKrat).size() && i < 6*k+6 ;i++){
+                ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.1, 0.0));
+                ImGui::SetCursorPosX(0.0f);
+                ImGui::SetWindowFontScale(1.5f);
+                if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].condition)[0], ImVec2(480, 110))) {
+                    APP_ID=(*DataKrat)[i].AppID;
+                    id=i;
+                    
+                }
+                /*
+                switch (smt_counter)
+                {
+                case 0:
+                ImU32 color =IM_COL32(255, 0, 0, 255); // красный
+                break
+                case 1:
+                ImU32 color =IM_COL32(0, 0, 0, 255); // чёрный
+                break
+                case 2:
+                ImU32 color =IM_COL32(255, 255, 0, 255); // жёлтый 
+                break
+                case 3:
+                ImU32 color =IM_COL32(0, 255, 0, 255); // зелёный
+                break
+                }
+                */
+                ImU32 color =IM_COL32(255, 0, 0, 255);
+                // Отрисовка кружочка
+                ImVec2 buttonPos = ImGui::GetItemRectMin();
+                ImVec2 buttonSize = ImGui::GetItemRectSize();
+                // Выберите координаты для кружочка, например, справа от кнопки
+                ImVec2 circlePos(buttonPos.x + buttonSize.x - 15, buttonPos.y + buttonSize.y - 20);
+                ImGui::GetWindowDrawList()->AddCircleFilled(circlePos, 10, color); // Рисуем кружочек
                 
+                ImGui::PopStyleVar();
             }
-            
-                
-            
-        }
         
         if (k>0){
             ImGui::SetWindowFontScale(2.5f);    
