@@ -285,7 +285,7 @@ typedef struct packet_handler{
                 if(Shift[j].flg){
                     DataD[j].push_back_prot(prot);
                     if(DataD[j].size() == 800){
-                        DFT_4000D_1S(DataD[j].size(),&(DataD[j]),LOWPERF,&(DataFull[j]));
+                        DFT_4000D_1S_800P(&(DataD[j]),STANDART,&(DataFull[j]));
                 }
                 }
                 
@@ -579,6 +579,8 @@ void * receive(void * args){
     
 
 	pcap_loop(fp,0,func,NULL);
+
+    arg->sv_innit(arg->mutex_CM);
 
     
 	pcap_close(fp);
