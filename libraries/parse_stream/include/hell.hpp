@@ -6,6 +6,10 @@
 #include <chrono>
 
 #define  LEN_ETHERNET_ADDR  6           //lenght of MAC adress
+#define  Green  0
+#define  Yellow 1
+#define  Red    2
+#define  Gray   3
 
 typedef struct {
     unsigned char Destination[6];
@@ -40,7 +44,8 @@ typedef struct SV_PROT_NF_I{
     std::vector<char>svID;
     unsigned char id;
     bool opened = false;
-    std::string condition;
+    std::string cnt_str;
+    int signal;
     int smt_counter = 0;
     
     

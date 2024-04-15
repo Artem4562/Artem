@@ -179,29 +179,31 @@ typedef struct{
                 ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.1, 0.0));
                 ImGui::SetCursorPosX(0.0f);
                 ImGui::SetWindowFontScale(1.5f);
-                if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].condition)[0], ImVec2(480, 110))) {
+                if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].cnt_str)[0], ImVec2(480, 110))) {
                     APP_ID=(*DataKrat)[i].AppID;
                     id=i;
                     
                 }
-                /*
-                switch (smt_counter)
+                
+                ImU32 color;
+
+                switch ((*DataKrat)[i].signal)
                 {
-                case 0:
-                ImU32 color =IM_COL32(255, 0, 0, 255); // красный
-                break
-                case 1:
-                ImU32 color =IM_COL32(0, 0, 0, 255); // чёрный
-                break
-                case 2:
-                ImU32 color =IM_COL32(255, 255, 0, 255); // жёлтый 
-                break
-                case 3:
-                ImU32 color =IM_COL32(0, 255, 0, 255); // зелёный
-                break
+                    case Red:
+                    color =IM_COL32(255, 0, 0, 255); // красный
+                    break;
+                    case Gray:
+                    color =IM_COL32(20, 20, 20, 255); // серый
+                    break;
+                    case Yellow:
+                    color =IM_COL32(255, 255, 0, 255); // жёлтый 
+                    break;
+                    case Green:
+                    color =IM_COL32(0, 255, 0, 255); // зелёный
+                    break;
                 }
-                */
-                ImU32 color =IM_COL32(255, 0, 0, 255);
+                
+                //ImU32 color =IM_COL32(255, 0, 0, 255);
                 // Отрисовка кружочка
                 ImVec2 buttonPos = ImGui::GetItemRectMin();
                 ImVec2 buttonSize = ImGui::GetItemRectSize();
@@ -397,17 +399,18 @@ void * alarm_for_prot(void * args){
 
             if ((*DataKrat)[i].check_time()){
                 pthread_mutex_lock(&arg->mutex_DK);
+                (*DataKrat)[i].cnt_str = to_string((*DataKrat)[i].smt_counter);
                 if(3980<= (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
+                    (*DataKrat)[i].signal = Green;
                 }
                 if(3500<= (*DataKrat)[i].smt_counter && 3980> (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
+                    (*DataKrat)[i].signal = Yellow;
                 }
                 if(2000<= (*DataKrat)[i].smt_counter && 3500> (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
+                    (*DataKrat)[i].signal = Red;
                 }
                 if(0 <= (*DataKrat)[i].smt_counter && 2000> (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].condition = to_string((*DataKrat)[i].smt_counter);
+                    (*DataKrat)[i].signal = Gray;
                 }
                 (*DataKrat)[i].smt_counter = 0;
                 pthread_mutex_unlock(&arg->mutex_DK);
