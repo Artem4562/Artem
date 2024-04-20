@@ -40,11 +40,11 @@ typedef struct command_manager {
     public:
     std::vector<SV_PROT_NF_I> * DataKrat = &DataKrat_T;
     std::vector<std::vector<SV_PROT_D>> * DataFull = &DataFull_T;
-    void sv_innit(pthread_mutex_t mutex){
-        pthread_mutex_lock(&mutex);
+    void sv_deinnit(){
+        pthread_mutex_lock(&mutex_CM);
         DataKrat = &DataKrat_T;
         DataFull = &DataFull_T;
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&mutex_CM);
 
     }
 

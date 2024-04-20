@@ -185,21 +185,21 @@ typedef struct{
                     
                 }
                 
-                ImU32 color;
+                ImU32 color = IM_COL32(100, 100, 255, 255);
 
                 switch ((*DataKrat)[i].signal)
                 {
                     case Red:
-                    color =IM_COL32(255, 0, 0, 255); // красный
+                    color = IM_COL32(255, 0, 0, 255); // красный
                     break;
                     case Gray:
-                    color =IM_COL32(20, 20, 20, 255); // серый
+                    color = IM_COL32(20, 20, 20, 255); // серый
                     break;
                     case Yellow:
-                    color =IM_COL32(255, 255, 0, 255); // жёлтый 
+                    color = IM_COL32(255, 255, 0, 255); // жёлтый 
                     break;
                     case Green:
-                    color =IM_COL32(0, 255, 0, 255); // зелёный
+                    color = IM_COL32(0, 255, 0, 255); // зелёный
                     break;
                 }
                 
@@ -454,8 +454,7 @@ void * receive(void * args){
     handler.mutex_DK = arg->mutex_DK;
     pthread_mutex_unlock(&arg->mutex_CM);
 
-
-    
+     
 
 	
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -606,7 +605,7 @@ void * receive(void * args){
 
 	pcap_loop(fp,0,func,NULL);
 
-    arg->sv_innit(arg->mutex_CM);
+    
 
     
 	pcap_close(fp);
@@ -747,6 +746,7 @@ void * manager(void* args){
             break;
 
         case SV_close:
+            arg->sv_deinnit();
             pthread_create(&loop_break, NULL, *loop_breaker, (void *) arg);
             pthread_join(sv_receive, NULL);
             pthread_join(alarm_sv, NULL);
