@@ -185,7 +185,7 @@ typedef struct{
                     
                 }
                 
-                ImU32 color = IM_COL32(100, 100, 255, 255);
+                ImU32 color = IM_COL32(0, 0, 0, 0);
 
                 switch ((*DataKrat)[i].signal)
                 {
