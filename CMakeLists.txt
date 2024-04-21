@@ -49,7 +49,8 @@ add_executable(pthrtest pthreadtest.cpp)
 
 
 add_executable(united united.cpp)
-
+find_package(OpenGL REQUIRED)
+target_link_libraries(united PUBLIC OpenGL::GL)
 target_link_libraries(united PUBLIC pcap)
 target_link_libraries(united PUBLIC glfw)
 target_link_libraries(united PUBLIC parsestream)

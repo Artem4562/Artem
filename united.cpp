@@ -8,8 +8,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <GL/gl.h>
-#include <GL/glext.h>
-//#include "libraries/glfw/deps/glad/gl.h"
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -38,6 +36,11 @@ typedef struct{
     unsigned short APP_ID = 0; // для APP_ID в Streams_SV
     int id; // для вызова WindowFullInformation
     
+    int my_image_width = 0;
+    int my_image_height = 0;
+    GLuint my_image_texture = 0;
+
+
 
     string SVinfo(int Stream_number,vector <char> SV_ID, unsigned short APP_ID, string MAC,string Cond){   
         string ID;
@@ -261,6 +264,8 @@ typedef struct{
         // if (flag[2]) Generator_SV(flag);
         if (ImGui::Button("Generator GOOSE", ImVec2(480, 100))) flag[3] = true;
         // if (flag[3]) Generator_GOOSE(flag);
+
+        ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
         ImGui::SetWindowFontScale(1.0f);
 
 
@@ -712,11 +717,11 @@ void * draw(void* args){
     }
 
     
-    int my_image_width = 0;
-    int my_image_height = 0;
-    GLuint my_image_texture = 0;
-    bool ret = LoadTextureFromFile("../image/logo2.jpg", &my_image_texture, &my_image_width, &my_image_height);
+    
+    bool ret = LoadTextureFromFile("../image/logo2smoll.jpg", &Display.my_image_texture, &Display.my_image_width, &Display.my_image_height);
     IM_ASSERT(ret);
+
+
 
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
