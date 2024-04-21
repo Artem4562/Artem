@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(implot)
 
-add_library(${PROJECT_NAME} 
+add_library(${PROJECT_NAME} SHARED
     implot/implot.cpp
     implot/implot.h
     implot/implot_internal.h
@@ -12,4 +12,4 @@ add_library(${PROJECT_NAME}
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC implot)
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui)

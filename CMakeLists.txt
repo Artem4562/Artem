@@ -18,7 +18,12 @@ add_test(NAME Testbigfile
          
 
 
-add_executable(gui lol.cpp)
+add_executable(gui lol.cpp) 
+
+add_subdirectory(libraries/glfw)
+add_subdirectory(libraries/imgui-w)
+add_subdirectory(libraries/implot-w/)
+add_subdirectory(libraries/parse_stream)
 
 add_executable(graph GraphicalInterface.cpp)
 target_link_libraries(graph PRIVATE parsestream)
@@ -26,14 +31,11 @@ target_link_libraries(graph PRIVATE imgui)
 target_link_libraries(graph PRIVATE implot)
 target_link_libraries(graph PRIVATE glfw)
 
-add_subdirectory(libraries/glfw)
-add_subdirectory(libraries/imgui-w)
-add_subdirectory(libraries/implot-w/)
-add_subdirectory(libraries/parse_stream)
 
+
+target_link_libraries(gui PRIVATE glfw)
 target_link_libraries(gui PRIVATE imgui)
 target_link_libraries(gui PRIVATE implot)
-target_link_libraries(gui PRIVATE glfw)
 target_link_libraries(gui PRIVATE parsestream)
 
 
@@ -47,8 +49,10 @@ add_executable(pthrtest pthreadtest.cpp)
 
 
 add_executable(united united.cpp)
-target_link_libraries(united PRIVATE pcap)
-target_link_libraries(united PRIVATE parsestream)
-target_link_libraries(united PRIVATE imgui)
-target_link_libraries(united PRIVATE implot)
-target_link_libraries(united PRIVATE glfw)
+
+target_link_libraries(united PUBLIC pcap)
+target_link_libraries(united PUBLIC glfw)
+target_link_libraries(united PUBLIC parsestream)
+target_link_libraries(united PUBLIC imgui)
+target_link_libraries(united PUBLIC implot)
+

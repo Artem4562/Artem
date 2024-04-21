@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(imgui)
 
-add_library(${PROJECT_NAME} 
+add_library(${PROJECT_NAME} SHARED
     imgui/imgui.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_tables.cpp
