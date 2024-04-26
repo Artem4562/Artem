@@ -340,31 +340,7 @@ typedef struct packet_handler{
                 pthread_mutex_lock(&mutex_DK);
                 DataKrat[j].smt_counter++;
                 pthread_mutex_unlock(&mutex_DK);
-                if(Shift[j].MinUa==0 && Shift[j].MinUa>prot.Ua && !Shift[j].fg){
-                    Shift[j].MinUa=prot.Ua;
-                }
-                if(Shift[j].MinUa>prot.Ua && !Shift[j].fg){
-                    Shift[j].MinUa=prot.Ua;
-                    Shift[j].flag= true;
-                }
-                if(Shift[j].MinUa<prot.Ua && Shift[j].flag== true && !Shift[j].fg){
-                    Shift[j].fg= true;
-                }
-
-                if(!Shift[j].flg && Shift[j].fg && 0.05>(abs((float)prot.Ua/Shift[j].MinUa))){
-                    Shift[j].flg = true;
-                }
-
-                if(Shift[j].flg){
-                    DataD[j].push_back_prot(prot);
-                    if(DataD[j].size() == 800){
-                        DFT_4000D_1S_800P(&(DataD[j]),STANDART,&(DataFull[j]));
-                }
-                }
-                
-
-                
-                
+                          
             } 
             j++;
         }
@@ -443,27 +419,25 @@ void * alarm_for_prot(void * args){
     vector<SV_PROT_NF_I> * DataKrat = arg->DataKrat;
     bool close = false;
     for(;!close;){
+        sleep(1);
         for(int i = 0; i < DataKrat->size();i++){
-
-            if ((*DataKrat)[i].check_time()){
-                pthread_mutex_lock(&arg->mutex_DK);
-                (*DataKrat)[i].cnt_str = to_string((*DataKrat)[i].smt_counter);
-                if(3980<= (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].signal = Green;
-                }
-                if(3500<= (*DataKrat)[i].smt_counter && 3980> (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].signal = Yellow;
-                }
-                if(2000<= (*DataKrat)[i].smt_counter && 3500> (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].signal = Red;
-                }
-                if(0 <= (*DataKrat)[i].smt_counter && 2000> (*DataKrat)[i].smt_counter){
-                    (*DataKrat)[i].signal = Gray;
-                }
-                (*DataKrat)[i].smt_counter = 0;
-                pthread_mutex_unlock(&arg->mutex_DK);
-                    
+            
+            pthread_mutex_lock(&arg->mutex_DK);
+            (*DataKrat)[i].cnt_str = to_string((*DataKrat)[i].smt_counter);
+            if(3980<= (*DataKrat)[i].smt_counter){
+                (*DataKrat)[i].signal = Green;
             }
+            if(3500<= (*DataKrat)[i].smt_counter && 3980> (*DataKrat)[i].smt_counter){
+                (*DataKrat)[i].signal = Yellow;
+            }
+            if(2000<= (*DataKrat)[i].smt_counter && 3500> (*DataKrat)[i].smt_counter){
+                (*DataKrat)[i].signal = Red;
+            }
+            if(0 <= (*DataKrat)[i].smt_counter && 2000> (*DataKrat)[i].smt_counter){
+                (*DataKrat)[i].signal = Gray;
+            }
+            (*DataKrat)[i].smt_counter = 0;
+            pthread_mutex_unlock(&arg->mutex_DK);
             
         }
         pthread_mutex_lock(&arg->mutex_CM);
@@ -471,6 +445,7 @@ void * alarm_for_prot(void * args){
             close = true;
         }
         pthread_mutex_unlock(&arg->mutex_CM);
+        
     }  
     return 0;
 }
