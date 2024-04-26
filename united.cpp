@@ -189,8 +189,8 @@ typedef struct{
                 ImGui::SetCursorPosX(0.0f);
                 ImGui::SetWindowFontScale(1.5f);
                 if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].cnt_str)[0], ImVec2(480, 110))) {
-                    APP_ID=(*DataKrat)[i].AppID;
-                    id=i;
+                    //APP_ID=(*DataKrat)[i].AppID;
+                    //id=i;
                     
                 }
                 
@@ -258,11 +258,11 @@ typedef struct{
             
             flag[0] = true; 
         } 
-        if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = true;
+        if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = false;
         // if (flag[1]) Streams_GOOSE(flag);
-        if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = true;
+        if (ImGui::Button("Generator SV", ImVec2(480, 100))) flag[2] = false;
         // if (flag[2]) Generator_SV(flag);
-        if (ImGui::Button("Generator GOOSE", ImVec2(480, 100))) flag[3] = true;
+        if (ImGui::Button("Generator GOOSE", ImVec2(480, 100))) flag[3] = false;
         // if (flag[3]) Generator_GOOSE(flag);
 
         ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
@@ -495,7 +495,7 @@ void * receive(void * args){
 	int inum;
 
     std::ifstream myfile; 
-    myfile.open("config.txt");
+    myfile.open("/home/artem/dev/Artem/build/config.txt");
     if(myfile.is_open()){
         string line;
         while(getline(myfile,line)){
@@ -656,12 +656,18 @@ void * draw(void* args){
         pthread_exit(Err); 
     }
     //Создаю окно 
-    GLFWwindow* window = glfwCreateWindow(480, 800, "My window", NULL, NULL);
+
+    GLFWmonitor * monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "My window", monitor, NULL);
     if (!window) {
         glfwTerminate();
         *Err = -1;
         pthread_exit(Err);
     }
+
+    glfwSetWindowMonitor(window, monitor , 0 , 0 , mode->width, mode->height,GLFW_DONT_CARE);
 
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
@@ -693,7 +699,7 @@ void * draw(void* args){
 
     
     
-    bool ret = LoadTextureFromFile("../image/logo2smoll.jpg", &Display.my_image_texture, &Display.my_image_width, &Display.my_image_height);
+    bool ret = LoadTextureFromFile("/home/artem/dev/Artem/image/logo2smoll.jpg", &Display.my_image_texture, &Display.my_image_width, &Display.my_image_height);
     IM_ASSERT(ret);
 
 
