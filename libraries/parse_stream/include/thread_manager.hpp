@@ -25,6 +25,8 @@ typedef struct command_manager {
     pthread_mutex_t mutex_CM;
     std::queue<int> command_queue;
     pthread_mutex_t mutex_DK;
+    pthread_mutex_t mutex_QU;
+    pthread_cond_t queue_waiter;
     
     pcap_t *fp;
     private:
@@ -73,7 +75,7 @@ typedef struct shiftUA{
 //--------------------------------------------------
 
 
-//very IMPORNTANT CODE, don't know how it's work but it's the only thing that do
+//very IMPORNTANT CODE, don't know how it's works but it's the only thing that do
 // UNDER ANY sirmconstances DO NOT DELETE!!!
 //--------------------------------------------------------------------------------
 
@@ -109,4 +111,5 @@ void *alarm_for_prot(void *);
 //defenishions for functions
 //--------------------------------------------------
 void config_writer(conf_pr );
+void *reciver_init(void *);
 //--------------------------------------------------

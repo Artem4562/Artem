@@ -42,14 +42,15 @@ typedef struct{
 
 
 
-    string SVinfo(int Stream_number,vector <char> SV_ID, unsigned short APP_ID, string MAC,string Cond){   
+    string SVinfo(int I,vector<SV_PROT_NF_I> * DataKrat){   
         string ID;
-        string info = "";
+        string info = "hello";
         const char *ch; 
-        for(int i=0;i<SV_ID.size();i++){
-            ID += SV_ID[i];
+        for(int i=0;i<(*DataKrat)[I].svID.size();i++){
+            ID += (*DataKrat)[I].svID[i];
         }
-        info += "Stream_number: " + to_string(Stream_number) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string(APP_ID) + "\nMAC: " + MAC +"\n" +Cond ;
+
+        //info += "Stream_number: " + to_string(I+1) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string((*DataKrat)[I].AppID) + "\nMAC: " + (*DataKrat)[I].Destination +"\n" +(*DataKrat)[I].cnt_str ;
         return info;
     }
 
@@ -174,11 +175,19 @@ typedef struct{
 
         ImGui::SetWindowFontScale(1.5f);
         if (ImGui::Button("Return to the main menu", ImVec2(480, 50))){
-            pthread_mutex_lock(&com->mutex_CM);
             com->command_queue.push(SV_close);
-	        pthread_mutex_unlock(&com->mutex_CM);
+            pthread_cond_broadcast(&com->queue_waiter);
+
+            // cout<<"here the command go!\n";
+            // pthread_mutex_unlock(&com->mutex_QU);
+            // cout<<"here the display mutex released\n";
+            flag[0] = false; 
+            //sleep(0.5);
+            // cout<<"wait for display mutex being released\n";
+            // pthread_mutex_lock(&com->mutex_QU);
+            // cout<<"here the display mutex taken\n";
              
-            flag[0] = false;
+            
         }
         ImGui::SetWindowFontScale(1.0f);
         ImGui::SetCursorPosX(0.0f);
@@ -188,7 +197,7 @@ typedef struct{
                 ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.1, 0.0));
                 ImGui::SetCursorPosX(0.0f);
                 ImGui::SetWindowFontScale(1.5f);
-                if (ImGui::Button(&SVinfo(i+1,(*DataKrat)[i].svID, (*DataKrat)[i].AppID, (*DataKrat)[i].Destination, (*DataKrat)[i].cnt_str)[0], ImVec2(480, 110))) {
+                if (ImGui::Button(&SVinfo(i,DataKrat)[0], ImVec2(480, 110))) {
                     //APP_ID=(*DataKrat)[i].AppID;
                     //id=i;
                     
@@ -252,11 +261,17 @@ typedef struct{
         ImGui::SetWindowFontScale(1.5f);
         ImGui::Text("Main Menu");
         if (ImGui::Button("Streams SV", ImVec2(480, 100))){
-            pthread_mutex_lock(&com->mutex_CM);
+
             com->command_queue.push(SV_open);
-	        pthread_mutex_unlock(&com->mutex_CM);
-            
+            pthread_cond_broadcast(&com->queue_waiter);
+            // cout<<"here the command go!\n";
+            // pthread_mutex_unlock(&com->mutex_QU);
+            // cout<<"here the display mutex released\n";
             flag[0] = true; 
+            // sleep(0.5);
+            // cout<<"wait for display mutex being released\n";
+            // pthread_mutex_lock(&com->mutex_QU);
+            // cout<<"here the display mutex taken\n";
         } 
         if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = false;
         // if (flag[1]) Streams_GOOSE(flag);
@@ -384,16 +399,24 @@ int main(){
     command_manager com;
     pthread_mutex_init(&(com.mutex_CM), NULL);
     pthread_mutex_init(&(com.mutex_DK), NULL);
-
+    pthread_mutex_init(&(com.mutex_QU), NULL);
+    pthread_cond_init(&com.queue_waiter, NULL);
     
     
 
     pthread_create(&draw_graphics, NULL, *draw, (void *) &com);
     pthread_create(&thread_manager, NULL, *manager, (void *) &com);
     pthread_join(draw_graphics, NULL);
-    pthread_join(thread_manager, NULL);
 
-    
+    pthread_mutex_lock(&com.mutex_QU);
+    //sleep(1);
+    pthread_cond_broadcast(&com.queue_waiter);
+    //sleep(2);
+    //pthread_cond_broadcast(&com.queue_waiter);
+    pthread_mutex_unlock(&com.mutex_QU);
+
+    pthread_join(thread_manager,NULL);
+
     return 0;
 }
 
@@ -440,11 +463,11 @@ void * alarm_for_prot(void * args){
             pthread_mutex_unlock(&arg->mutex_DK);
             
         }
-        pthread_mutex_lock(&arg->mutex_CM);
+        pthread_mutex_lock(&arg->mutex_QU);
         if (arg->command_queue.front() == SV_close) {
             close = true;
         }
-        pthread_mutex_unlock(&arg->mutex_CM);
+        pthread_mutex_unlock(&arg->mutex_QU);
         
     }  
     return 0;
@@ -463,12 +486,9 @@ void * loop_breaker(void * args){
 // -------------------------------------------------------------------------------------------------------------------
 
 void * receive(void * args){	
-
     command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
-    pthread_mutex_t mutex = arg->mutex_DK;
 
-    pcap_t *fp;
     packet_handler handler;
     
     pthread_mutex_lock(&arg->mutex_CM);       
@@ -476,6 +496,37 @@ void * receive(void * args){
     arg->DataFull = &handler.DataFull;
     handler.mutex_DK = arg->mutex_DK;
     pthread_mutex_unlock(&arg->mutex_CM);
+
+    
+    Callback<void(u_char *, const struct pcap_pkthdr *, const u_char *)>::func = std::bind(&packet_handler::dispatcher_handler1, &handler, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3);
+    callback_t func = static_cast<callback_t>(Callback<void(u_char *, const struct pcap_pkthdr *, const u_char *)>::callback);
+
+       
+    
+
+	pcap_loop(arg->fp,0,func,NULL);
+
+    
+
+    
+	pcap_close(arg->fp);
+
+     
+    pthread_cond_broadcast(&arg->queue_waiter);
+    
+
+    cout<<"SV_closed \n";
+    *Err = 0;
+    return 0;
+}
+
+// -------------------------------------------------------------------------------------------------------------------
+
+void * reciver_init(void * args){
+    command_manager *arg = (command_manager*) args;
+    int *Err = arg->Errno;
+
+    pcap_t *fp;
 
      
 
@@ -495,7 +546,7 @@ void * receive(void * args){
 	int inum;
 
     std::ifstream myfile; 
-    myfile.open("/home/artem/dev/Artem/build/config.txt");
+    myfile.open("./config.txt");
     if(myfile.is_open()){
         string line;
         while(getline(myfile,line)){
@@ -614,25 +665,8 @@ void * receive(void * args){
 
     
 
-    pthread_mutex_lock(&arg->mutex_CM);
+    
     arg->fp = fp;
-    pthread_mutex_unlock(&arg->mutex_CM);
-    
- 
-    
-    Callback<void(u_char *, const struct pcap_pkthdr *, const u_char *)>::func = std::bind(&packet_handler::dispatcher_handler1, &handler, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3);
-    callback_t func = static_cast<callback_t>(Callback<void(u_char *, const struct pcap_pkthdr *, const u_char *)>::callback);
-
-       
-    
-
-	pcap_loop(fp,0,func,NULL);
-
-    
-
-    
-	pcap_close(fp);
-    *Err = 0;
     return 0;
 }
 
@@ -642,8 +676,8 @@ void * draw(void* args){
 
     command_manager *arg = (command_manager*) args;
     int *Err = arg->Errno;
-    pthread_mutex_t mutex = arg->mutex_DK;
     vector<SV_PROT_NF_I> * DataKrat = arg->DataKrat;
+    pthread_mutex_lock(&arg->mutex_QU);
 
     
     
@@ -699,10 +733,11 @@ void * draw(void* args){
 
     
     
-    bool ret = LoadTextureFromFile("/home/artem/dev/Artem/image/logo2smoll.jpg", &Display.my_image_texture, &Display.my_image_width, &Display.my_image_height);
+    bool ret = LoadTextureFromFile("./image/logo2smoll.jpg", &Display.my_image_texture, &Display.my_image_width, &Display.my_image_height);
     IM_ASSERT(ret);
 
 
+    
 
     while (!glfwWindowShouldClose(window)) { //Цикл будет выполняться пока окно не закроется
         glfwPollEvents();//Обрабатывает все события, которые происходят в окне и позволяет реагировать на них
@@ -734,12 +769,19 @@ void * draw(void* args){
         //Меняет местами буферы кадра GLFW, чтобы отобразить новый кадр на экране.
         glfwSwapBuffers(window);
     }
-    //Освобождает все выделенные ресурсы, связанные с GLFW и завершает работу этой библиотеки 
+    
+    arg->command_queue.push(Window_close);
+     
+    pthread_cond_broadcast(&arg->queue_waiter);
+    
+
+    pthread_mutex_unlock(&arg->mutex_QU);
+    //Освобождает все выделенные ресурсы, связанные с GLFW и завершает работу этой библиотеки
     ImPlot::DestroyContext();
     glfwTerminate();
     *Err = 0;
 
-    arg->command_queue.push(Window_close);
+    
 
     pthread_exit(Err);
 
@@ -755,46 +797,43 @@ void * manager(void* args){
     int command;
     bool program_end = false;
     bool SV_sniff_open = false;
-    pthread_mutex_lock(&arg->mutex_CM);
-    command = arg->command_queue.front();
-    cout<<command<<'\n';
-    pthread_mutex_unlock(&arg->mutex_CM);
-    
+   
     
     for(;!program_end;){
+        int res = pthread_cond_wait(&arg->queue_waiter, &arg->mutex_QU);
 
-        pthread_mutex_lock(&arg->mutex_CM);
         command = arg->command_queue.front();
-        pthread_mutex_unlock(&arg->mutex_CM);
-               
+        
+        
         switch (command)
         {
         case SV_open:
+            reciver_init((void *) arg);
             pthread_create(&sv_receive, NULL, *receive, (void *) arg);
-            pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) arg);
+            //pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) arg);
             
-            pthread_mutex_lock(&arg->mutex_CM);
+            
             arg->command_queue.pop();
-            pthread_mutex_unlock(&arg->mutex_CM);
+            
             SV_sniff_open = true;
+            //pthread_mutex_unlock(&arg->mutex_QU);
             break;
 
         case SV_close:
             arg->sv_deinnit();
             pthread_create(&loop_break, NULL, *loop_breaker, (void *) arg);
-            pthread_join(sv_receive, NULL);
-            pthread_join(alarm_sv, NULL);
-            pthread_join(loop_break, NULL);
-            sleep(0.5);
+            pthread_detach(sv_receive);
+            pthread_detach(loop_break);
             
-            pthread_mutex_lock(&arg->mutex_CM);
+            
+            
             arg->command_queue.pop();
-            pthread_mutex_unlock(&arg->mutex_CM);
+            
             SV_sniff_open = false;
             break;
         case Window_close:
 
-            pthread_mutex_lock(&arg->mutex_CM);
+        
             arg->command_queue.pop();
             
             
@@ -804,21 +843,21 @@ void * manager(void* args){
             }
 
             arg->command_queue.push(Exit);
-            pthread_mutex_unlock(&arg->mutex_CM);
+            
 
-    
-            
-            
+
             break;
         case Exit:
             program_end = true;
             
-            pthread_mutex_lock(&arg->mutex_CM);
+
             arg->command_queue.pop();
             *arg->Errno = 0;
-            pthread_mutex_unlock(&arg->mutex_CM);
-            
-            
+  
+
+            break;
+        default:
+
             break;
 
         
@@ -827,7 +866,7 @@ void * manager(void* args){
         
 
         
-        sleep(0.1);
+
          
     }
 
