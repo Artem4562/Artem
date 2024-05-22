@@ -801,7 +801,6 @@ void * manager(void* args){
             arg->command_queue.pop();
             
             SV_sniff_open = true;
-            //pthread_mutex_unlock(&arg->mutex_QU);
             break;
 
         case SV_close:
