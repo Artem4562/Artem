@@ -178,14 +178,8 @@ typedef struct{
             com->command_queue.push(SV_close);
             pthread_cond_broadcast(&com->queue_waiter);
 
-            // cout<<"here the command go!\n";
-            // pthread_mutex_unlock(&com->mutex_QU);
-            // cout<<"here the display mutex released\n";
             flag[0] = false; 
-            //sleep(0.5);
-            // cout<<"wait for display mutex being released\n";
-            // pthread_mutex_lock(&com->mutex_QU);
-            // cout<<"here the display mutex taken\n";
+            
              
             
         }
@@ -264,14 +258,8 @@ typedef struct{
 
             com->command_queue.push(SV_open);
             pthread_cond_broadcast(&com->queue_waiter);
-            // cout<<"here the command go!\n";
-            // pthread_mutex_unlock(&com->mutex_QU);
-            // cout<<"here the display mutex released\n";
             flag[0] = true; 
-            // sleep(0.5);
-            // cout<<"wait for display mutex being released\n";
-            // pthread_mutex_lock(&com->mutex_QU);
-            // cout<<"here the display mutex taken\n";
+            
         } 
         if (ImGui::Button("Streams GOOSE", ImVec2(480, 100))) flag[1] = false;
         // if (flag[1]) Streams_GOOSE(flag);
@@ -408,12 +396,9 @@ int main(){
     pthread_create(&thread_manager, NULL, *manager, (void *) &com);
     pthread_join(draw_graphics, NULL);
 
-    pthread_mutex_lock(&com.mutex_QU);
-    //sleep(1);
+
     pthread_cond_broadcast(&com.queue_waiter);
-    //sleep(2);
-    //pthread_cond_broadcast(&com.queue_waiter);
-    pthread_mutex_unlock(&com.mutex_QU);
+
 
     pthread_join(thread_manager,NULL);
 
