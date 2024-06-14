@@ -12,6 +12,7 @@
 #define  Gray   3
 
 typedef struct {
+    std::chrono::system_clock::time_point packet_time;
     unsigned char Destination[6];
     unsigned char Source[6];
     unsigned short Type; 
@@ -35,9 +36,6 @@ typedef struct {
 }SV_PROT;
 
 typedef struct SV_PROT_NF_I{
-    private:
-    std::chrono::steady_clock::time_point saved_time = std::chrono::steady_clock::now();
-    public:
     std::string Destination;
     std::string Source;
     unsigned short AppID;
@@ -87,13 +85,13 @@ typedef struct SV_PROT_NF_I{
     };
     
 
-    bool check_time(){
-        if(saved_time + std::chrono::seconds(1)  <= std::chrono::steady_clock::now()){
-            saved_time+=std::chrono::seconds(1);
-            return 1;
-        };
-        return 0;
-    }
+    // bool check_time(){
+    //     if(saved_time + std::chrono::seconds(1)  <= std::chrono::steady_clock::now()){
+    //         saved_time+=std::chrono::seconds(1);
+    //         return 1;
+    //     };
+    //     return 0;
+    // }
 
     
 

@@ -322,6 +322,7 @@ typedef struct packet_handler{
     pthread_mutex_t mutex_DK;
     int id = 0;
     std::vector<shiftUA> Shift;
+    pthread_cond_t * stream_checker;
     std::vector<SV_PROT_NF_I> DataKrat;
     std::vector<SV_PROT_AMP> DataD;
     std::vector<std::vector<SV_PROT_D>> DataFull;
@@ -342,7 +343,12 @@ typedef struct packet_handler{
                 flg=true;
                 pthread_mutex_lock(&mutex_DK);
                 DataKrat[j].smt_counter++;
+                if(true){
+                    pthread_cond_broadcast(stream_checker);
+                }
                 pthread_mutex_unlock(&mutex_DK);
+
+                
                           
             } 
             j++;
@@ -372,24 +378,42 @@ typedef struct packet_handler{
 
 
 
-int main(){
+int main(int arg, char** argv){
 
     // accept signal from VSCode for pausing/stopping
     char *sudo_uid = getenv("SUDO_UID");
     if (sudo_uid) setresuid(0, 0, atoi(sudo_uid));
     printf("uid = %d\n", getuid());
 
-    
-
-
     pthread_t draw_graphics, thread_manager;
     
     command_manager com;
+
+    for(int i = 0; i<arg; i++){
+        if( argv[i][0] == '-' ){
+            switch (argv[i][1])
+            {
+            case 'D':
+                com.current_mode = DEBUG_MODE;
+                break;
+            case 'F':
+                com.current_mode = PORTABLE_MODE;
+                break;
+            case 'C':
+                com.current_mode = CONSOLE_MODE;
+                break;
+            
+            }
+        }
+        
+    }
+    
+   
     pthread_mutex_init(&(com.mutex_CM), NULL);
     pthread_mutex_init(&(com.mutex_DK), NULL);
     pthread_mutex_init(&(com.mutex_QU), NULL);
     pthread_cond_init(&com.queue_waiter, NULL);
-    
+    pthread_cond_init(&com.stream_checker, NULL);
     
 
     pthread_create(&draw_graphics, NULL, *draw, (void *) &com);
@@ -427,7 +451,7 @@ void * alarm_for_prot(void * args){
     vector<SV_PROT_NF_I> * DataKrat = arg->DataKrat;
     bool close = false;
     for(;!close;){
-        sleep(1);
+        int res = pthread_cond_wait(&arg->stream_checker, &arg->mutex_DK);
         for(int i = 0; i < DataKrat->size();i++){
             
             pthread_mutex_lock(&arg->mutex_DK);
@@ -448,11 +472,11 @@ void * alarm_for_prot(void * args){
             pthread_mutex_unlock(&arg->mutex_DK);
             
         }
-        pthread_mutex_lock(&arg->mutex_QU);
+        //pthread_mutex_lock(&arg->mutex_QU);
         if (arg->command_queue.front() == SV_close) {
             close = true;
         }
-        pthread_mutex_unlock(&arg->mutex_QU);
+        //pthread_mutex_unlock(&arg->mutex_QU);
         
     }  
     return 0;
@@ -676,18 +700,48 @@ void * draw(void* args){
     }
     //Создаю окно 
 
-    GLFWmonitor * monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+    GLFWwindow* window;
 
-    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "My window", monitor, NULL);
-    if (!window) {
-        glfwTerminate();
-        *Err = -1;
-        pthread_exit(Err);
+    switch (arg->current_mode)
+    {
+    case DEBUG_MODE:
+        window = glfwCreateWindow(480, 800, "My window", NULL, NULL);
+        if (!window) {
+            glfwTerminate();
+            *Err = -1;
+            pthread_exit(Err);
+        }
+        break;
+    case PORTABLE_MODE:
+        {GLFWmonitor * monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+
+        window = glfwCreateWindow(mode->width, mode->height, "My window", monitor, NULL);
+        if (!window) {
+            glfwTerminate();
+            *Err = -1;
+            pthread_exit(Err);
+        }
+
+        glfwSetWindowMonitor(window, monitor , 0 , 0 , mode->width, mode->height,GLFW_DONT_CARE);}
+        break;
+    default:
+        {GLFWmonitor * monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+
+        window = glfwCreateWindow(mode->width, mode->height, "My window", monitor, NULL);
+        if (!window) {
+            glfwTerminate();
+            *Err = -1;
+            pthread_exit(Err);
+        }
+
+        glfwSetWindowMonitor(window, monitor , 0 , 0 , mode->width, mode->height,GLFW_DONT_CARE);}
+        break;
+
     }
-
-    glfwSetWindowMonitor(window, monitor , 0 , 0 , mode->width, mode->height,GLFW_DONT_CARE);
-
+        
+    
     // Создание контекста OpenGL
     glfwMakeContextCurrent(window);
     //Что это не знаю, но без него не работает(

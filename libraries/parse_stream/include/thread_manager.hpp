@@ -8,14 +8,21 @@
 #define _USE_MATH_DEFINES
 #define LINE_LEN 16
 
-//codes of commands passing to manager functions
+//codes of modes of app
 //--------------------------------------------------
-#define SV_open 1000
-#define SV_close 1001
-#define Window_close 1100
-#define Exit 9999
+#define DEBUG_MODE      1000
+#define PORTABLE_MODE   1001
+#define CONSOLE_MODE    1002
 //--------------------------------------------------
 
+
+//codes of commands passing to manager functions
+//--------------------------------------------------
+#define SV_open         1000
+#define SV_close        1001
+#define Window_close    1100   
+#define Exit            9999
+//--------------------------------------------------
 
 
 
@@ -27,6 +34,8 @@ typedef struct command_manager {
     pthread_mutex_t mutex_DK;
     pthread_mutex_t mutex_QU;
     pthread_cond_t queue_waiter;
+    pthread_cond_t stream_checker;
+    short current_mode;
     
     pcap_t *fp;
     private:
