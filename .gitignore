@@ -1,7 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake
-/npcap-sdk
-/.vscode
+
+
 ### C++ ###
 # Prerequisites
 *.d
@@ -55,13 +55,9 @@ _deps
 *-prefix/
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,cmake
-.vscode/settings.json
+
 name.txt
-build/libraries/parse_stream/parsestreamConfig.cmake
-build/libraries/parse_stream/parsestreamConfigVersion.cmake
-build/libraries/parse_stream/cmake/parsestreamTargets.cmake
-libraries/parse_stream/Config.cmake.in
-libraries/parse_stream/cmake/Installing.cmake
+
 build
 
 *.pcap
@@ -70,5 +66,3 @@ build
 libraries/fftw-3.3.10
 *.ini
 *.tcl
-/.vscode/settings.json
-/libraries/boost_1_84_0
