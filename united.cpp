@@ -44,13 +44,13 @@ typedef struct{
 
     string SVinfo(int I,vector<SV_PROT_NF_I> * DataKrat){   
         string ID;
-        string info = "hello";
+        string info = "";
         const char *ch; 
         for(int i=0;i<(*DataKrat)[I].svID.size();i++){
             ID += (*DataKrat)[I].svID[i];
         }
 
-        //info += "Stream_number: " + to_string(I+1) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string((*DataKrat)[I].AppID) + "\nMAC: " + (*DataKrat)[I].Destination +"\n" +(*DataKrat)[I].cnt_str ;
+        info += "Stream_number: " + to_string(I+1) + "\nSV_ID: " + ID + "\nAPP_ID: " + to_string((*DataKrat)[I].AppID) + "\nMAC: " + (*DataKrat)[I].Destination +"\n" +(*DataKrat)[I].cnt_str ;
         return info;
     }
 
@@ -319,10 +319,10 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 } 
 
 typedef struct packet_handler{
-    pthread_mutex_t mutex_DK;
+    pthread_mutex_t * mutex_DK;
     int id = 0;
-    std::vector<shiftUA> Shift;
-    pthread_cond_t * stream_checker;
+    std::vector<chrono::system_clock::time_point> last_time_stump;
+    pthread_cond_t *stream_checker;
     std::vector<SV_PROT_NF_I> DataKrat;
     std::vector<SV_PROT_AMP> DataD;
     std::vector<std::vector<SV_PROT_D>> DataFull;
@@ -341,12 +341,14 @@ typedef struct packet_handler{
         while(!flg && j<id){
             if(prot.AppID==DataKrat[j].AppID ){
                 flg=true;
-                pthread_mutex_lock(&mutex_DK);
+                pthread_mutex_lock(mutex_DK);
                 DataKrat[j].smt_counter++;
-                if(true){
+                //if(prot.smpCnt - DataKrat[j].last_smt_counter >=5) DataKrat[j].signal ;
+                DataKrat[j].last_smt_counter = prot.smpCnt;
+                if( (prot.packet_time - last_time_stump[j]) >= chrono::seconds(1)){
                     pthread_cond_broadcast(stream_checker);
                 }
-                pthread_mutex_unlock(&mutex_DK);
+                pthread_mutex_unlock(mutex_DK);
 
                 
                           
@@ -354,16 +356,16 @@ typedef struct packet_handler{
             j++;
         }
         if(!DataKrat.size() || !flg){
-            pthread_mutex_lock(&mutex_DK);
-            DataKrat.push_back(fill(prot,id++));
-            pthread_mutex_unlock(&mutex_DK);
+            pthread_mutex_lock(mutex_DK);
+            DataKrat.push_back(fill_static_info(prot,id++));
+            pthread_mutex_unlock(mutex_DK);
 
             SV_PROT_AMP DataD_T;
+            vector<SV_PROT_D> DataFull_T;
+            last_time_stump.push_back(prot.packet_time);
+
             DataD.push_back(DataD_T);
-            std::vector<SV_PROT_D> DataFull_T;
             DataFull.push_back(DataFull_T);
-            shiftUA S_T;
-            Shift.push_back(S_T);
         }	
         
     }    
@@ -408,6 +410,7 @@ int main(int arg, char** argv){
         
     }
     
+    com.openned_threads |=UI_open;
    
     pthread_mutex_init(&(com.mutex_CM), NULL);
     pthread_mutex_init(&(com.mutex_DK), NULL);
@@ -452,9 +455,13 @@ void * alarm_for_prot(void * args){
     bool close = false;
     for(;!close;){
         int res = pthread_cond_wait(&arg->stream_checker, &arg->mutex_DK);
-        for(int i = 0; i < DataKrat->size();i++){
+        if (!(arg->openned_threads & SV_open)) {
+            close = true;
+        }
+        for(int i = 0; !close && i < DataKrat->size();i++){
             
-            pthread_mutex_lock(&arg->mutex_DK);
+            if(0 >= DataKrat->size()) break;
+            
             (*DataKrat)[i].cnt_str = to_string((*DataKrat)[i].smt_counter);
             if(3980<= (*DataKrat)[i].smt_counter){
                 (*DataKrat)[i].signal = Green;
@@ -469,13 +476,12 @@ void * alarm_for_prot(void * args){
                 (*DataKrat)[i].signal = Gray;
             }
             (*DataKrat)[i].smt_counter = 0;
-            pthread_mutex_unlock(&arg->mutex_DK);
+            
             
         }
+        
         //pthread_mutex_lock(&arg->mutex_QU);
-        if (arg->command_queue.front() == SV_close) {
-            close = true;
-        }
+        
         //pthread_mutex_unlock(&arg->mutex_QU);
         
     }  
@@ -503,7 +509,8 @@ void * receive(void * args){
     pthread_mutex_lock(&arg->mutex_CM);       
     arg->DataKrat = &handler.DataKrat;
     arg->DataFull = &handler.DataFull;
-    handler.mutex_DK = arg->mutex_DK;
+    handler.mutex_DK = &arg->mutex_DK;
+    handler.stream_checker = &arg->stream_checker;
     pthread_mutex_unlock(&arg->mutex_CM);
 
     
@@ -522,7 +529,7 @@ void * receive(void * args){
 
      
     pthread_cond_broadcast(&arg->queue_waiter);
-    
+    pthread_cond_broadcast(&arg->stream_checker);    
 
     cout<<"SV_closed \n";
     *Err = 0;
@@ -679,6 +686,13 @@ void * reciver_init(void * args){
     return 0;
 }
 
+void sv_deinnit(void * args){
+    command_manager *arg = (command_manager*) args;
+    pthread_mutex_lock(&arg->mutex_CM);
+    arg->DataKrat = &arg->DataKrat_T;
+    arg->DataFull = &arg->DataFull_T;
+    pthread_mutex_unlock(&arg->mutex_CM);
+    }
 // -------------------------------------------------------------------------------------------------------------------
 
 void * draw(void* args){
@@ -701,6 +715,8 @@ void * draw(void* args){
     //Создаю окно 
 
     GLFWwindow* window;
+
+    
 
     switch (arg->current_mode)
     {
@@ -809,7 +825,7 @@ void * draw(void* args){
         glfwSwapBuffers(window);
     }
     
-    arg->command_queue.push(Window_close);
+    arg->command_queue.push(UI_close);
      
     pthread_cond_broadcast(&arg->queue_waiter);
     
@@ -834,11 +850,9 @@ void * manager(void* args){
 
     pthread_t sv_receive, alarm_sv, loop_break;
     int command;
-    bool program_end = false;
-    bool SV_sniff_open = false;
-   
     
-    for(;!program_end;){
+    //sleep(1);
+    for(;arg->openned_threads;){
         int res = pthread_cond_wait(&arg->queue_waiter, &arg->mutex_QU);
 
         command = arg->command_queue.front();
@@ -849,49 +863,40 @@ void * manager(void* args){
         case SV_open:
             reciver_init((void *) arg);
             pthread_create(&sv_receive, NULL, *receive, (void *) arg);
-            //pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) arg);
+            pthread_create(&alarm_sv, NULL, *alarm_for_prot, (void *) arg);
             
             
             arg->command_queue.pop();
             
-            SV_sniff_open = true;
+            arg->openned_threads |= SV_open;
             break;
 
         case SV_close:
-            arg->sv_deinnit();
+            sv_deinnit((void *) arg);
             pthread_create(&loop_break, NULL, *loop_breaker, (void *) arg);
             pthread_detach(sv_receive);
             pthread_detach(loop_break);
+            pthread_detach(alarm_sv);
             
             
             
             arg->command_queue.pop();
             
-            SV_sniff_open = false;
+            arg->openned_threads &= SV_close;
             break;
-        case Window_close:
+        case UI_close:
 
-        
+            arg->openned_threads &= UI_close;
             arg->command_queue.pop();
             
             
-            if(SV_sniff_open){
+            if(arg->openned_threads & SV_open){
                 arg->command_queue.push(SV_close);
                
             }
 
-            arg->command_queue.push(Exit);
             
 
-
-            break;
-        case Exit:
-            program_end = true;
-            
-
-            arg->command_queue.pop();
-            *arg->Errno = 0;
-  
 
             break;
         default:

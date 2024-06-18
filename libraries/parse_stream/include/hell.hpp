@@ -45,6 +45,7 @@ typedef struct SV_PROT_NF_I{
     std::string cnt_str;
     int signal;
     int smt_counter = 0;
+    int last_smt_counter = 0;
     
     
 
@@ -103,7 +104,7 @@ typedef struct SV_PROT_NF_I{
 
 void WildFox(const u_char * ,const pcap_pkthdr * , SV_PROT *);
 
-SV_PROT_NF_I fill(SV_PROT prot,int id_0);
+SV_PROT_NF_I fill_static_info(SV_PROT prot,int id_0);
 
 
 #endif // HELL_H

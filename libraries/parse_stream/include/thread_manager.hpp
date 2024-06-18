@@ -16,12 +16,14 @@
 //--------------------------------------------------
 
 
+
+
 //codes of commands passing to manager functions
 //--------------------------------------------------
-#define SV_open         1000
-#define SV_close        1001
-#define Window_close    1100   
-#define Exit            9999
+#define SV_open         0b0000000000000001
+#define SV_close        0b1111111111111110
+#define UI_close        0b0111111111111111   
+#define UI_open         0b1000000000000000   
 //--------------------------------------------------
 
 
@@ -35,6 +37,7 @@ typedef struct command_manager {
     pthread_mutex_t mutex_QU;
     pthread_cond_t queue_waiter;
     pthread_cond_t stream_checker;
+    int openned_threads = 0;
     short current_mode;
     
     pcap_t *fp;
@@ -43,7 +46,7 @@ typedef struct command_manager {
     public:
     int* Errno = &N;
     
-    private:
+    public:
     std::vector<SV_PROT_NF_I>  DataKrat_T;
     std::vector<std::vector<SV_PROT_D>>  DataFull_T;
     
@@ -51,13 +54,7 @@ typedef struct command_manager {
     public:
     std::vector<SV_PROT_NF_I> * DataKrat = &DataKrat_T;
     std::vector<std::vector<SV_PROT_D>> * DataFull = &DataFull_T;
-    void sv_deinnit(){
-        pthread_mutex_lock(&mutex_CM);
-        DataKrat = &DataKrat_T;
-        DataFull = &DataFull_T;
-        pthread_mutex_unlock(&mutex_CM);
-
-    }
+    
 
 
 

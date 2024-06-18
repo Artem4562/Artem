@@ -72,7 +72,11 @@ void func_rasb(const u_char* pc ,int i ,int len_pc, SV_PROT *package){
 void WildFox(const u_char *pkt_data,const pcap_pkthdr *header, SV_PROT *package){
     int i;
     int len;
-    package->packet_time = header->ts.tv_sec;
+    std::chrono::seconds dur_s(header->ts.tv_sec);
+    std::chrono::microseconds dur_u(header->ts.tv_usec);
+    std::chrono::time_point<std::chrono::system_clock> dt(dur_s+dur_u);
+
+    package->packet_time = dt;
 
     for(i = 1; i <= LEN_ETHERNET_ADDR*2 ;i++){
         if(i <= LEN_ETHERNET_ADDR){
@@ -93,7 +97,7 @@ void WildFox(const u_char *pkt_data,const pcap_pkthdr *header, SV_PROT *package)
 }
 
 
-SV_PROT_NF_I fill(SV_PROT prot,int id_0){
+SV_PROT_NF_I fill_static_info(SV_PROT prot,int id_0){
         SV_PROT_NF_I per;
         for(int i = 0;i<6;i++){
             per.Destination+= std::to_string(prot.Destination[i]);
@@ -107,6 +111,7 @@ SV_PROT_NF_I fill(SV_PROT prot,int id_0){
         per.AppID = prot.AppID;
         per.svID = prot.svID;
         per.id = id_0;
+        per.last_smt_counter = prot.smpCnt;
         return per;
     }
 
