@@ -1,19 +1,13 @@
 #include <iostream>
 #include <string>
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
-#include <sys/uio.h>
-#include <sys/time.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <fstream>
+//#include <sys/uio.h>
 using namespace std;
 //Client side
 int main(int argc, char *argv[])
@@ -40,12 +34,11 @@ int main(int argc, char *argv[])
                          (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
     if(status < 0)
     {
-        cout<<"Error connecting to socket!"<<endl; break;
+        cout<<"Error connecting to socket!"<<endl;
+        return -2;
     }
     cout << "Connected to the server!" << endl;
     int bytesRead, bytesWritten = 0;
-    struct timeval start1, end1;
-    gettimeofday(&start1, NULL);
     while(1)
     {
         cout << ">";
@@ -69,13 +62,10 @@ int main(int argc, char *argv[])
         }
         cout << "Server: " << msg << endl;
     }
-    gettimeofday(&end1, NULL);
     close(clientSd);
     cout << "********Session********" << endl;
     cout << "Bytes written: " << bytesWritten << 
     " Bytes read: " << bytesRead << endl;
-    cout << "Elapsed time: " << (end1.tv_sec- start1.tv_sec) 
-      << " secs" << endl;
     cout << "Connection closed" << endl;
     return 0;    
 }

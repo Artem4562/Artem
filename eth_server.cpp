@@ -73,6 +73,9 @@ int main(int argc, char *argv[])
     gettimeofday(&start1, NULL);
     //also keep track of the amount of data sent as well
     int bytesRead, bytesWritten = 0;
+    
+
+    
     while(1)
     {
         //receive a message from the client (listen)

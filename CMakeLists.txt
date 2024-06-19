@@ -58,4 +58,4 @@ target_link_libraries(united PUBLIC imgui)
 target_link_libraries(united PUBLIC implot)
 
 add_executable(server eth_server.cpp)
-add_executable(client eth_server.cpp)
+add_executable(client eth_client.cpp)
