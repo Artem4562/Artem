@@ -7,6 +7,3 @@
 [submodule "libraries/glfw"]
 	path = libraries/glfw
 	url = https://github.com/glfw/glfw
-[submodule "lvgl"]
-	path = libraries/lvgl
-	url = https://github.com/lvgl/lvgl.git
