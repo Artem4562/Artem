@@ -27,6 +27,6 @@ int main(){
     lv_display_set_buffers(display, buf1, NULL, sizeof(buf1), LV_DISPLAY_RENDER_MODE_PARTIAL);  /*Initialize the display buffer.*/
     
     lv_display_set_flush_cb(display, my_disp_flush);
-
+dsfsdf
     lv_timer_handler();
     }
