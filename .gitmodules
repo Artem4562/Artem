@@ -9,4 +9,4 @@
 	url = https://github.com/glfw/glfw
 [submodule "lvgl"]
 	path = libraries/lvgl
-	url = https://github.com/lvgl/lvgl.git
+	url = https://github.com/lvgl/lvgl
